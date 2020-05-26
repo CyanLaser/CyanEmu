@@ -1,0 +1,146 @@
+
+ -
+General:
+Log warning when there is no descriptor in the scene. Log Error if there is no descriptor but try to spawn a player.
+Fixed a bug allowing you to flip the player controller
+Changed Pickup initialization timing to maybe fix bug
+
+SDK2-Triggers:
+Updated extension for getting custom trigger named to also check if the trigger is actually a custom and not another type.
+Added support OnParticleCollision layer checking
+Fixed OnTimer when ResetOnEnable is unchecked
+
+SDK3-Udon:
+
+
+ -2020.05.14.10.10
+General:
+Massive refactor to split sdk items (Since VRChat removed them from VRC.SDKBase...)
+Rebranded from Trigger Executor to CyanEmu, because it supports more than triggers
+Hid custom components from AddComponent menu
+Added support for adding and removing fake players
+Added better support for "ownership"
+On "master" leave, all previously owned objects are set to the new master
+
+SDK2-Triggers:
+Added custom editor for object sync helper which allows you to change ownership
+Fixed bug where audio sources would still play even if clip name was incorrect
+Added warning when a trigger has a null reference at start, before auto setting it to itself
+Fixed buffer trigger system (will be refactored and extended later to be more than just triggers)
+Log when adding animation sync with object sync objects as this could be unintended
+
+SDK3-Udon:
+Manually handle OnNetworkReady
+Added support for OnPlayerJoined
+Added support for GetPickupHand which fixed support for pickup.IsHeld
+Added partial support for combat system (Not sure on the requirements here yet)
+Added custom editor for udon helper which allows you to change ownership and call exposed custom events
+
+
+ -2020.04.20.12.45
+General:
+Fixed bug with stations not executing OnEnter/OnExit properly. Oops
+
+
+ -2020.04.18.15.30
+General:
+Fixed station code to only "enter" if you are not already in the station and only "exit" if you were in the station. 
+Cleaned up station handler code to split between sdk2 and sdk3 better
+Added new menu option "VRC Prefabs/Apply SDK Modifications" to automatically add the "Execute" button on VRC_Trigger components and to make the sdk control panel scrollable.
+
+Udon:
+Added support for OnStationEntered and OnStationExited. 
+
+
+ -2020.04.10.21.10
+General:
+Fixed bug where logError was logging as default level.
+Force enable post processing, even if component is disabled on reference camera.
+Fixed pickup orientation when object was a child.
+Disabling the executor does not do any logic, ignoring client links (should act as if the executor doesn't exist)
+
+Udon:
+Added all executor objects to the blacklist. Expect nulls when you try to get the player object.
+Removed setting strafe speed with walk speed since we can't actually set strafe speed yet.
+
+Triggers:
+Fixed bug with set layer. How long has this been broken?
+Fixed a bug where it would still try to interact even when the trigger was disabled.
+
+
+ -2020.03.12.01.41
+General:
+Fixed reference camera near plane not clamping the value
+More changes to SetVelocity and overall player locomotion
+Fixed Post Processing throwing errors on play
+
+Udon:
+Support for UseLegacyLocomotion (stutter stepping only and enabled by default for triggers)
+Support for UseAttachedStation
+Support for GetTrackingData (although it's dummy data)
+Support for GetPickupInHand
+
+Triggers:
+Fixed removing player mods not resetting jump
+Fixed removing mods not resetting to room mods
+
+ -2020.03.08.21.15
+Minimum sdk version is now 2020.03.08.09.22 for both sdk2 and sdk3
+General:
+Fixed references to VRC_Station (because it was changed to VRCStation...)
+Changed player controller skinwidth to 0.005 (matching vrchat more)
+Updates to player controller locomotion (mainly for SetVelocity to "work")
+
+Udon:
+Added support for:
+UseStation, ExitStation, GetJumpImpulse, SetJumpImpulse, GetRunSpeed, SetRunSpeed, GetWalkSpeed, SetWalkSpeed, GetPosition, GetVelocity, SetVelocity (not perfect), GetGravityStrength, SetGravityStrength, IsUserInVR, IsGrounded (Not tested)
+
+Triggers:
+Added support for removing player mods (Calling remove mods on any mod will always remove all mods)
+
+
+ -2020.03.02.22.41
+Updated to recent sdk (Minimum version is now 2020.02.28.16.27 for sdk2 and sdk3)
+Added basic Udon Support for Interacts, Pickup Notifications, and Player Teleports. (Still need to implement more api methods) Doesn't care if sdk2 or sdk3 right now.
+Udon SendCustomNetworkedEvent acts as SendCustomEvent
+Added strafing speed mod support since that was ignored before
+Updated player capsule size to be more accurate (1.6 height)
+Created interfaces to separate sdk2 and udon references
+Updated post processing settings retreval
+Removed most editor only references so standalone builds are possible (with some changes to vrchat dll import settings though :eyes:)
+
+ -2019.12.30.10.40
+Changed versioning naming to make it easier for knowing how old it is.
+Fixed references to new sdk dll VRC.SDKCore (Only works on 2018 sdks: 2019.12.21.16.01)
+
+ -v0.11
+Moved everything from the VRCPrefabs namespace to VRCPrefabs.TriggerExecutor which will cause errors if you accessed it externally! (Execute button in trigger editor around line 217) To fix, find all references and add ".TriggerExecutor" after "VRCPrefabs". 
+
+Added simple tooltips for interacts and initial pickup (Still missing for use on pickups)
+Added buttons in settings window to fire OnNetworkReady, OnPlayerJoined, and OnPlayerLeft to all triggers
+Fixed pickup orientation for gun and grip
+Fixed calling Pickup.Drop directly with UI events
+Fixed a bug with oversync detection thinking any global broadcast would over sync.
+Fixed a bug causing timers or key presses to break when they turned off the gameobject or trigger they were on.
+Fixed player mods jump height being too powerful
+Increased player step offset closer to VRChat's (Not perfectly matched yet)
+Fixed Mouse Input / UI Events for 2018 (also cursor is now in the center rather than randomly 20 pixels above the center)
+Fixed bug causing world menus to click in front of the controller menu
+Fixed timing for interact highlight (?)
+
+ -v0.10
+Major code refactors, attempted cleanups, and bug fixes
+Organized settings window
+Added version to settings window
+Added change Run, Crouch, and Prone keys to settings window
+Support for VRC_ObjectSpawn
+More logging in general components
+First set of OverSync detection warnings
+Post Processing is copied over for the player controller
+Fixed player controller speed not starting or stopping fast enough
+Fixed player controller walking on uneven surfaces in awkward ways (it would stick to steep slopes too much)
+Fixed issue where you couldn't interact or pickup an object when a trigger collider blocked the object.
+Mesh Colliders for interaction visualization
+Removed update loop from triggers which would have caused performance issues when you had a lot of enabled triggers.
+Added max recursion depth to prevent unity from locking up.
+Probably other things I'm forgetting
