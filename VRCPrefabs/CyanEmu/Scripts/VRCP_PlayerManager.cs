@@ -195,12 +195,14 @@ namespace VRCPrefabs.CyanEmu
         public static void TakeOwnership(VRCPlayerApi player, GameObject obj)
         {
             VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
-            sync.SetOwner(player.playerId);
+            sync?.SetOwner(player.playerId);
         }
 
         public static bool IsOwner(VRCPlayerApi player, GameObject obj)
         {
-            return true;
+            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
+            int owner = sync == null ? masterID : sync.GetOwner();
+            return owner == player.playerId;
         }
 
         public static float GetRunSpeed(VRCPlayerApi player)
