@@ -84,8 +84,9 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi.ClaimNetworkControl = VRCP_PlayerManager.ClaimNetworkControl;
             VRCPlayerApi._EnablePickups = VRCP_PlayerManager.EnablePickups;
             VRCPlayerApi._Immobilize = VRCP_PlayerManager.Immobilize;
-            VRCPlayerApi._TeleportToOrientation = VRCP_PlayerManager.TeleportToOrientation;
             VRCPlayerApi._TeleportTo = VRCP_PlayerManager.TeleportTo;
+            VRCPlayerApi._TeleportToOrientation = VRCP_PlayerManager.TeleportToOrientation;
+            VRCPlayerApi._TeleportToOrientationLerp = VRCP_PlayerManager.TeleportToOrientationLerp;
             VRCPlayerApi._PlayHapticEventInHand = VRCP_PlayerManager.PlayHapticEventInHand;
             VRCPlayerApi._GetPlayerByGameObject = VRCP_PlayerManager.GetPlayerByGameObject;
             VRCPlayerApi._GetPickupInHand = VRCP_PlayerManager.GetPickupInHand;

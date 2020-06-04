@@ -140,6 +140,12 @@ namespace VRCPrefabs.CyanEmu
             // TODO
         }
 
+        public static void TeleportToOrientationLerp(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation, bool lerp)
+        {
+            // Ignore lerp since there is no networking here
+            TeleportToOrientation(player, position, rotation, orientation);
+        }
+
         public static void TeleportToOrientation(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation)
         {
             if (!player.isLocal)
