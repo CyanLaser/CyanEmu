@@ -60,7 +60,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static void RunProgramAsRPCHook(UdonBehaviour behaviour, NetworkEventTarget target, string eventName)
         {
-			Debug.Log("Sending Network Event! " + eventName);
+			Debug.Log("Sending Network Event! eventName:" + eventName +", obj:" +VRC.Tools.GetGameObjectPath(behaviour.gameObject));
             behaviour.SendCustomEvent(eventName);
         }
 
