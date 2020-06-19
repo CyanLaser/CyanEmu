@@ -16,6 +16,7 @@ namespace VRCPrefabs.CyanEmu
     [AddComponentMenu("")]
     public class VRCP_UdonHelper : VRCP_SyncedObjectHelper, VRCP_Interactable, VRCP_Pickupable, VRCP_StationHandler
     {
+        // TODO: have an array of udon behaviours
         private UdonBehaviour udonbehaviour_;
 
         private static FieldInfo isNetworkReady = typeof(UdonBehaviour).GetField("_isNetworkReady", (BindingFlags.Instance | BindingFlags.NonPublic));
@@ -25,30 +26,12 @@ namespace VRCPrefabs.CyanEmu
         public static void OnInit(UdonBehaviour behaviour, IUdonProgram program)
         {
 			if (behaviour.gameObject.GetComponent<VRCP_UdonHelper>() != null) {
-				Debug.Log("Duplicate Udon Helper!");
+				Debug.Log("Duplicate Udon Helper. This isn't fully supported yet.");
 				return;
 			}
 
             VRCP_UdonHelper helper = behaviour.gameObject.AddComponent<VRCP_UdonHelper>();
             helper.SetUdonbehaviour(behaviour);
-
-            // Taken from UdonBehaviour.cs 
-            // Make sure to update this if that ever changes
-            program = new UdonProgram(
-                program.InstructionSetIdentifier,
-                program.InstructionSetVersion,
-                program.ByteCode,
-                new UdonSecureHeap(program.Heap, UdonManager.Instance),
-                program.EntryPoints,
-                program.SymbolTable,
-                program.SyncMetadataTable
-            );
-
-            programFieldInfo.SetValue(behaviour, program);
-
-            IUdonVM udonVM = udonVMFieldInfo.GetValue(behaviour) as IUdonVM;
-
-            udonVM.LoadProgram(program);
             
             isNetworkReady.SetValue(behaviour, VRCP_CyanEmuMain.IsNetworkReady());
         }
@@ -58,17 +41,24 @@ namespace VRCPrefabs.CyanEmu
             isNetworkReady.SetValue(udonbehaviour_, true);
         }
 
-        public static void RunProgramAsRPCHook(UdonBehaviour behaviour, NetworkEventTarget target, string eventName)
+        public static void SendCustomNetworkEventHook(UdonBehaviour behaviour, NetworkEventTarget target, string eventName)
         {
-			Debug.Log("Sending Network Event! eventName:" + eventName +", obj:" +VRC.Tools.GetGameObjectPath(behaviour.gameObject));
-            behaviour.SendCustomEvent(eventName);
+            if (target == NetworkEventTarget.All || (target == NetworkEventTarget.Owner && Networking.IsOwner(behaviour.gameObject)))
+            {
+			    Debug.Log("Sending Network Event! eventName:" + eventName +", obj:" +VRC.Tools.GetGameObjectPath(behaviour.gameObject));
+                behaviour.SendCustomEvent(eventName);
+            }
+            else
+            {
+                Debug.Log("Did not send custom network event " +eventName +" for object at "+ VRC.Tools.GetGameObjectPath(behaviour.gameObject));
+            }
         }
 
         private void SetUdonbehaviour(UdonBehaviour udonbehaviour)
         {
             if (GetComponents<UdonBehaviour>().Length > 1)
             {
-                this.LogError("Objet contains more than one UdonBehaviour component! " + VRCP_Utils.PathForObject(gameObject));
+                this.LogError("Object contains more than one UdonBehaviour component! " + VRCP_Utils.PathForObject(gameObject));
             }
 
             if (udonbehaviour == null)
@@ -139,12 +129,14 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnStationEnter(VRCStation station)
         {
-            udonbehaviour_.OnStationEntered();
+            VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
+            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerEnterStation);
         }
 
         public void OnStationExit(VRCStation station)
         {
-            udonbehaviour_.OnStationExited();
+            VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
+            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerExitStation);
         }
 
         #endregion

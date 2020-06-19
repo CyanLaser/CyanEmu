@@ -59,7 +59,7 @@ namespace VRCPrefabs.CyanEmu
 
 #if UDON
             VRC.Udon.UdonBehaviour.OnInit = VRCP_UdonHelper.OnInit;
-            VRC.Udon.UdonBehaviour.RunProgramAsRPCHook = VRCP_UdonHelper.RunProgramAsRPCHook;
+            VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = VRCP_UdonHelper.SendCustomNetworkEventHook;
 #endif
 
 #if VRC_SDK_VRCSDK2

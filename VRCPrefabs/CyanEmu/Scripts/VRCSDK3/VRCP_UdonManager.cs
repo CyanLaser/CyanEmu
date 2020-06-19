@@ -61,7 +61,7 @@ namespace VRCPrefabs.CyanEmu
 
             foreach (var udonBehavior in allUdonBehaviours_)
             {
-                udonBehavior.OnPlayerJoined(player);
+                udonBehavior.RunEvent("_onPlayerJoined", ("player", player));
             }
         }
 
@@ -69,7 +69,7 @@ namespace VRCPrefabs.CyanEmu
         {
             foreach (var udonBehavior in allUdonBehaviours_)
             {
-                udonBehavior.OnPlayerLeft(player);
+                udonBehavior.RunEvent("_onPlayerLeft", ("player", player));
             }
         }
 
@@ -78,7 +78,7 @@ namespace VRCPrefabs.CyanEmu
             UdonBehaviour[] udonBehaviours = spawnedObject.GetComponentsInChildren<UdonBehaviour>();
             foreach (var udonBehaviour in udonBehaviours)
             {
-                udonBehaviour.OnSpawn();
+                udonBehaviour.RunEvent("_onSpawn");
             }
         }
 
