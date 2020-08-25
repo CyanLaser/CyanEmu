@@ -222,6 +222,11 @@ namespace VRCPrefabs.CyanEmu
 
             GameObject player = new GameObject("Player");
             player.transform.parent = transform;
+
+            // Force move the player initially to the spawn point to prevent enter triggers at the origin
+            player.transform.position = descriptor_.spawns[0].position;
+            player.transform.rotation = descriptor_.spawns[0].rotation;
+
             playerController_ = player.AddComponent<VRCP_PlayerController>();
             playerController_.Teleport(descriptor_.spawns[0], false);
 
