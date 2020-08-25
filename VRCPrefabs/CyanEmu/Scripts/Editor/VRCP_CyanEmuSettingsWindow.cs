@@ -12,7 +12,7 @@ namespace VRCPrefabs.CyanEmu
 {
     public class VRCP_CyanEmuSettingsWindow : EditorWindow
     {
-        private const string VERSION = "2020.05.14.10:10";
+        private const string VERSION = "2020.08.24.19:58";
 
         // General content
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
