@@ -34,12 +34,23 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializeTrigger(VRC.SDKBase.VRC_Trigger trigger)
         {
+            VRCP_TriggerHelper helper = trigger.gameObject.AddComponent<VRCP_TriggerHelper>();
+            helper.SetTrigger(trigger as VRC_Trigger);
+
             if (trigger.ExecuteTrigger == null)
             {
-                trigger.ExecuteTrigger = new Action<VRC_Trigger.TriggerEvent>(VRCP_TriggerExecutor.ExecuteTrigger);
+                trigger.ExecuteTrigger = new Action<VRC_Trigger.TriggerEvent>(helper.ExecuteTrigger);
+            }
+        }
+
+        public void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
+        {
+            if (!gameObject.activeInHierarchy || !Trigger.enabled) {
+                this.Log("GameObject or trigger component is not active. Not executing trigger");
+                return;
             }
 
-            trigger.gameObject.AddComponent<VRCP_TriggerHelper>().SetTrigger(trigger as VRC_Trigger);
+            VRCP_TriggerExecutor.ExecuteTrigger(trigger);
         }
 
         private void SetTrigger(VRC_Trigger trigger)
