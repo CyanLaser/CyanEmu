@@ -12,7 +12,7 @@ namespace VRCPrefabs.CyanEmu
 {
     public class VRCP_CyanEmuSettingsWindow : EditorWindow
     {
-        private const string VERSION = "2020.08.24.19:58";
+        private const string VERSION_FILE_PATH = "Assets/VRCPrefabs/CyanEmu/version.txt";
 
         // General content
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
@@ -41,10 +41,13 @@ namespace VRCPrefabs.CyanEmu
         private bool showTriggerEventButtons_;
         private bool showPlayerButtons_;
 
+        private string version_;
+
         [MenuItem("VRC Prefabs/CyanEmu/CyanEmu Settings")]
         static void Init()
         {
             VRCP_CyanEmuSettingsWindow window = (VRCP_CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(VRCP_CyanEmuSettingsWindow), false, "CyanEmu Settings");
+            window.version_ = System.IO.File.ReadAllText(VERSION_FILE_PATH).Trim();
             window.Show();
         }
 
@@ -59,7 +62,7 @@ namespace VRCPrefabs.CyanEmu
 
             GUILayout.Label("CyanEmu Settings", EditorStyles.boldLabel);
             AddIndent();
-            GUILayout.Label("Version: " + VERSION);
+            GUILayout.Label("Version: " + version_);
             RemoveIndent();
             EditorGUILayout.Space();
 
