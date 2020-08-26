@@ -46,7 +46,6 @@ namespace VRCPrefabs.CyanEmu
         public void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
         {
             if (!gameObject.activeInHierarchy || !Trigger.enabled) {
-                this.Log("GameObject or trigger component is not active. Not executing trigger");
                 return;
             }
 
@@ -57,7 +56,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (GetComponents<VRC_Trigger>().Length > 1)
             {
-                this.LogError("Objet contains more than one VRC_Trigger component! " + VRCP_Utils.PathForObject(gameObject));
+                this.LogError("Object contains more than one VRC_Trigger component! " + VRCP_Utils.PathForObject(gameObject));
             }
 
             if (trigger == null)
