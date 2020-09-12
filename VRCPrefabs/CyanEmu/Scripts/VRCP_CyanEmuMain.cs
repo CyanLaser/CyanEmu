@@ -73,7 +73,7 @@ namespace VRCPrefabs.CyanEmu
 
             Networking._IsMaster = VRCP_PlayerManager.IsLocalPlayerMaster;
             Networking._LocalPlayer = VRCP_PlayerManager.LocalPlayer;
-            Networking._GetOwner = VRCP_PlayerManager.GetPlayerByGameObject;
+            Networking._GetOwner = VRCP_PlayerManager.GetOwner;
             Networking._IsOwner = VRCP_PlayerManager.IsOwner;
             Networking._SetOwner = VRCP_PlayerManager.TakeOwnership;
             Networking._GetUniqueName = VRC.Tools.GetGameObjectPath;

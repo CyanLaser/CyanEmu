@@ -176,16 +176,25 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRCPlayerApi GetPlayerByGameObject(GameObject obj)
         {
-            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
-            
-            if (sync == null)
+            VRCP_Player player = obj.GetComponentInParent<VRCP_Player>();
+            if (player != null)
             {
-                return players[masterID];
+                return player.player;
             }
-            if (!players.TryGetValue(sync.GetOwner(), out VRCPlayerApi player)) {
+            return null;
+        }
+
+        public static VRCPlayerApi GetOwner(GameObject obj)
+        {
+            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
+
+            int playerID = sync != null ? sync.GetOwner() : masterID;
+
+            if (!players.TryGetValue(playerID, out VRCPlayerApi player))
+            {
                 return null;
             }
-            return  player;
+            return player;
         }
 
         public static VRC_Pickup GetPickupInHand(VRCPlayerApi player, VRC_Pickup.PickupHand hand)
