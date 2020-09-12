@@ -759,11 +759,18 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
+
+#if VRC_SDK_VRCSDK2
+
             VRC_Trigger trig = hit.collider.GetComponent<VRC_Trigger>();
             if (trig != null)
             {
                 trig.ExecuteTriggerType(VRC_Trigger.TriggerType.OnAvatarHit);
             }
+#endif
+#if UDON
+            // TODO fake implementing OnPlayerColliderEnter/Stay/Exit for Udon with this method.
+#endif 
 
             Rigidbody body = hit.collider.attachedRigidbody;
             //dont move the rigidbody if the character is on top of it
