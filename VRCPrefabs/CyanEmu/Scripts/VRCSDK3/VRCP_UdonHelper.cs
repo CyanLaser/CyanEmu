@@ -130,13 +130,13 @@ namespace VRCPrefabs.CyanEmu
         public void OnStationEnter(VRCStation station)
         {
             VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
-            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerEnterStation);
+            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerEnterStation, ("Player", Networking.LocalPlayer));
         }
 
         public void OnStationExit(VRCStation station)
         {
             VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
-            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerExitStation);
+            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerExitStation, ("Player", Networking.LocalPlayer));
         }
 
         #endregion
