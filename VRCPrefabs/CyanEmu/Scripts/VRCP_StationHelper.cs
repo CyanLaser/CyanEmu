@@ -7,7 +7,7 @@ using VRC.SDKBase;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_StationHelper : MonoBehaviour
+    public class VRCP_StationHelper : MonoBehaviour, VRCP_StationHandler
     {
         private VRCStation station_;
         private VRCP_StationHandler[] stationHandlers_;
@@ -138,6 +138,40 @@ namespace VRCPrefabs.CyanEmu
                 return true;
             }
             return false;
+        }
+
+        public void OnStationEnter(VRCStation station)
+        {
+#if VRC_SDK_VRCSDK2
+            VRCSDK2.VRC_Station s = (VRCSDK2.VRC_Station)station;
+            if (s.OnLocalPlayerEnterStation.TriggerObject == null)
+            {
+                return;
+            }
+
+            VRC_Trigger trigger = s.OnLocalPlayerEnterStation.TriggerObject.GetComponent<VRC_Trigger>();
+            if (trigger != null)
+            {
+                trigger.ExecuteCustomTrigger(s.OnLocalPlayerEnterStation.CustomName);
+            }
+#endif
+        }
+
+        public void OnStationExit(VRCStation station)
+        {
+#if VRC_SDK_VRCSDK2
+            VRCSDK2.VRC_Station s = (VRCSDK2.VRC_Station)station;
+            if (s.OnLocalPlayerExitStation.TriggerObject == null)
+            {
+                return;
+            }
+
+            VRC_Trigger trigger = s.OnLocalPlayerExitStation.TriggerObject.GetComponent<VRC_Trigger>();
+            if (trigger != null)
+            {
+                trigger.ExecuteCustomTrigger(s.OnLocalPlayerExitStation.CustomName);
+            }
+#endif
         }
     }
 }
