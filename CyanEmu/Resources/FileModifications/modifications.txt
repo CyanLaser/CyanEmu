@@ -7,7 +7,7 @@ AddAfter 3 4
                 }
                 if (Application.isPlaying && GUILayout.Button("Execute"))
                 {
-                    VRCPrefabs.CyanEmu.VRCP_TriggerExecutor.ExecuteTrigger((target as VRC_Trigger).Triggers[idx]);
+                    VRCPrefabs.CyanEmu.CyanEmuTriggerExecutor.ExecuteTrigger((target as VRC_Trigger).Triggers[idx]);
                 }
 VRCSdkControlPanel.cs
 5
