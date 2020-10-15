@@ -47,13 +47,13 @@ namespace VRCPrefabs.CyanEmu
         static void Init()
         {
             VRCP_CyanEmuSettingsWindow window = (VRCP_CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(VRCP_CyanEmuSettingsWindow), false, "CyanEmu Settings");
-            window.version_ = System.IO.File.ReadAllText(VERSION_FILE_PATH).Trim();
             window.Show();
         }
 
         private void OnEnable()
         {
             settings_ = VRCP_CyanEmuSettings.Instance;
+            version_ = System.IO.File.ReadAllText(VERSION_FILE_PATH).Trim();
         }
 
         void OnGUI()
