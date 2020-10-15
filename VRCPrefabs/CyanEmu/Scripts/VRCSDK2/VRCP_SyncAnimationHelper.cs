@@ -1,7 +1,4 @@
-﻿// VRCP_SyncAnimationHelper
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using UnityEngine;
 using VRCSDK2;
@@ -9,11 +6,11 @@ using VRCSDK2;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_SyncAnimationHelper : MonoBehaviour
+    public class CyanEmuSyncAnimationHelper : MonoBehaviour
     {
         public static void InitializationDelegate(VRC_SyncAnimation obj)
         {
-            obj.gameObject.AddComponent<VRCP_SyncAnimationHelper>().SetSyncAnimation(obj);
+            obj.gameObject.AddComponent<CyanEmuSyncAnimationHelper>().SetSyncAnimation(obj);
         }
 
         private VRC_SyncAnimation sync_;

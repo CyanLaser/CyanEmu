@@ -1,9 +1,6 @@
-﻿// VRCP_Pickupable
-// Created by CyanLaser
-
-namespace VRCPrefabs.CyanEmu
+﻿namespace VRCPrefabs.CyanEmu
 {
-    public interface VRCP_Pickupable
+    public interface ICyanEmuPickupable
     {
         void OnPickup();
         void OnDrop();

@@ -1,13 +1,10 @@
-﻿// VRCP_InputModule
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_InputModule : StandaloneInputModule
+    public class CyanEmuInputModule : StandaloneInputModule
     {
         private CursorLockMode currentLockState_ = CursorLockMode.None;
 
@@ -22,7 +19,7 @@ namespace VRCPrefabs.CyanEmu
 
         protected override void Start()
         {
-            m_InputOverride = GetComponent<VRCP_BaseInput>();
+            m_InputOverride = GetComponent<CyanEmuBaseInput>();
             base.Start();
         }
         
@@ -38,7 +35,7 @@ namespace VRCPrefabs.CyanEmu
         }
     }
 
-    class VRCP_BaseInput : BaseInput
+    class CyanEmuBaseInput : BaseInput
     {
         public bool isMenuOpen;
         private Vector2 lastMousePos_;

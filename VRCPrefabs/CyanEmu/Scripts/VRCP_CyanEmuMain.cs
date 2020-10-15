@@ -1,9 +1,4 @@
-﻿// VRCP_CyanEmuMain
-// Created by CyanLaser
-
-// Check settings under VRC Prefabs/CyanEmu/CyanEmu Settings
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,24 +9,24 @@ using VRC.SDKBase;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_CyanEmuMain : MonoBehaviour
+    public class CyanEmuMain : MonoBehaviour
     {
-        private const string CYAN_EMU_GAMEOBJECT_NAME_ = "__VRCPCyanEmu";
+        private const string CYAN_EMU_GAMEOBJECT_NAME_ = "__CyanEmu";
 
-        private static VRCP_CyanEmuMain instance_;
+        private static CyanEmuMain instance_;
 
-        private VRCP_SDKManager sdkManager_;
+        private ICyanEmuSDKManager sdkManager_;
 
-        private VRCP_CyanEmuSettings settings_;
-        private VRCP_PlayerController playerController_;
+        private CyanEmuSettings settings_;
+        private CyanEmuPlayerController playerController_;
         private VRC_SceneDescriptor descriptor_;
-        private HashSet<VRCP_SyncedObjectHelper> allSyncedObjects_ = new HashSet<VRCP_SyncedObjectHelper>();
+        private HashSet<CyanEmuSyncedObjectHelper> allSyncedObjects_ = new HashSet<CyanEmuSyncedObjectHelper>();
 
         private int spawnedObjectCount_;
         private bool networkReady_;
 
         // TODO save syncables
-        //private VRCP_BufferManager bufferManager_;
+        //private CyanEmuBufferManager bufferManager_;
 
 
         // Dummy method to get the static initializer to be called early on.
@@ -39,92 +34,92 @@ namespace VRCPrefabs.CyanEmu
         static void OnBeforeSceneLoadRuntimeMethod() { }
 
 
-        static VRCP_CyanEmuMain()
+        static CyanEmuMain()
         {
-            if (!VRCP_CyanEmuSettings.Instance.enableCyanEmu || FindObjectOfType<PipelineSaver>() != null || !Application.isPlaying)
+            if (!CyanEmuSettings.Instance.enableCyanEmu || FindObjectOfType<PipelineSaver>() != null || !Application.isPlaying)
             {
                 return;
             }
             
-            VRCStation.Initialize += VRCP_StationHelper.InitializeStations;
-            VRCStation.useStationDelegate = VRCP_StationHelper.UseStation;
-            VRCStation.exitStationDelegate = VRCP_StationHelper.ExitStation;
+            VRCStation.Initialize += CyanEmuStationHelper.InitializeStations;
+            VRCStation.useStationDelegate = CyanEmuStationHelper.UseStation;
+            VRCStation.exitStationDelegate = CyanEmuStationHelper.ExitStation;
 
-            VRC_UiShape.GetEventCamera = VRCP_PlayerController.GetPlayerCamera;
-            VRC_Pickup.OnAwake = VRCP_PickupHelper.InitializePickup;
-            VRC_Pickup.ForceDrop = VRCP_PickupHelper.ForceDrop;
-            VRC_Pickup._GetCurrentPlayer = VRCP_PickupHelper.GetCurrentPlayer;
-            VRC_Pickup._GetPickupHand = VRCP_PickupHelper.GetPickupHand;
-            VRC_ObjectSpawn.Initialize = VRCP_ObjectSpawnHelper.InitializeSpawner;
+            VRC_UiShape.GetEventCamera = CyanEmuPlayerController.GetPlayerCamera;
+            VRC_Pickup.OnAwake = CyanEmuPickupHelper.InitializePickup;
+            VRC_Pickup.ForceDrop = CyanEmuPickupHelper.ForceDrop;
+            VRC_Pickup._GetCurrentPlayer = CyanEmuPickupHelper.GetCurrentPlayer;
+            VRC_Pickup._GetPickupHand = CyanEmuPickupHelper.GetPickupHand;
+            VRC_ObjectSpawn.Initialize = CyanEmuObjectSpawnHelper.InitializeSpawner;
 
 #if UDON
-            VRC.Udon.UdonBehaviour.OnInit = VRCP_UdonHelper.OnInit;
-            VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = VRCP_UdonHelper.SendCustomNetworkEventHook;
+            VRC.Udon.UdonBehaviour.OnInit = CyanEmuUdonHelper.OnInit;
+            VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = CyanEmuUdonHelper.SendCustomNetworkEventHook;
 #endif
 
 #if VRC_SDK_VRCSDK2
-            VRC_Trigger.InitializeTrigger = new Action<VRC_Trigger>(VRCP_TriggerHelper.InitializeTrigger);
-            VRCSDK2.VRC_ObjectSync.Initialize += VRCP_ObjectSyncHelper.InitializeObjectSync;
-            VRCSDK2.VRC_ObjectSync.TeleportHandler += VRCP_ObjectSyncHelper.TeleportTo;
-            VRCSDK2.VRC_ObjectSync.RespawnHandler += VRCP_ObjectSyncHelper.RespawnObject;
-            VRCSDK2.VRC_PlayerMods.Initialize = VRCP_PlayerModsHelper.InitializePlayerMods;
-            VRCSDK2.VRC_SyncAnimation.Initialize = VRCP_SyncAnimationHelper.InitializationDelegate;
+            VRC_Trigger.InitializeTrigger = new Action<VRC_Trigger>(CyanEmuTriggerHelper.InitializeTrigger);
+            VRCSDK2.VRC_ObjectSync.Initialize += CyanEmuObjectSyncHelper.InitializeObjectSync;
+            VRCSDK2.VRC_ObjectSync.TeleportHandler += CyanEmuObjectSyncHelper.TeleportTo;
+            VRCSDK2.VRC_ObjectSync.RespawnHandler += CyanEmuObjectSyncHelper.RespawnObject;
+            VRCSDK2.VRC_PlayerMods.Initialize = CyanEmuPlayerModsHelper.InitializePlayerMods;
+            VRCSDK2.VRC_SyncAnimation.Initialize = CyanEmuSyncAnimationHelper.InitializationDelegate;
 #endif
 
-            Networking._IsMaster = VRCP_PlayerManager.IsLocalPlayerMaster;
-            Networking._LocalPlayer = VRCP_PlayerManager.LocalPlayer;
-            Networking._GetOwner = VRCP_PlayerManager.GetOwner;
-            Networking._IsOwner = VRCP_PlayerManager.IsOwner;
-            Networking._SetOwner = VRCP_PlayerManager.TakeOwnership;
+            Networking._IsMaster = CyanEmuPlayerManager.IsLocalPlayerMaster;
+            Networking._LocalPlayer = CyanEmuPlayerManager.LocalPlayer;
+            Networking._GetOwner = CyanEmuPlayerManager.GetOwner;
+            Networking._IsOwner = CyanEmuPlayerManager.IsOwner;
+            Networking._SetOwner = CyanEmuPlayerManager.TakeOwnership;
             Networking._GetUniqueName = VRC.Tools.GetGameObjectPath;
 
-            VRCPlayerApi._GetPlayerId = VRCP_PlayerManager.GetPlayerID;
-            VRCPlayerApi._GetPlayerById = VRCP_PlayerManager.GetPlayerByID;
-            VRCPlayerApi._isMasterDelegate = VRCP_PlayerManager.IsMaster;
-            VRCPlayerApi.ClaimNetworkControl = VRCP_PlayerManager.ClaimNetworkControl;
-            VRCPlayerApi._EnablePickups = VRCP_PlayerManager.EnablePickups;
-            VRCPlayerApi._Immobilize = VRCP_PlayerManager.Immobilize;
-            VRCPlayerApi._TeleportTo = VRCP_PlayerManager.TeleportTo;
-            VRCPlayerApi._TeleportToOrientation = VRCP_PlayerManager.TeleportToOrientation;
-            VRCPlayerApi._TeleportToOrientationLerp = VRCP_PlayerManager.TeleportToOrientationLerp;
-            VRCPlayerApi._PlayHapticEventInHand = VRCP_PlayerManager.PlayHapticEventInHand;
-            VRCPlayerApi._GetPlayerByGameObject = VRCP_PlayerManager.GetPlayerByGameObject;
-            VRCPlayerApi._GetPickupInHand = VRCP_PlayerManager.GetPickupInHand;
-            VRCPlayerApi._GetTrackingData = VRCP_PlayerManager.GetTrackingData;
-            VRCPlayerApi._GetBoneTransform = VRCP_PlayerManager.GetBoneTransform;
-            VRCPlayerApi._GetBonePosition = VRCP_PlayerManager.GetBonePosition;
-            VRCPlayerApi._GetBoneRotation = VRCP_PlayerManager.GetBoneRotation;
-            VRCPlayerApi._TakeOwnership = VRCP_PlayerManager.TakeOwnership;
-            VRCPlayerApi._IsOwner = VRCP_PlayerManager.IsOwner;
+            VRCPlayerApi._GetPlayerId = CyanEmuPlayerManager.GetPlayerID;
+            VRCPlayerApi._GetPlayerById = CyanEmuPlayerManager.GetPlayerByID;
+            VRCPlayerApi._isMasterDelegate = CyanEmuPlayerManager.IsMaster;
+            VRCPlayerApi.ClaimNetworkControl = CyanEmuPlayerManager.ClaimNetworkControl;
+            VRCPlayerApi._EnablePickups = CyanEmuPlayerManager.EnablePickups;
+            VRCPlayerApi._Immobilize = CyanEmuPlayerManager.Immobilize;
+            VRCPlayerApi._TeleportTo = CyanEmuPlayerManager.TeleportTo;
+            VRCPlayerApi._TeleportToOrientation = CyanEmuPlayerManager.TeleportToOrientation;
+            VRCPlayerApi._TeleportToOrientationLerp = CyanEmuPlayerManager.TeleportToOrientationLerp;
+            VRCPlayerApi._PlayHapticEventInHand = CyanEmuPlayerManager.PlayHapticEventInHand;
+            VRCPlayerApi._GetPlayerByGameObject = CyanEmuPlayerManager.GetPlayerByGameObject;
+            VRCPlayerApi._GetPickupInHand = CyanEmuPlayerManager.GetPickupInHand;
+            VRCPlayerApi._GetTrackingData = CyanEmuPlayerManager.GetTrackingData;
+            VRCPlayerApi._GetBoneTransform = CyanEmuPlayerManager.GetBoneTransform;
+            VRCPlayerApi._GetBonePosition = CyanEmuPlayerManager.GetBonePosition;
+            VRCPlayerApi._GetBoneRotation = CyanEmuPlayerManager.GetBoneRotation;
+            VRCPlayerApi._TakeOwnership = CyanEmuPlayerManager.TakeOwnership;
+            VRCPlayerApi._IsOwner = CyanEmuPlayerManager.IsOwner;
 
             VRCPlayerApi._IsUserInVR = (VRCPlayerApi _) => false; // TODO one day...
-            VRCPlayerApi._GetRunSpeed = VRCP_PlayerManager.GetRunSpeed;
-            VRCPlayerApi._SetRunSpeed = VRCP_PlayerManager.SetRunSpeed;
-            VRCPlayerApi._GetWalkSpeed = VRCP_PlayerManager.GetWalkSpeed;
-            VRCPlayerApi._SetWalkSpeed = VRCP_PlayerManager.SetWalkSpeed;
-            VRCPlayerApi._GetJumpImpulse = VRCP_PlayerManager.GetJumpImpulse;
-            VRCPlayerApi._SetJumpImpulse = VRCP_PlayerManager.SetJumpImpulse;
-            VRCPlayerApi._GetVelocity = VRCP_PlayerManager.GetVelocity;
-            VRCPlayerApi._SetVelocity = VRCP_PlayerManager.SetVelocity;
-            VRCPlayerApi._GetPosition = VRCP_PlayerManager.GetPosition;
-            VRCPlayerApi._GetRotation = VRCP_PlayerManager.GetRotation;
-            VRCPlayerApi._GetGravityStrength = VRCP_PlayerManager.GetGravityStrength;
-            VRCPlayerApi._SetGravityStrength = VRCP_PlayerManager.SetGravityStrength;
-            VRCPlayerApi.IsGrounded = VRCP_PlayerManager.IsGrounded;
-            VRCPlayerApi._UseAttachedStation = VRCP_PlayerManager.UseAttachedStation;
-            VRCPlayerApi._UseLegacyLocomotion = VRCP_PlayerManager.UseLegacyLocomotion;
+            VRCPlayerApi._GetRunSpeed = CyanEmuPlayerManager.GetRunSpeed;
+            VRCPlayerApi._SetRunSpeed = CyanEmuPlayerManager.SetRunSpeed;
+            VRCPlayerApi._GetWalkSpeed = CyanEmuPlayerManager.GetWalkSpeed;
+            VRCPlayerApi._SetWalkSpeed = CyanEmuPlayerManager.SetWalkSpeed;
+            VRCPlayerApi._GetJumpImpulse = CyanEmuPlayerManager.GetJumpImpulse;
+            VRCPlayerApi._SetJumpImpulse = CyanEmuPlayerManager.SetJumpImpulse;
+            VRCPlayerApi._GetVelocity = CyanEmuPlayerManager.GetVelocity;
+            VRCPlayerApi._SetVelocity = CyanEmuPlayerManager.SetVelocity;
+            VRCPlayerApi._GetPosition = CyanEmuPlayerManager.GetPosition;
+            VRCPlayerApi._GetRotation = CyanEmuPlayerManager.GetRotation;
+            VRCPlayerApi._GetGravityStrength = CyanEmuPlayerManager.GetGravityStrength;
+            VRCPlayerApi._SetGravityStrength = CyanEmuPlayerManager.SetGravityStrength;
+            VRCPlayerApi.IsGrounded = CyanEmuPlayerManager.IsGrounded;
+            VRCPlayerApi._UseAttachedStation = CyanEmuPlayerManager.UseAttachedStation;
+            VRCPlayerApi._UseLegacyLocomotion = CyanEmuPlayerManager.UseLegacyLocomotion;
             
-            VRCPlayerApi._CombatSetup = VRCP_CombatSystemHelper.CombatSetup;
-            VRCPlayerApi._CombatSetMaxHitpoints = VRCP_CombatSystemHelper.CombatSetMaxHitpoints;
-            VRCPlayerApi._CombatGetCurrentHitpoints = VRCP_CombatSystemHelper.CombatGetCurrentHitpoints;
-            VRCPlayerApi._CombatSetRespawn = VRCP_CombatSystemHelper.CombatSetRespawn;
-            VRCPlayerApi._CombatSetDamageGraphic = VRCP_CombatSystemHelper.CombatSetDamageGraphic;
-            VRCPlayerApi._CombatGetDestructible = VRCP_CombatSystemHelper.CombatGetDestructible;
-            VRCPlayerApi._CombatSetCurrentHitpoints = VRCP_CombatSystemHelper.CombatSetCurrentHitpoints;
+            VRCPlayerApi._CombatSetup = CyanEmuCombatSystemHelper.CombatSetup;
+            VRCPlayerApi._CombatSetMaxHitpoints = CyanEmuCombatSystemHelper.CombatSetMaxHitpoints;
+            VRCPlayerApi._CombatGetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatGetCurrentHitpoints;
+            VRCPlayerApi._CombatSetRespawn = CyanEmuCombatSystemHelper.CombatSetRespawn;
+            VRCPlayerApi._CombatSetDamageGraphic = CyanEmuCombatSystemHelper.CombatSetDamageGraphic;
+            VRCPlayerApi._CombatGetDestructible = CyanEmuCombatSystemHelper.CombatGetDestructible;
+            VRCPlayerApi._CombatSetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatSetCurrentHitpoints;
 
             GameObject executor = new GameObject(CYAN_EMU_GAMEOBJECT_NAME_);
             executor.tag = "EditorOnly";
-            instance_ = executor.AddComponent<VRCP_CyanEmuMain>();
+            instance_ = executor.AddComponent<CyanEmuMain>();
         }
 
         public static bool HasInstance()
@@ -146,15 +141,15 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
             
-            settings_ = VRCP_CyanEmuSettings.Instance;
+            settings_ = CyanEmuSettings.Instance;
 
             instance_ = this;
             DontDestroyOnLoad(this);
 
 
-            VRCP_InputModule.DisableOtherInputModules();
-            gameObject.AddComponent<VRCP_BaseInput>();
-            gameObject.AddComponent<VRCP_InputModule>();
+            CyanEmuInputModule.DisableOtherInputModules();
+            gameObject.AddComponent<CyanEmuBaseInput>();
+            gameObject.AddComponent<CyanEmuInputModule>();
 
             descriptor_ = FindObjectOfType<VRC_SceneDescriptor>();
             if (descriptor_ == null)
@@ -164,10 +159,10 @@ namespace VRCPrefabs.CyanEmu
 
             // SDK manager class
 #if VRC_SDK_VRCSDK2
-            sdkManager_ = gameObject.AddComponent<VRCP_TriggerExecutor>();
+            sdkManager_ = gameObject.AddComponent<CyanEmuTriggerExecutor>();
 #endif
 #if UDON
-            sdkManager_ = gameObject.AddComponent<VRCP_UdonManager>();
+            sdkManager_ = gameObject.AddComponent<CyanEmuUdonManager>();
 #endif
 
             StartCoroutine(OnNetworkReady());
@@ -196,7 +191,7 @@ namespace VRCPrefabs.CyanEmu
             yield return new WaitForSeconds(0.1f);
 
             networkReady_ = true;
-            VRCP_PlayerManager.OnNetworkReady();
+            CyanEmuPlayerManager.OnNetworkReady();
         }
 
 
@@ -227,11 +222,11 @@ namespace VRCPrefabs.CyanEmu
             player.transform.position = descriptor_.spawns[0].position;
             player.transform.rotation = descriptor_.spawns[0].rotation;
 
-            playerController_ = player.AddComponent<VRCP_PlayerController>();
+            playerController_ = player.AddComponent<CyanEmuPlayerController>();
             playerController_.Teleport(descriptor_.spawns[0], false);
 
-            VRCP_Player playerObj = player.AddComponent<VRCP_Player>();
-            playerObj.SetPlayer(VRCP_PlayerManager.CreateNewPlayer(true, player));
+            CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
+            playerObj.SetPlayer(CyanEmuPlayerManager.CreateNewPlayer(true, player));
         }
 
         private void SpawnRemotePlayer()
@@ -252,13 +247,13 @@ namespace VRCPrefabs.CyanEmu
             playerVis.layer = player.layer;
             playerVis.transform.SetParent(player.transform, false);
 
-            VRCP_Player playerObj = player.AddComponent<VRCP_Player>();
-            playerObj.SetPlayer(VRCP_PlayerManager.CreateNewPlayer(false, player));
+            CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
+            playerObj.SetPlayer(CyanEmuPlayerManager.CreateNewPlayer(false, player));
         }
 
         public static void RemovePlayer(VRCPlayerApi player)
         {
-            VRCP_PlayerManager.RemovePlayer(player);
+            CyanEmuPlayerManager.RemovePlayer(player);
             Destroy(player.gameObject);
         }
 
@@ -279,12 +274,12 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnPlayerLeft(VRCPlayerApi player)
         {
-            int masterID = VRCP_PlayerManager.GetMasterID();
+            int masterID = CyanEmuPlayerManager.GetMasterID();
 
-            foreach (VRCP_SyncedObjectHelper sync in allSyncedObjects_)
+            foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
-                VRCP_Syncable syncable = sync.GetComponent<VRCP_Syncable>();
-                Debug.Assert(syncable != null, "VRCP_Main:OnPlayerLeft expected syncable component.");
+                ICyanEmuSyncable syncable = sync.GetComponent<ICyanEmuSyncable>();
+                Debug.Assert(syncable != null, "CyanEmuMain:OnPlayerLeft expected syncable component.");
                 if (syncable.GetOwner() == player.playerId)
                 {
                     syncable.SetOwner(masterID);
@@ -304,7 +299,7 @@ namespace VRCPrefabs.CyanEmu
             GameObject spawnedObject = Instantiate(prefab, position, rotation) as GameObject;
             spawnedObject.name = prefab.name + " (Dynamic Clone " + instance_.spawnedObjectCount_ + ")";
             spawnedObject.SetActive(true);
-            spawnedObject.AddComponent<VRCP_SpawnHelper>();
+            spawnedObject.AddComponent<CyanEmuSpawnHelper>();
             ++instance_.spawnedObjectCount_;
 
             instance_.OnSpawnedObject(spawnedObject);
@@ -329,7 +324,7 @@ namespace VRCPrefabs.CyanEmu
                 playerController_.Teleport(descriptor_.spawns[0], false);
             }
 
-            foreach (VRCP_SyncedObjectHelper sync in allSyncedObjects_)
+            foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
                 if (sync.transform.position.y < descriptor_.RespawnHeightY)
                 {
@@ -345,7 +340,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        public static void AddSyncedObject(VRCP_SyncedObjectHelper sync)
+        public static void AddSyncedObject(CyanEmuSyncedObjectHelper sync)
         {
             if (instance_ == null)
             {
@@ -355,7 +350,7 @@ namespace VRCPrefabs.CyanEmu
             instance_.allSyncedObjects_.Add(sync);
         }
 
-        public static void RemoveSyncedObject(VRCP_SyncedObjectHelper sync)
+        public static void RemoveSyncedObject(CyanEmuSyncedObjectHelper sync)
         {
             if (instance_ == null)
             {

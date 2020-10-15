@@ -1,7 +1,4 @@
-﻿// VRCP_ObjectSyncHelper
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using UnityEngine;
 using VRCSDK2;
@@ -9,25 +6,25 @@ using VRCSDK2;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_ObjectSyncHelper : VRCP_SyncedObjectHelper
+    public class CyanEmuObjectSyncHelper : CyanEmuSyncedObjectHelper
     {
         private VRC_ObjectSync sync_;
-        private VRCP_PickupHelper pickupHelper_;
+        private CyanEmuPickupHelper pickupHelper_;
 
 
         public static void InitializeObjectSync(VRC_ObjectSync sync)
         {
-            sync.gameObject.AddComponent<VRCP_ObjectSyncHelper>();
+            sync.gameObject.AddComponent<CyanEmuObjectSyncHelper>();
         }
 
         public static void TeleportTo(VRC_ObjectSync obj, Vector3 position, Quaternion rotation)
         {
-            obj.GetComponent<VRCP_ObjectSyncHelper>().TeleportTo(position, rotation);
+            obj.GetComponent<CyanEmuObjectSyncHelper>().TeleportTo(position, rotation);
         }
 
         public static void RespawnObject(VRC_ObjectSync sync)
         {
-            sync.GetComponent<VRCP_ObjectSyncHelper>().Respawn();
+            sync.GetComponent<CyanEmuObjectSyncHelper>().Respawn();
         }
 
         protected override void Awake()
@@ -35,7 +32,7 @@ namespace VRCPrefabs.CyanEmu
             base.Awake();
 
             sync_ = GetComponent<VRC_ObjectSync>();
-            pickupHelper_ = GetComponent<VRCP_PickupHelper>();
+            pickupHelper_ = GetComponent<CyanEmuPickupHelper>();
 
             if ((GetComponent<Animator>() != null || GetComponent<Animation>() != null) && GetComponent<VRC_SyncAnimation>() == null)
             {

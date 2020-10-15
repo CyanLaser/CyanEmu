@@ -1,7 +1,4 @@
-﻿// VRCP_CyanEmuSettingsWindow
-// Created by CyanLaser
-
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;
@@ -10,7 +7,7 @@ using System.Collections.Generic;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_CyanEmuSettingsWindow : EditorWindow
+    public class CyanEmuSettingsWindow : EditorWindow
     {
         private const string VERSION_FILE_PATH = "Assets/VRCPrefabs/CyanEmu/version.txt";
 
@@ -34,7 +31,7 @@ namespace VRCPrefabs.CyanEmu
 
 
 
-        private VRCP_CyanEmuSettings settings_;
+        private CyanEmuSettings settings_;
         private Vector2 scrollPosition_;
         private bool showPlayerControllerSettings_;
         private bool showBufferedTriggerSettings_;
@@ -46,13 +43,13 @@ namespace VRCPrefabs.CyanEmu
         [MenuItem("VRC Prefabs/CyanEmu/CyanEmu Settings")]
         static void Init()
         {
-            VRCP_CyanEmuSettingsWindow window = (VRCP_CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(VRCP_CyanEmuSettingsWindow), false, "CyanEmu Settings");
+            CyanEmuSettingsWindow window = (CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(CyanEmuSettingsWindow), false, "CyanEmu Settings");
             window.Show();
         }
 
         private void OnEnable()
         {
-            settings_ = VRCP_CyanEmuSettings.Instance;
+            settings_ = CyanEmuSettings.Instance;
             version_ = System.IO.File.ReadAllText(VERSION_FILE_PATH).Trim();
         }
 
@@ -68,7 +65,7 @@ namespace VRCPrefabs.CyanEmu
 
             EditorGUI.BeginChangeCheck();
             
-            if (settings_.enableCyanEmu && Application.isPlaying && !VRCP_CyanEmuMain.HasInstance())
+            if (settings_.enableCyanEmu && Application.isPlaying && !CyanEmuMain.HasInstance())
             {
                 EditorGUILayout.HelpBox("Please exit and reenter play mode to enable CyanEmu!", MessageType.Warning);
             }
@@ -95,7 +92,7 @@ namespace VRCPrefabs.CyanEmu
 
             if (EditorGUI.EndChangeCheck())
             {
-                VRCP_CyanEmuSettings.SaveSettings(settings_);
+                CyanEmuSettings.SaveSettings(settings_);
             }
         }
 
@@ -132,20 +129,20 @@ namespace VRCPrefabs.CyanEmu
 
                 settings_.replayBufferedTriggers = EditorGUILayout.Toggle(replayBufferedTriggerToggleGuiContent, settings_.replayBufferedTriggers);
 
-                EditorGUI.BeginDisabledGroup(VRCP_BufferManager.instance == null || !Application.isPlaying);
+                EditorGUI.BeginDisabledGroup(CyanEmuBufferManager.instance == null || !Application.isPlaying);
 
                 if (GUILayout.Button("Save Current Buffered Triggers"))
                 {
-                    VRCP_BufferManager.SaveBufferedTriggersToFile();
+                    CyanEmuBufferManager.SaveBufferedTriggersToFile();
                 }
 
                 EditorGUI.EndDisabledGroup();
 
-                EditorGUI.BeginDisabledGroup(!VRCP_BufferManager.SceneContainsBufferedTriggers());
+                EditorGUI.BeginDisabledGroup(!CyanEmuBufferManager.SceneContainsBufferedTriggers());
 
                 if (GUILayout.Button("Clear Buffered Triggers"))
                 {
-                    VRCP_BufferManager.DeleteBufferedTriggerFile();
+                    CyanEmuBufferManager.DeleteBufferedTriggerFile();
                 }
 
                 EditorGUI.EndDisabledGroup();
@@ -162,14 +159,14 @@ namespace VRCPrefabs.CyanEmu
             {
                 AddIndent();
 
-                EditorGUI.BeginDisabledGroup(!VRCP_CyanEmuMain.HasInstance() || !Application.isPlaying);
+                EditorGUI.BeginDisabledGroup(!CyanEmuMain.HasInstance() || !Application.isPlaying);
 
                 /*
-                EditorGUI.BeginDisabledGroup(VRCP_PlayerController.instance != null);
+                EditorGUI.BeginDisabledGroup(CyanEmuPlayerController.instance != null);
 
                 if (GUILayout.Button("Spawn Local Player"))
                 {
-                    VRCP_Main.SpawnPlayer(true);
+                    CyanEmuMain.SpawnPlayer(true);
                 }
 
                 EditorGUI.EndDisabledGroup();
@@ -177,7 +174,7 @@ namespace VRCPrefabs.CyanEmu
 
                 if (GUILayout.Button("Spawn Remote Player"))
                 {
-                    VRCP_CyanEmuMain.SpawnPlayer(false);
+                    CyanEmuMain.SpawnPlayer(false);
                 }
 
                 List<VRCPlayerApi> playersToRemove = new List<VRCPlayerApi>();
@@ -202,7 +199,7 @@ namespace VRCPrefabs.CyanEmu
 
                 for (int i = playersToRemove.Count -1; i >= 0; --i)
                 {
-                    VRCP_CyanEmuMain.RemovePlayer(playersToRemove[i]);
+                    CyanEmuMain.RemovePlayer(playersToRemove[i]);
                 }
                 playersToRemove.Clear();
 
@@ -218,7 +215,7 @@ namespace VRCPrefabs.CyanEmu
             /*
             if (GUILayout.Button("Read Input"))
             {
-                VRCP_InputManager.SetupInputMap();
+                CyanEmuInputManager.SetupInputMap();
             }
             */
         }

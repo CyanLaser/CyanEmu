@@ -1,7 +1,4 @@
-﻿// VRCP_TriggerHelper
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using System;
 using System.Collections.Generic;
@@ -11,7 +8,7 @@ using VRCSDK2;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_TriggerHelper : MonoBehaviour, VRCP_Interactable, VRCP_Pickupable, VRCP_StationHandler
+    public class CyanEmuTriggerHelper : MonoBehaviour, ICyanEmuInteractable, ICyanEmuPickupable, ICyanEmuStationHandler
     {
         private static readonly int PLAYER_LAYER = 1 << 9; // Player Layer
 
@@ -34,7 +31,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializeTrigger(VRC.SDKBase.VRC_Trigger trigger)
         {
-            VRCP_TriggerHelper helper = trigger.gameObject.AddComponent<VRCP_TriggerHelper>();
+            CyanEmuTriggerHelper helper = trigger.gameObject.AddComponent<CyanEmuTriggerHelper>();
             helper.SetTrigger(trigger as VRC_Trigger);
 
             if (trigger.ExecuteTrigger == null)
@@ -49,14 +46,14 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            VRCP_TriggerExecutor.ExecuteTrigger(trigger);
+            CyanEmuTriggerExecutor.ExecuteTrigger(trigger);
         }
 
         private void SetTrigger(VRC_Trigger trigger)
         {
             if (GetComponents<VRC_Trigger>().Length > 1)
             {
-                this.LogError("Object contains more than one VRC_Trigger component! " + VRCP_Utils.PathForObject(gameObject));
+                this.LogError("Object contains more than one VRC_Trigger component! " + CyanEmuUtils.PathForObject(gameObject));
             }
 
             if (trigger == null)
@@ -68,7 +65,7 @@ namespace VRCPrefabs.CyanEmu
 
             Trigger = trigger;
 
-            VRCP_TriggerExecutor.AddTrigger(Trigger);
+            CyanEmuTriggerExecutor.AddTrigger(Trigger);
 
             hasObjectSync = GetComponent<VRC_ObjectSync>();
 
@@ -348,12 +345,12 @@ namespace VRCPrefabs.CyanEmu
 
             if (onKeyTriggers.Count > 0)
             {
-                VRCP_TriggerExecutor.AddKeyTrigger(this);
+                CyanEmuTriggerExecutor.AddKeyTrigger(this);
             }
 
             if (timerTriggers.Count > 0)
             {
-                VRCP_TriggerExecutor.AddTimerTrigger(this);
+                CyanEmuTriggerExecutor.AddTimerTrigger(this);
             }
         }
 
@@ -367,18 +364,18 @@ namespace VRCPrefabs.CyanEmu
 
             if (onKeyTriggers.Count > 0)
             {
-                VRCP_TriggerExecutor.RemoveKeyTrigger(this);
+                CyanEmuTriggerExecutor.RemoveKeyTrigger(this);
             }
 
             if (timerTriggers.Count > 0)
             {
-                VRCP_TriggerExecutor.RemoveTimerTrigger(this);
+                CyanEmuTriggerExecutor.RemoveTimerTrigger(this);
             }
         }
 
         private void OnDestroy()
         {
-            VRCP_TriggerExecutor.RemoveTrigger(Trigger);
+            CyanEmuTriggerExecutor.RemoveTrigger(Trigger);
         }
 
 #region VRCP_Interactable

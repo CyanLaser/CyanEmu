@@ -1,7 +1,4 @@
-﻿// VRCP_HighlightManager
-// Created by CyanLaser
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -9,21 +6,21 @@ using UnityEngine.Rendering;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_HighlightManager : MonoBehaviour
+    public class CyanEmuHighlightManager : MonoBehaviour
     {
-        private HashSet<VRCP_Interactable> objectsToHighlight_ = new HashSet<VRCP_Interactable>();
+        private HashSet<ICyanEmuInteractable> objectsToHighlight_ = new HashSet<ICyanEmuInteractable>();
         private CommandBuffer glowBuffer_;
         private Camera camera_;
         private Material colorMat_;
         private Material glowMat_;
         private int tempShaderID_;
 
-        public void AddInteractable(VRCP_Interactable interact)
+        public void AddInteractable(ICyanEmuInteractable interact)
         {
             objectsToHighlight_.Add(interact);
         }
 
-        public void RemoveInteractable(VRCP_Interactable interact)
+        public void RemoveInteractable(ICyanEmuInteractable interact)
         {
             objectsToHighlight_.Remove(interact);
         }
@@ -66,7 +63,7 @@ namespace VRCPrefabs.CyanEmu
 
             glowBuffer_.ClearRenderTarget(true, true, Color.black);
 
-            foreach (VRCP_Interactable interact in objectsToHighlight_)
+            foreach (ICyanEmuInteractable interact in objectsToHighlight_)
             {
                 MonoBehaviour behaviour = (MonoBehaviour)interact;
 

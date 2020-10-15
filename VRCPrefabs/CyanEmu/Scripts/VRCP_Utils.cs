@@ -1,13 +1,10 @@
-﻿// VRCP_Utils
-// Created by CyanLaser
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public static class VRCP_Utils
+    public static class CyanEmuUtils
     {
         public static string GetPaths(GameObject[] objs)
         {
@@ -83,7 +80,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static void Log(this object obj, string message)
         {
-            if (VRCP_CyanEmuSettings.Instance.displayLogs)
+            if (CyanEmuSettings.Instance.displayLogs)
             {
                 Log(obj.GetType().Name, message);
             }

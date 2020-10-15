@@ -1,14 +1,11 @@
-﻿// VRCP_FileModifier
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO;
 using UnityEditor;
 using System;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_FileModifier
+    public class CyanEmuFileModifier
     {
         const string MODIFICATIONS_FILE_PATH = "Assets/VRCPrefabs/CyanEmu/Resources/FileModifications/modifications.txt";
         const string VRCSDK_PATH = "Assets/VRCSDK";

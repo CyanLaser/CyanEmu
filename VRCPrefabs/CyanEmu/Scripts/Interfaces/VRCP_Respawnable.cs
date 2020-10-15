@@ -1,9 +1,6 @@
-﻿// VRCP_Respawnable
-// Created by CyanLaser
-
-namespace VRCPrefabs.CyanEmu
+﻿namespace VRCPrefabs.CyanEmu
 {
-    public interface VRCP_Respawnable
+    public interface ICyanEmuRespawnable
     {
         void Respawn();
     }

@@ -1,12 +1,9 @@
-﻿// VRCP_ObjectHighlight
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_ObjectHighlight : MonoBehaviour
+    public class CyanEmuObjectHighlight : MonoBehaviour
     {
         private static Material highlightMaterial_;
 
@@ -23,12 +20,12 @@ namespace VRCPrefabs.CyanEmu
             return highlightMaterial_;
         }
 
-        public static VRCP_ObjectHighlight CreateInteractHelper()
+        public static CyanEmuObjectHighlight CreateInteractHelper()
         {
             GameObject interact = GameObject.CreatePrimitive(PrimitiveType.Cube);
             interact.name = "Highlight";
             DestroyImmediate(interact.GetComponent<BoxCollider>());
-            VRCP_ObjectHighlight highlight = interact.AddComponent<VRCP_ObjectHighlight>();
+            CyanEmuObjectHighlight highlight = interact.AddComponent<CyanEmuObjectHighlight>();
             highlight.interactHighlight_ = interact.GetComponent<Renderer>();
             highlight.interactHighlight_.sharedMaterial = GetHighlightMaterial();
             return highlight;

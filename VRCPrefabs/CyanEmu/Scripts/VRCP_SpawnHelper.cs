@@ -1,12 +1,9 @@
-﻿// VRCP_SpawnHelper
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_SpawnHelper : MonoBehaviour
+    public class CyanEmuSpawnHelper : MonoBehaviour
     {
         public void ReapObject()
         {

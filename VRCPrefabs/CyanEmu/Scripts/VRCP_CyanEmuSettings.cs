@@ -1,7 +1,4 @@
-﻿// VRCP_CyanEmuSettings
-// Created by CyanLaser
-
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 #endif
 
@@ -10,10 +7,10 @@ using UnityEngine.Serialization;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_CyanEmuSettings
+    public class CyanEmuSettings
     {
-        private static VRCP_CyanEmuSettings instance_;
-        public static VRCP_CyanEmuSettings Instance
+        private static CyanEmuSettings instance_;
+        public static CyanEmuSettings Instance
         {
             get
             {
@@ -43,16 +40,16 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
 
 #if UNITY_EDITOR
-        private static VRCP_CyanEmuSettings LoadSettings()
+        private static CyanEmuSettings LoadSettings()
         {
-            VRCP_CyanEmuSettings settings = new VRCP_CyanEmuSettings();
+            CyanEmuSettings settings = new CyanEmuSettings();
 
             string data = EditorPrefs.GetString(CYAN_EMU_SETTINGS_PREFS_STRING, JsonUtility.ToJson(settings, false));
             JsonUtility.FromJsonOverwrite(data, settings);
             return settings;
         }
 
-        public static void SaveSettings(VRCP_CyanEmuSettings settings)
+        public static void SaveSettings(CyanEmuSettings settings)
         {
             string data = JsonUtility.ToJson(settings, false);
             EditorPrefs.SetString(CYAN_EMU_SETTINGS_PREFS_STRING, data);

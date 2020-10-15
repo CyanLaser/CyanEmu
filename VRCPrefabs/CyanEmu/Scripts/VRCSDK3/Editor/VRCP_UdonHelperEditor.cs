@@ -1,7 +1,4 @@
-﻿// VRCP_UdonHelperEditor
-// Created by CyanLaser
-
-#if UDON
+﻿#if UDON
 
 using UnityEngine;
 using UnityEditor;
@@ -9,8 +6,8 @@ using VRC.Udon;
 
 namespace VRCPrefabs.CyanEmu
 {
-    [CustomEditor(typeof(VRCP_UdonHelper))]
-    public class VRCP_UdonHelperEditor : Editor
+    [CustomEditor(typeof(CyanEmuUdonHelper))]
+    public class CyanEmuUdonHelperEditor : Editor
     {
         private bool expand_ = false;
 
@@ -18,9 +15,9 @@ namespace VRCPrefabs.CyanEmu
         {
             base.OnInspectorGUI();
 
-            VRCP_UdonHelper udonHelper = target as VRCP_UdonHelper;
+            CyanEmuUdonHelper udonHelper = target as CyanEmuUdonHelper;
 
-            VRCP_SyncableEditorHelper.DisplaySyncOptions(udonHelper);
+            CyanEmuSyncableEditorHelper.DisplaySyncOptions(udonHelper);
 
             UdonBehaviour udonBehaviour = udonHelper.GetUdonBehaviour();
 

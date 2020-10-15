@@ -1,15 +1,12 @@
-﻿// VRCP_SyncableEditorHelper
-// Created by CyanLaser
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public static class VRCP_SyncableEditorHelper
+    public static class CyanEmuSyncableEditorHelper
     {
-        public static void DisplaySyncOptions(VRCP_Syncable syncable)
+        public static void DisplaySyncOptions(ICyanEmuSyncable syncable)
         {
             int currentOwner = 0;
             List<VRCPlayerApi> players = VRCPlayerApi.AllPlayers;

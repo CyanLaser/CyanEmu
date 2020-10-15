@@ -1,9 +1,6 @@
-﻿// VRCP_Interactable
-// Created by CyanLaser
-
-namespace VRCPrefabs.CyanEmu
+﻿namespace VRCPrefabs.CyanEmu
 {
-    public interface VRCP_Interactable {
+    public interface ICyanEmuInteractable {
         bool CanInteract(float distance);
         string GetInteractText();
         void Interact();

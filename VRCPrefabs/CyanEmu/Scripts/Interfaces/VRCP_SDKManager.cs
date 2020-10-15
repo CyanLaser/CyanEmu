@@ -1,12 +1,9 @@
-﻿// VRCP_SDKManager
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public interface VRCP_SDKManager
+    public interface ICyanEmuSDKManager
     {
         void OnNetworkReady();
         void OnPlayerJoined(VRCPlayerApi player);

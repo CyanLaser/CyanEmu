@@ -1,14 +1,11 @@
-﻿// VRCP_TriggerExtensions
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public static class VRCP_TriggerExtensions
+    public static class CyanEmuTriggerExtensions
     {
         public static VRC_Trigger.TriggerEvent GetCustomNamed(this VRC_Trigger trigger, string name)
         {
@@ -45,11 +42,11 @@ namespace VRCPrefabs.CyanEmu
             string path = "null";
             int eventIndex = -1;
 
-            VRC_Trigger trig = VRCP_TriggerExecutor.GetTriggerForEvent(trigEvent);
+            VRC_Trigger trig = CyanEmuTriggerExecutor.GetTriggerForEvent(trigEvent);
             if (trig != null)
             {
                 eventIndex = trig.GetTriggerEventIndex(trigEvent);
-                path = VRCP_Utils.PathForObject(trig.gameObject);
+                path = CyanEmuUtils.PathForObject(trig.gameObject);
             }
 
             return string.Format(
@@ -68,7 +65,7 @@ namespace VRCPrefabs.CyanEmu
             return string.Format(
                 "type: {0}, on object: {1} Params: [{2}], [{3}], [{4}f], [\"{5}\"], bytes: [{6}]",
                 triggerEvent.EventType,
-                VRCP_Utils.PathForObject(obj),
+                CyanEmuUtils.PathForObject(obj),
                 triggerEvent.ParameterBoolOp,
                 triggerEvent.ParameterInt,
                 triggerEvent.ParameterFloat,

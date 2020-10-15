@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_InputManager : MonoBehaviour
+    public class CyanEmuInputManager : MonoBehaviour
     {
         // TODO update input manager asset to add needed axes and remove gravity from horizontal and vertical axes
 		// https://docs.unity3d.com/2018.4/Documentation/Manual/xr_input.html

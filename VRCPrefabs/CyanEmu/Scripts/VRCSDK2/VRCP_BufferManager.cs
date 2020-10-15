@@ -1,7 +1,4 @@
-﻿// VRCP_BufferManager
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using System.Text;
 using System.Collections.Generic;
@@ -13,7 +10,7 @@ using System;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_BufferManager
+    public class CyanEmuBufferManager
     {
         // TODO redo everything to be syncable events instead of simply trigger buffering
 
@@ -28,11 +25,11 @@ namespace VRCPrefabs.CyanEmu
             
         //private const int VERSION = 3;
 
-        public static VRCP_BufferManager instance;
+        public static CyanEmuBufferManager instance;
 
         private LinkedList<VRC_EventHandler.EventInfo> eventList_;
 
-        public VRCP_BufferManager()
+        public CyanEmuBufferManager()
         {
             instance = this;
             eventList_ = new LinkedList<VRC_EventHandler.EventInfo>();
@@ -84,11 +81,11 @@ namespace VRCPrefabs.CyanEmu
 
             foreach (var eventInfo in eventList_)
             {
-                VRCP_TriggerExecutor.ExecuteEvent(eventInfo, null);
+                CyanEmuTriggerExecutor.ExecuteEvent(eventInfo, null);
             }
         }
 
-        const string filePath = "Assets/VRCPrefabs/TriggerExecutor/Data/BufferedEvents";
+        const string filePath = "Assets/VRCPrefabs/CyanEmu/Data/BufferedEvents";
         public static string GetBufferedTriggerFilePath()
         {
             string fileName = SceneManager.GetActiveScene().path.Replace(".unity", "").Replace('/', '_') + ".txt";

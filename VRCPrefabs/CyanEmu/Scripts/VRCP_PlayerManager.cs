@@ -1,13 +1,10 @@
-﻿// VRCP_PlayerManager
-// Created by CyanLaser
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_PlayerManager
+    public class CyanEmuPlayerManager
     {
         // Player Manager system
         private static int masterID = -1;
@@ -44,7 +41,7 @@ namespace VRCPrefabs.CyanEmu
 
             if (networkReady)
             {
-                VRCP_CyanEmuMain.PlayerJoined(player);
+                CyanEmuMain.PlayerJoined(player);
             }
             else
             {
@@ -57,7 +54,7 @@ namespace VRCPrefabs.CyanEmu
             networkReady = true;
             foreach (var player in waitingPlayers)
             {
-                VRCP_CyanEmuMain.PlayerJoined(player);
+                CyanEmuMain.PlayerJoined(player);
             }
 
             waitingPlayers.Clear();
@@ -97,7 +94,7 @@ namespace VRCPrefabs.CyanEmu
                 }
             }
 
-            VRCP_CyanEmuMain.PlayerLeft(player);
+            CyanEmuMain.PlayerLeft(player);
         }
 
         public static int GetMasterID()
@@ -176,7 +173,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRCPlayerApi GetPlayerByGameObject(GameObject obj)
         {
-            VRCP_Player player = obj.GetComponentInParent<VRCP_Player>();
+            CyanEmuPlayer player = obj.GetComponentInParent<CyanEmuPlayer>();
             if (player != null)
             {
                 return player.player;
@@ -186,7 +183,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRCPlayerApi GetOwner(GameObject obj)
         {
-            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
+            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
 
             int playerID = sync != null ? sync.GetOwner() : masterID;
 
@@ -209,13 +206,13 @@ namespace VRCPrefabs.CyanEmu
 
         public static void TakeOwnership(VRCPlayerApi player, GameObject obj)
         {
-            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
+            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
             sync?.SetOwner(player.playerId);
         }
 
         public static bool IsOwner(VRCPlayerApi player, GameObject obj)
         {
-            VRCP_Syncable sync = obj.GetComponent<VRCP_Syncable>();
+            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
             int owner = sync == null ? masterID : sync.GetOwner();
             return owner == player.playerId;
         }
@@ -341,7 +338,7 @@ namespace VRCPrefabs.CyanEmu
             // This is dumb
             obj = VRC.Udon.UdonManager.Instance.currentlyExecuting.gameObject;
 #endif            
-            obj?.GetComponent<VRCP_StationHelper>()?.UseStation();
+            obj?.GetComponent<CyanEmuStationHelper>()?.UseStation();
         }
 
         public static void UseLegacyLocomotion(VRCPlayerApi player)

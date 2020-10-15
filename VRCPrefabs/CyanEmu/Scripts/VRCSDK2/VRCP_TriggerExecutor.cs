@@ -1,7 +1,4 @@
-﻿// VRCP_TriggerExecutor
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using System.Collections;
 using System.Collections.Generic;
@@ -13,26 +10,26 @@ using System.Reflection;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_TriggerExecutor : MonoBehaviour, VRCP_SDKManager
+    public class CyanEmuTriggerExecutor : MonoBehaviour, ICyanEmuSDKManager
     {
         private const int MAX_EXECUTION_DEPTH_ = 100;
 
-        private static VRCP_TriggerExecutor instance_;
+        private static CyanEmuTriggerExecutor instance_;
 
         // Used for over broadcast detection
         private static bool isTriggerGlobalBroadcast_ = false;
         private static int executionDepth_ = 0;
 
-        private VRCP_CyanEmuSettings settings_;
-        private VRCP_PlayerController playerController_;
+        private CyanEmuSettings settings_;
+        private CyanEmuPlayerController playerController_;
         private VRC_SceneDescriptor descriptor_;
-        private VRCP_BufferManager bufferManager_;
+        private CyanEmuBufferManager bufferManager_;
 
         private bool networkReady_;
 
         private HashSet<VRC_Trigger> allTriggers_ = new HashSet<VRC_Trigger>();
-        private HashSet<VRCP_TriggerHelper> timerTriggers_ = new HashSet<VRCP_TriggerHelper>();
-        private HashSet<VRCP_TriggerHelper> keyTriggers_ = new HashSet<VRCP_TriggerHelper>();
+        private HashSet<CyanEmuTriggerHelper> timerTriggers_ = new HashSet<CyanEmuTriggerHelper>();
+        private HashSet<CyanEmuTriggerHelper> keyTriggers_ = new HashSet<CyanEmuTriggerHelper>();
         private List<VRC_Trigger.TriggerEvent> deferredTriggers_ = new List<VRC_Trigger.TriggerEvent>();
 
         private Dictionary<VRC_Trigger.TriggerEvent, VRC_Trigger> triggerEventToTrigger_ = new Dictionary<VRC_Trigger.TriggerEvent, VRC_Trigger>();
@@ -55,14 +52,14 @@ namespace VRCPrefabs.CyanEmu
 
             instance_ = this;
 
-            settings_ = VRCP_CyanEmuSettings.Instance;
+            settings_ = CyanEmuSettings.Instance;
             descriptor_ = FindObjectOfType<VRC_SceneDescriptor>();
 
-            bufferManager_ = new VRCP_BufferManager();
+            bufferManager_ = new CyanEmuBufferManager();
 
             if (settings_.replayBufferedTriggers)
             {
-                VRCP_BufferManager.LoadBufferedTriggersFromFile();
+                CyanEmuBufferManager.LoadBufferedTriggersFromFile();
             }
 
             SetupCombat();
@@ -73,13 +70,13 @@ namespace VRCPrefabs.CyanEmu
             VRCSDK2.VRC_CombatSystem combatSystem = FindObjectOfType<VRCSDK2.VRC_CombatSystem>();
             if (combatSystem != null)
             {
-                combatSystem.gameObject.AddComponent<VRCP_CombatSystemHelper>();
+                combatSystem.gameObject.AddComponent<CyanEmuCombatSystemHelper>();
 
-                VRCP_CombatSystemHelper.CombatSetMaxHitpoints(null, combatSystem.maxPlayerHealth);
-                VRCP_CombatSystemHelper.CombatSetRespawn(null, combatSystem.respawnOnDeath, combatSystem.respawnTime, combatSystem.respawnPoint);
-                VRCP_CombatSystemHelper.CombatSetDamageGraphic(null, combatSystem.visualDamagePrefab);
+                CyanEmuCombatSystemHelper.CombatSetMaxHitpoints(null, combatSystem.maxPlayerHealth);
+                CyanEmuCombatSystemHelper.CombatSetRespawn(null, combatSystem.respawnOnDeath, combatSystem.respawnTime, combatSystem.respawnPoint);
+                CyanEmuCombatSystemHelper.CombatSetDamageGraphic(null, combatSystem.visualDamagePrefab);
 
-                VRCP_CombatSystemHelper.CombatSetActions(
+                CyanEmuCombatSystemHelper.CombatSetActions(
                     () => VRC_Trigger.TriggerCustom(combatSystem.onPlayerDamagedTrigger),
                     () => VRC_Trigger.TriggerCustom(combatSystem.onPlayerKilledTrigger),
                     () => VRC_Trigger.TriggerCustom(combatSystem.onPlayerHealedTrigger)
@@ -89,13 +86,13 @@ namespace VRCPrefabs.CyanEmu
 
         private void Update()
         {
-            foreach (VRCP_TriggerHelper trigger in timerTriggers_)
+            foreach (CyanEmuTriggerHelper trigger in timerTriggers_)
             {
                 trigger.UpdateTimers(eventsToFireOnUpdate);
             }
 
             // TODO update so that triggers are mapped based on key
-            foreach (VRCP_TriggerHelper trigger in keyTriggers_)
+            foreach (CyanEmuTriggerHelper trigger in keyTriggers_)
             {
                 trigger.UpdateOnKeyTriggers(eventsToFireOnUpdate);
             }
@@ -114,7 +111,7 @@ namespace VRCPrefabs.CyanEmu
             // Go through all buffered triggers first
             if (settings_.replayBufferedTriggers)
             {
-                VRCP_CyanEmuMain.SpawnPlayer(false);
+                CyanEmuMain.SpawnPlayer(false);
 
                 this.Log("Executing Buffered Triggers");
 
@@ -212,7 +209,7 @@ namespace VRCPrefabs.CyanEmu
             instance_.allTriggers_.Remove(trigger);
         }
 
-        public static void AddTimerTrigger(VRCP_TriggerHelper trigger)
+        public static void AddTimerTrigger(CyanEmuTriggerHelper trigger)
         {
             if (instance_ == null)
             {
@@ -222,7 +219,7 @@ namespace VRCPrefabs.CyanEmu
             instance_.timerTriggers_.Add(trigger);
         }
 
-        public static void RemoveTimerTrigger(VRCP_TriggerHelper trigger)
+        public static void RemoveTimerTrigger(CyanEmuTriggerHelper trigger)
         {
             if (instance_ == null)
             {
@@ -232,7 +229,7 @@ namespace VRCPrefabs.CyanEmu
             instance_.timerTriggers_.Remove(trigger);
         }
 
-        public static void AddKeyTrigger(VRCP_TriggerHelper trigger)
+        public static void AddKeyTrigger(CyanEmuTriggerHelper trigger)
         {
             if (instance_ == null)
             {
@@ -242,7 +239,7 @@ namespace VRCPrefabs.CyanEmu
             instance_.keyTriggers_.Add(trigger);
         }
 
-        public static void RemoveKeyTrigger(VRCP_TriggerHelper trigger)
+        public static void RemoveKeyTrigger(CyanEmuTriggerHelper trigger)
         {
             if (instance_ == null)
             {
@@ -532,7 +529,7 @@ namespace VRCPrefabs.CyanEmu
                 bool newValue = VRC_EventHandler.BooleanOp(triggerEvent.ParameterBoolOp, obj.activeSelf);
                 obj.SetActive(newValue);
 
-                VRCP_TriggerHelper triggerHelper = obj.GetComponent<VRCP_TriggerHelper>();
+                CyanEmuTriggerHelper triggerHelper = obj.GetComponent<CyanEmuTriggerHelper>();
                 if (triggerHelper != null && isTriggerGlobalBroadcast_)
                 {
                     if (newValue && triggerHelper.HasGlobalOnDisable)
@@ -574,7 +571,7 @@ namespace VRCPrefabs.CyanEmu
             else if (triggerEvent.EventType == VRC_EventHandler.VrcEventType.SpawnObject)
             {
                 GameObject prefab = VRC_SceneDescriptor.GetPrefab(triggerEvent.ParameterString);
-                VRCP_CyanEmuMain.SpawnObject(prefab, obj.transform.position, obj.transform.rotation);
+                CyanEmuMain.SpawnObject(prefab, obj.transform.position, obj.transform.rotation);
             }
             else if (triggerEvent.EventType == VRC_EventHandler.VrcEventType.TeleportPlayer)
             {
@@ -584,9 +581,9 @@ namespace VRCPrefabs.CyanEmu
                 }
                 else
                 {
-                    if (VRCP_PlayerController.instance != null)
+                    if (CyanEmuPlayerController.instance != null)
                     {
-                        VRCP_PlayerController.instance.Teleport(triggerEvent.ParameterObjects[0].transform, triggerEvent.ParameterBoolOp == VRC_EventHandler.VrcBooleanOp.True);
+                        CyanEmuPlayerController.instance.Teleport(triggerEvent.ParameterObjects[0].transform, triggerEvent.ParameterBoolOp == VRC_EventHandler.VrcBooleanOp.True);
                     }
                     else
                     {

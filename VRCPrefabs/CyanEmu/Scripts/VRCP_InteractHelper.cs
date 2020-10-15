@@ -1,14 +1,11 @@
-﻿// VRCP_InteractHelper
-// Created by CyanLaser
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_InteractHelper : MonoBehaviour
+    public class CyanEmuInteractHelper : MonoBehaviour
     {
         private const int MAX_INTERACT_RAYCASTS_ = 100;
         private static readonly LayerMask INTERACT_LAYERS_ = ~(1 << 18); // All layers but MirrorReflection
@@ -16,9 +13,9 @@ namespace VRCPrefabs.CyanEmu
         private static readonly RaycastHit[] raycastHitBuffer = new RaycastHit[MAX_INTERACT_RAYCASTS_];
         private static readonly RaycastHitComparer raycastHitComparer = new RaycastHitComparer();
 
-        //public VRCP_HighlightManager highlightManager;
+        //public CyanEmuHighlightManager highlightManager;
 
-        private VRCP_ObjectHighlight highlight_;
+        private CyanEmuObjectHighlight highlight_;
         private GameObject toolTip_;
         private TextMesh toolTipText_;
         private Transform cameraTransform_;
@@ -27,7 +24,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void Start()
         {
-            highlight_ = VRCP_ObjectHighlight.CreateInteractHelper();
+            highlight_ = CyanEmuObjectHighlight.CreateInteractHelper();
             highlight_.transform.parent = transform;
 
             // Tool tip text
@@ -81,8 +78,8 @@ namespace VRCPrefabs.CyanEmu
             for (int curHit = 0; curHit < hitCount && !display; ++curHit)
             {
                 RaycastHit hit = raycastHitBuffer[curHit];
-                VRCP_Interactable[] interactables = hit.collider.GetComponents<VRCP_Interactable>();
-                foreach (VRCP_Interactable interactable in interactables)
+                ICyanEmuInteractable[] interactables = hit.collider.GetComponents<ICyanEmuInteractable>();
+                foreach (ICyanEmuInteractable interactable in interactables)
                 {
                     if (interactable != null && interactable.CanInteract(hit.distance))
                     {

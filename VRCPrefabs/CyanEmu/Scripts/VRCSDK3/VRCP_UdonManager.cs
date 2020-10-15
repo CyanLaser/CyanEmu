@@ -1,7 +1,4 @@
-﻿// VRCP_UdonManager
-// Created by CyanLaser
-
-#if UDON
+﻿#if UDON
 
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +9,9 @@ using VRC.Udon;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_UdonManager : MonoBehaviour, VRCP_SDKManager
+    public class CyanEmuUdonManager : MonoBehaviour, ICyanEmuSDKManager
     {
-        private static VRCP_UdonManager instance_;
+        private static CyanEmuUdonManager instance_;
 
         private HashSet<UdonBehaviour> allUdonBehaviours_ = new HashSet<UdonBehaviour>();
 
@@ -22,7 +19,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (instance_ != null)
             {
-                this.LogError("Already have an instance of VRCP_UdonManager!");
+                this.LogError("Already have an instance of CyanEmuUdonManager!");
                 DestroyImmediate(this);
                 return;
             }
@@ -45,13 +42,13 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        #region VRCP_SDKManager
+        #region ICyanEmuSDKManager
 
         public void OnNetworkReady()
         {
             foreach (var udonBehavior in allUdonBehaviours_)
             {
-                udonBehavior.GetComponent<VRCP_UdonHelper>().OnNetworkReady();
+                udonBehavior.GetComponent<CyanEmuUdonHelper>().OnNetworkReady();
             }
         }
 

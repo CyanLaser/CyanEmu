@@ -1,7 +1,4 @@
-﻿// VRCP_UdonHelper
-// Created by CyanLaser
-
-#if UDON
+﻿#if UDON
 
 using System.Reflection;
 using UnityEngine;
@@ -14,7 +11,7 @@ using VRC.Udon.Security;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_UdonHelper : VRCP_SyncedObjectHelper, VRCP_Interactable, VRCP_Pickupable, VRCP_StationHandler
+    public class CyanEmuUdonHelper : CyanEmuSyncedObjectHelper, ICyanEmuInteractable, ICyanEmuPickupable, ICyanEmuStationHandler
     {
         // TODO: have an array of udon behaviours
         private UdonBehaviour udonbehaviour_;
@@ -25,15 +22,15 @@ namespace VRCPrefabs.CyanEmu
 
         public static void OnInit(UdonBehaviour behaviour, IUdonProgram program)
         {
-			if (behaviour.gameObject.GetComponent<VRCP_UdonHelper>() != null) {
+			if (behaviour.gameObject.GetComponent<CyanEmuUdonHelper>() != null) {
 				Debug.Log("Duplicate Udon Helper. This isn't fully supported yet.");
 				return;
 			}
 
-            VRCP_UdonHelper helper = behaviour.gameObject.AddComponent<VRCP_UdonHelper>();
+            CyanEmuUdonHelper helper = behaviour.gameObject.AddComponent<CyanEmuUdonHelper>();
             helper.SetUdonbehaviour(behaviour);
             
-            isNetworkReady.SetValue(behaviour, VRCP_CyanEmuMain.IsNetworkReady());
+            isNetworkReady.SetValue(behaviour, CyanEmuMain.IsNetworkReady());
         }
 
         public void OnNetworkReady()
@@ -58,7 +55,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (GetComponents<UdonBehaviour>().Length > 1)
             {
-                this.LogError("Object contains more than one UdonBehaviour component! " + VRCP_Utils.PathForObject(gameObject));
+                this.LogError("Object contains more than one UdonBehaviour component! " + CyanEmuUtils.PathForObject(gameObject));
             }
 
             if (udonbehaviour == null)
@@ -69,7 +66,7 @@ namespace VRCPrefabs.CyanEmu
             }
             udonbehaviour_ = udonbehaviour;
 
-            VRCP_UdonManager.AddUdonBehaviour(udonbehaviour_);
+            CyanEmuUdonManager.AddUdonBehaviour(udonbehaviour_);
         }
 
         public UdonBehaviour GetUdonBehaviour()
@@ -79,10 +76,10 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnDestroy()
         {
-            VRCP_UdonManager.RemoveUdonBehaviour(udonbehaviour_);
+            CyanEmuUdonManager.RemoveUdonBehaviour(udonbehaviour_);
         }
 
-        #region VRCP_Interactable
+        #region ICyanEmuInteractable
 
         public bool CanInteract(float distance)
         {
@@ -101,7 +98,7 @@ namespace VRCPrefabs.CyanEmu
 
         #endregion
 
-        #region VRCP_Pickupable
+        #region ICyanEmuPickupable
 
         public void OnPickup()
         {
@@ -125,7 +122,7 @@ namespace VRCPrefabs.CyanEmu
 
         #endregion
 
-        #region VRCP_StationHandler
+        #region ICyanEmuStationHandler
 
         public void OnStationEnter(VRCStation station)
         {

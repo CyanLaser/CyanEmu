@@ -1,14 +1,11 @@
-﻿// VRCP_SyncedObjectHelper
-// Created by CyanLaser
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public abstract class VRCP_SyncedObjectHelper : MonoBehaviour, VRCP_Syncable, VRCP_Respawnable
+    public abstract class CyanEmuSyncedObjectHelper : MonoBehaviour, ICyanEmuSyncable, ICyanEmuRespawnable
     {
         private int ownerID_ = 1;
 
@@ -29,17 +26,17 @@ namespace VRCPrefabs.CyanEmu
 
         protected virtual void OnEnable()
         {
-            VRCP_CyanEmuMain.AddSyncedObject(this);
+            CyanEmuMain.AddSyncedObject(this);
         }
 
         protected virtual void OnDisable()
         {
-            VRCP_CyanEmuMain.RemoveSyncedObject(this);
+            CyanEmuMain.RemoveSyncedObject(this);
         }
 
         private void OnDestroy()
         {
-            VRCP_CyanEmuMain.RemoveSyncedObject(this);
+            CyanEmuMain.RemoveSyncedObject(this);
         }
 
         #region VRCP_Syncable

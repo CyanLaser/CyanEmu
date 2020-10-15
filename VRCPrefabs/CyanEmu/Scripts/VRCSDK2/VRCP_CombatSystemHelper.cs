@@ -1,7 +1,4 @@
-﻿// VRCP_CombatSystemHelper
-// Created by CyanLaser
-
-using System;
+﻿using System;
 using System.Collections;
 using UnityEngine;
 using VRC.SDKBase;
@@ -9,9 +6,9 @@ using VRC.SDKBase;
 namespace VRCPrefabs.CyanEmu { 
 
     [AddComponentMenu("")]
-    public class VRCP_CombatSystemHelper : MonoBehaviour, IVRC_Destructible
+    public class CyanEmuCombatSystemHelper : MonoBehaviour, IVRC_Destructible
     {
-        public static VRCP_CombatSystemHelper instance;
+        public static CyanEmuCombatSystemHelper instance;
 
         private bool respawnOnDeath_;
         private float respawnTime_;
@@ -28,13 +25,13 @@ namespace VRCPrefabs.CyanEmu {
         
         private VRC_VisualDamage visualDamage_;
 
-        private VRCP_PlayerController playerController_;
-        private VRCP_PlayerController playerController {
+        private CyanEmuPlayerController playerController_;
+        private CyanEmuPlayerController playerController {
             get
             {
                 if (playerController_ == null)
                 {
-                    playerController_ = VRCP_PlayerController.instance;
+                    playerController_ = CyanEmuPlayerController.instance;
                 }
                 return playerController_;
             }
@@ -44,7 +41,7 @@ namespace VRCPrefabs.CyanEmu {
         {
             if (instance == null)
             {
-                player.gameObject.AddComponent<VRCP_CombatSystemHelper>();
+                player.gameObject.AddComponent<CyanEmuCombatSystemHelper>();
             }
         }
 

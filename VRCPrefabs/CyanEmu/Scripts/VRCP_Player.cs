@@ -1,21 +1,18 @@
-﻿// VRCP_Player
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public static class VRCP_PlayerExtensions
+    public static class CyanEmuPlayerExtensions
     {
-        public static VRCP_PlayerController GetPlayerController(this VRCPlayerApi player)
+        public static CyanEmuPlayerController GetPlayerController(this VRCPlayerApi player)
         {
-            return player.gameObject.GetComponent<VRCP_PlayerController>();
+            return player.gameObject.GetComponent<CyanEmuPlayerController>();
         }
     }
 
     [AddComponentMenu("")]
-    public class VRCP_Player : MonoBehaviour
+    public class CyanEmuPlayer : MonoBehaviour
     {
         public VRCPlayerApi player;
 
@@ -24,7 +21,7 @@ namespace VRCPrefabs.CyanEmu
             this.player = player;
 
             // TODO handle this better
-            VRCP_PlayerController playerController = GetComponent<VRCP_PlayerController>();
+            CyanEmuPlayerController playerController = GetComponent<CyanEmuPlayerController>();
             if (playerController != null)
             {
                 playerController.SetPlayer(this);

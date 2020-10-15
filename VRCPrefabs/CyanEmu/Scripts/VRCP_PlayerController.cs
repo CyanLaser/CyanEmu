@@ -1,9 +1,4 @@
-﻿// VRCP_PlayerController
-// Created by CyanLaser
-
-// Based on the Standard assets first person controller
-
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 using VRC.SDKBase;
@@ -16,9 +11,9 @@ using UnityEngine.Rendering.PostProcessing;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_PlayerController : MonoBehaviour
+    public class CyanEmuPlayerController : MonoBehaviour
     {
-        public static VRCP_PlayerController instance;
+        public static CyanEmuPlayerController instance;
 
         private enum Stance {
             STANDING,
@@ -52,11 +47,11 @@ namespace VRCPrefabs.CyanEmu
         private CharacterController characterController_;
         private Camera camera_;
         private MouseLook mouseLook_;
-        private VRCP_StationHelper currentStation_;
-        private VRCP_PickupHelper currentPickup_;
-        private VRCP_BaseInput baseInput_;
-        private VRCP_InteractHelper interactHelper_;
-        private VRCP_Player player_;
+        private CyanEmuStationHelper currentStation_;
+        private CyanEmuPickupHelper currentPickup_;
+        private CyanEmuBaseInput baseInput_;
+        private CyanEmuInteractHelper interactHelper_;
+        private CyanEmuPlayer player_;
 
         private Stance stance_;
         private bool isDead_;
@@ -155,12 +150,12 @@ namespace VRCPrefabs.CyanEmu
 
             stance_ = Stance.STANDING;
 
-            baseInput_ = transform.parent.gameObject.GetComponent<VRCP_BaseInput>();
+            baseInput_ = transform.parent.gameObject.GetComponent<CyanEmuBaseInput>();
             CreateMenu();
 
             GameObject interactHelper = new GameObject("InteractHelper");
             interactHelper.transform.parent = transform.parent;
-            interactHelper_ = interactHelper.AddComponent<VRCP_InteractHelper>();
+            interactHelper_ = interactHelper.AddComponent<CyanEmuInteractHelper>();
             Func<bool> shouldCheckForInteracts = () => { return currentPickup_ == null && !menu_.activeInHierarchy && !isDead_; };
             interactHelper_.Initialize(playerCamera_.transform, playerCamera_.transform, shouldCheckForInteracts);
 
@@ -191,9 +186,9 @@ namespace VRCPrefabs.CyanEmu
 
             CopyCameraValues(refCamera, camera_);
             
-            if (VRCP_CombatSystemHelper.instance != null)
+            if (CyanEmuCombatSystemHelper.instance != null)
             {
-                VRCP_CombatSystemHelper.instance.CreateVisualDamage();
+                CyanEmuCombatSystemHelper.instance.CreateVisualDamage();
             }
 
             // Go through all ui shapes to update canvas cameras?
@@ -205,7 +200,7 @@ namespace VRCPrefabs.CyanEmu
             }
 
 #if VRC_SDK_VRCSDK2
-            VRCP_PlayerModsHelper.ApplyRoomMods(this);
+            CyanEmuPlayerModsHelper.ApplyRoomMods(this);
 #endif
         }
 
@@ -404,7 +399,7 @@ namespace VRCPrefabs.CyanEmu
             return data;
         }
 
-        public void SetPlayer(VRCP_Player player)
+        public void SetPlayer(CyanEmuPlayer player)
         {
             player_ = player;
         }
@@ -442,7 +437,7 @@ namespace VRCPrefabs.CyanEmu
             Physics.SyncTransforms();
         }
 
-        public void EnterStation(VRCP_StationHelper station)
+        public void EnterStation(CyanEmuStationHelper station)
         {
             if (currentStation_ != null)
             {
@@ -460,7 +455,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        public void ExitStation(VRCP_StationHelper station)
+        public void ExitStation(CyanEmuStationHelper station)
         {
             currentStation_ = null;
             characterController_.enabled = true;
@@ -473,7 +468,7 @@ namespace VRCPrefabs.CyanEmu
             jump_ = false;
         }
 
-        public void PickupObject(VRCP_PickupHelper pickup)
+        public void PickupObject(CyanEmuPickupHelper pickup)
         {
             if (currentPickup_ != null)
             {
@@ -482,7 +477,7 @@ namespace VRCPrefabs.CyanEmu
             currentPickup_ = pickup;
         }
 
-        public void DropObject(VRCP_PickupHelper pickup)
+        public void DropObject(CyanEmuPickupHelper pickup)
         {
             if (currentPickup_ == pickup)
             {
@@ -663,7 +658,7 @@ namespace VRCPrefabs.CyanEmu
         {
             bool updatePosition = false;
 
-            if (Input.GetKeyDown(VRCP_CyanEmuSettings.Instance.crouchKey))
+            if (Input.GetKeyDown(CyanEmuSettings.Instance.crouchKey))
             {
                 updatePosition = true;
                 if (stance_ == Stance.CROUCHING)
@@ -675,7 +670,7 @@ namespace VRCPrefabs.CyanEmu
                     stance_ = Stance.CROUCHING;
                 }
             }
-            if (Input.GetKeyDown(VRCP_CyanEmuSettings.Instance.proneKey))
+            if (Input.GetKeyDown(CyanEmuSettings.Instance.proneKey))
             {
                 updatePosition = true;
                 if (stance_ == Stance.PRONE)
@@ -707,7 +702,7 @@ namespace VRCPrefabs.CyanEmu
             horizontal = GetExpectedMovement(horizontal, prevInput_.x, prevInputResult_.x);
             vertical = GetExpectedMovement(vertical, prevInput_.y, prevInputResult_.y);
 
-            isWalking_ = !Input.GetKey(VRCP_CyanEmuSettings.Instance.runKey);
+            isWalking_ = !Input.GetKey(CyanEmuSettings.Instance.runKey);
             
             speed = new Vector2(isWalking_? walkSpeed_ : runSpeed_, strafeSpeed_);
             input = new Vector2(horizontal, vertical);
@@ -789,7 +784,7 @@ namespace VRCPrefabs.CyanEmu
         private void OnGUI()
         {
             Vector2 size = Vector2.one * 10;
-            Vector2 center = VRCP_BaseInput.GetScreenCenter();
+            Vector2 center = CyanEmuBaseInput.GetScreenCenter();
             center -= size * 0.5f;
 
             GUI.Box(new Rect(center, size), "");

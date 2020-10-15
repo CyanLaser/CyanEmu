@@ -1,24 +1,21 @@
-﻿// VRCP_ObjectSpawnHelper
-// Created by CyanLaser
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_ObjectSpawnHelper : MonoBehaviour
+    public class CyanEmuObjectSpawnHelper : MonoBehaviour
     {
         private List<GameObject> spawnedObjects_ = new List<GameObject>();
         private VRC_ObjectSpawn objectSpawn_;
 
         public static void InitializeSpawner(VRC_ObjectSpawn objectSpawn)
         {
-            VRCP_ObjectSpawnHelper spawnHelper = objectSpawn.GetComponent<VRCP_ObjectSpawnHelper>();
+            CyanEmuObjectSpawnHelper spawnHelper = objectSpawn.GetComponent<CyanEmuObjectSpawnHelper>();
             if (spawnHelper == null)
             {
-                spawnHelper = objectSpawn.gameObject.AddComponent<VRCP_ObjectSpawnHelper>();
+                spawnHelper = objectSpawn.gameObject.AddComponent<CyanEmuObjectSpawnHelper>();
                 spawnHelper.objectSpawn_ = objectSpawn;
             }
 
@@ -35,7 +32,7 @@ namespace VRCPrefabs.CyanEmu
         private void SpawnObject(Vector3 position, Quaternion rotation)
         {
             this.Log("Spawning Object " + objectSpawn_.ObjectPrefab.name + " at " + position + " and rotataion " + rotation);
-            GameObject spawnedObject = VRCP_CyanEmuMain.SpawnObject(objectSpawn_.ObjectPrefab, position, rotation);
+            GameObject spawnedObject = CyanEmuMain.SpawnObject(objectSpawn_.ObjectPrefab, position, rotation);
             spawnedObjects_.Add(spawnedObject);
         }
 

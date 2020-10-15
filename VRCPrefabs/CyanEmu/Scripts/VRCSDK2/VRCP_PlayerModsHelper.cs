@@ -1,7 +1,4 @@
-﻿// VRCP_PlayerModsHelper
-// Created by CyanLaser
-
-#if VRC_SDK_VRCSDK2
+﻿#if VRC_SDK_VRCSDK2
 
 using UnityEngine;
 using VRCSDK2;
@@ -9,20 +6,20 @@ using VRCSDK2;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_PlayerModsHelper : MonoBehaviour
+    public class CyanEmuPlayerModsHelper : MonoBehaviour
     {
-        public static VRCP_PlayerModsHelper roomMods;
+        public static CyanEmuPlayerModsHelper roomMods;
 
         private VRC_PlayerMods mods_;
 
-        private static float defaultWalkSpeed_ = VRCP_PlayerController.DEFAULT_WALK_SPEED_;
-        private static float defaultRunSpeed_ = VRCP_PlayerController.DEFAULT_RUN_SPEED_;
-        private static float defaultStrafeSpeed_ = VRCP_PlayerController.DEFAULT_WALK_SPEED_;
+        private static float defaultWalkSpeed_ = CyanEmuPlayerController.DEFAULT_WALK_SPEED_;
+        private static float defaultRunSpeed_ = CyanEmuPlayerController.DEFAULT_RUN_SPEED_;
+        private static float defaultStrafeSpeed_ = CyanEmuPlayerController.DEFAULT_WALK_SPEED_;
         private static float defaultJumpSpeed_ = 0;
 
         public static void InitializePlayerMods(VRC_PlayerMods mods)
         {
-            VRCP_PlayerModsHelper helper = mods.gameObject.AddComponent<VRCP_PlayerModsHelper>();
+            CyanEmuPlayerModsHelper helper = mods.gameObject.AddComponent<CyanEmuPlayerModsHelper>();
             helper.mods_ = mods;
             if (mods.isRoomPlayerMods)
             {
@@ -35,7 +32,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        public static void ApplyRoomMods(VRCP_PlayerController player)
+        public static void ApplyRoomMods(CyanEmuPlayerController player)
         {
             if (roomMods != null)
             {
@@ -57,7 +54,7 @@ namespace VRCPrefabs.CyanEmu
 
         public void AddPlayerMods(VRC_PlayerMods mods)
         {
-            VRCP_PlayerController player = VRCP_PlayerController.instance;
+            CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
             {
                 return;
@@ -92,7 +89,7 @@ namespace VRCPrefabs.CyanEmu
 
         public void RemoveMods()
         {
-            VRCP_PlayerController player = VRCP_PlayerController.instance;
+            CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
             {
                 return;

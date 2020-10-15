@@ -1,9 +1,6 @@
-﻿// VRCP_Syncable
-// Created by CyanLaser
-
-namespace VRCPrefabs.CyanEmu
+﻿namespace VRCPrefabs.CyanEmu
 {
-    public interface VRCP_Syncable
+    public interface ICyanEmuSyncable
     {
         int GetOwner();
         void SetOwner(int ownerID);

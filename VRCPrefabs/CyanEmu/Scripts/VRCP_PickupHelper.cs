@@ -1,13 +1,10 @@
-﻿// VRCP_PickupHelper
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_PickupHelper : MonoBehaviour, VRCP_Interactable
+    public class CyanEmuPickupHelper : MonoBehaviour, ICyanEmuInteractable
     {
         private const float MAX_PICKUP_DISTANCE_ = 0.25f;
         private static Quaternion GRIP_OFFSET_ROTATION_ = Quaternion.Euler(0, 0, -90);
@@ -15,7 +12,7 @@ namespace VRCPrefabs.CyanEmu
 
         private VRC_Pickup pickup_;
         private Rigidbody rigidbody_;
-        private VRCP_Pickupable[] pickupables_;
+        private ICyanEmuPickupable[] pickupables_;
 
         private bool wasKinematic_;
         private bool isHeld_;
@@ -26,19 +23,19 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializePickup(VRC_Pickup pickup)
         {
-            VRCP_PickupHelper helper = pickup.gameObject.AddComponent<VRCP_PickupHelper>();
+            CyanEmuPickupHelper helper = pickup.gameObject.AddComponent<CyanEmuPickupHelper>();
             helper.SetPickup(pickup);
         }
 
         public static void ForceDrop(VRC_Pickup pickup)
         {
-            VRCP_PickupHelper helper = pickup.GetComponent<VRCP_PickupHelper>();
+            CyanEmuPickupHelper helper = pickup.GetComponent<CyanEmuPickupHelper>();
             helper.Drop();
         }
 
         public static VRCPlayerApi GetCurrentPlayer(VRC_Pickup pickup)
         {
-            VRCP_PickupHelper helper = pickup.GetComponent<VRCP_PickupHelper>();
+            CyanEmuPickupHelper helper = pickup.GetComponent<CyanEmuPickupHelper>();
             if (helper.isHeld_)
             {
                 return Networking.LocalPlayer;
@@ -48,7 +45,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRC_Pickup.PickupHand GetPickupHand(VRC_Pickup pickup)
         {
-            VRCP_PickupHelper helper = pickup.GetComponent<VRCP_PickupHelper>();
+            CyanEmuPickupHelper helper = pickup.GetComponent<CyanEmuPickupHelper>();
             if (helper.isHeld_)
             {
                 return VRC_Pickup.PickupHand.Right;
@@ -64,7 +61,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void Start()
         {
-            pickupables_ = GetComponents<VRCP_Pickupable>();
+            pickupables_ = GetComponents<ICyanEmuPickupable>();
         }
 
         public bool CanInteract(float distance)
@@ -135,7 +132,7 @@ namespace VRCPrefabs.CyanEmu
                 pickupables_[pickupable].OnPickup();
             }
 
-            VRCP_PlayerController player = VRCP_PlayerController.instance;
+            CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
             {
                 this.LogWarning("Unable to pickup object when there is no player!");
@@ -197,12 +194,12 @@ namespace VRCPrefabs.CyanEmu
                 pickupables_[pickupable].OnDrop();
             }
 
-            if (VRCP_PlayerController.instance == null)
+            if (CyanEmuPlayerController.instance == null)
             {
                 return;
             }
 
-            VRCP_PlayerController.instance.DropObject(this);
+            CyanEmuPlayerController.instance.DropObject(this);
             rigidbody_.isKinematic = wasKinematic_;
         }
 

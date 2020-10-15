@@ -1,16 +1,13 @@
-﻿// VRCP_StationHelper
-// Created by CyanLaser
-
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class VRCP_StationHelper : MonoBehaviour, VRCP_StationHandler
+    public class CyanEmuStationHelper : MonoBehaviour, ICyanEmuStationHandler
     {
         private VRCStation station_;
-        private VRCP_StationHandler[] stationHandlers_;
+        private ICyanEmuStationHandler[] stationHandlers_;
         private bool entered_ = false;
 
         public Transform EnterLocation
@@ -39,17 +36,17 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializeStations(VRCStation station)
         {
-            station.gameObject.AddComponent<VRCP_StationHelper>();
+            station.gameObject.AddComponent<CyanEmuStationHelper>();
         }
 
         public static void UseStation(VRCStation station, VRCPlayerApi player)
         {
-            station.GetComponent<VRCP_StationHelper>().UseStation();
+            station.GetComponent<CyanEmuStationHelper>().UseStation();
         }
 
         public static void ExitStation(VRCStation station, VRCPlayerApi player)
         {
-            station.GetComponent<VRCP_StationHelper>().ExitStation();
+            station.GetComponent<CyanEmuStationHelper>().ExitStation();
         }
 
         private void Awake()
@@ -74,7 +71,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void Start()
         {
-            stationHandlers_ = GetComponents<VRCP_StationHandler>();
+            stationHandlers_ = GetComponents<ICyanEmuStationHandler>();
         }
 
         public void UseStation()
@@ -85,9 +82,9 @@ namespace VRCPrefabs.CyanEmu
             }
             entered_ = true;
 
-            if (VRCP_PlayerController.instance != null)
+            if (CyanEmuPlayerController.instance != null)
             {
-                VRCP_PlayerController.instance.EnterStation(this);
+                CyanEmuPlayerController.instance.EnterStation(this);
             }
             
             foreach (var handler in stationHandlers_)
@@ -106,9 +103,9 @@ namespace VRCPrefabs.CyanEmu
             }
             entered_ = false;
 
-            if (VRCP_PlayerController.instance != null)
+            if (CyanEmuPlayerController.instance != null)
             {
-                VRCP_PlayerController.instance.ExitStation(this);
+                CyanEmuPlayerController.instance.ExitStation(this);
             }
 
             foreach (var handler in stationHandlers_)
@@ -127,9 +124,9 @@ namespace VRCPrefabs.CyanEmu
                 return true;
             }
 
-            if (VRCP_PlayerController.instance != null)
+            if (CyanEmuPlayerController.instance != null)
             {
-                VRCP_PlayerController.instance.SitPosition(station_.stationEnterPlayerLocation);
+                CyanEmuPlayerController.instance.SitPosition(station_.stationEnterPlayerLocation);
             }
 
             if (Mathf.Abs(speed) >= 0.1f && !station_.disableStationExit)

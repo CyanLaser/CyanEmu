@@ -12,7 +12,7 @@ using UnityEngine.Rendering.PostProcessing;
 
 namespace VRCPrefabs.CyanEmu
 {
-    public class VRCP_VRTest : MonoBehaviour
+    public class CyanEmuVRTest : MonoBehaviour
     {
         private GameObject cameraObject_;
         private Camera camera_;
