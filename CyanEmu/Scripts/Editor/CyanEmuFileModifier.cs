@@ -7,7 +7,7 @@ namespace VRCPrefabs.CyanEmu
 {
     public class CyanEmuFileModifier
     {
-        const string MODIFICATIONS_FILE_PATH = "Assets/VRCPrefabs/CyanEmu/Resources/FileModifications/modifications.txt";
+        const string MODIFICATIONS_FILE_PATH = "Assets/CyanEmu/Resources/FileModifications/modifications.txt";
         const string VRCSDK_PATH = "Assets/VRCSDK";
 
         const string ADD_AFTER_OPERATION = "AddAfter";
@@ -17,7 +17,7 @@ namespace VRCPrefabs.CyanEmu
         static readonly char[] WHITE_SPACE = { ' ' };
 
 
-        [MenuItem("VRC Prefabs/CyanEmu/Apply SDK Modifications")]
+        [MenuItem("Window/CyanEmu/Apply SDK Modifications")]
         public static void PerformModifications()
         {
             FileInfo modificationsFile = new FileInfo(MODIFICATIONS_FILE_PATH);

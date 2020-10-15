@@ -9,7 +9,7 @@ namespace VRCPrefabs.CyanEmu
 {
     public class CyanEmuSettingsWindow : EditorWindow
     {
-        private const string VERSION_FILE_PATH = "Assets/VRCPrefabs/CyanEmu/version.txt";
+        private const string VERSION_FILE_PATH = "Assets/CyanEmu/version.txt";
 
         // General content
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
@@ -40,7 +40,7 @@ namespace VRCPrefabs.CyanEmu
 
         private string version_;
 
-        [MenuItem("VRC Prefabs/CyanEmu/CyanEmu Settings")]
+        [MenuItem("Window/CyanEmu/CyanEmu Settings")]
         static void Init()
         {
             CyanEmuSettingsWindow window = (CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(CyanEmuSettingsWindow), false, "CyanEmu Settings");

@@ -85,7 +85,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        const string filePath = "Assets/VRCPrefabs/CyanEmu/Data/BufferedEvents";
+        const string filePath = "Assets/CyanEmu/Data/BufferedEvents";
         public static string GetBufferedTriggerFilePath()
         {
             string fileName = SceneManager.GetActiveScene().path.Replace(".unity", "").Replace('/', '_') + ".txt";
