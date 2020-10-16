@@ -84,12 +84,10 @@ namespace VRCPrefabs.CyanEmu
                 CyanEmuTriggerExecutor.ExecuteEvent(eventInfo, null);
             }
         }
-
-        const string filePath = "Assets/CyanEmu/Data/BufferedEvents";
+        
         public static string GetBufferedTriggerFilePath()
         {
-            string fileName = SceneManager.GetActiveScene().path.Replace(".unity", "").Replace('/', '_') + ".txt";
-            return filePath + "/" + fileName;
+            return SceneManager.GetActiveScene().path.Replace(".unity", "") + "_BufferedTriggers.txt";
         }
 
         public static void SaveBufferedTriggersToFile()
@@ -103,11 +101,6 @@ namespace VRCPrefabs.CyanEmu
             {
                 return;
             }
-
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
             
             File.WriteAllText(GetBufferedTriggerFilePath(), bufferedTriggers);
         }
@@ -118,11 +111,7 @@ namespace VRCPrefabs.CyanEmu
             {
                 return;
             }
-
-            if (!Directory.Exists(filePath))
-            {
-                return;
-            }
+            
             string fileName = GetBufferedTriggerFilePath();
             if (File.Exists(fileName))
             {
@@ -133,10 +122,6 @@ namespace VRCPrefabs.CyanEmu
 
         public static void DeleteBufferedTriggerFile()
         {
-            if (!Directory.Exists(filePath))
-            {
-                return;
-            }
             string fileName = GetBufferedTriggerFilePath();
             if (File.Exists(fileName))
             {
