@@ -104,7 +104,7 @@ namespace VRCPrefabs.CyanEmu
             eventsToFireOnUpdate.Clear();
         }
 
-        #region VRCP_SDKManager
+        #region ICyanEmuSDKManager
 
         public void OnNetworkReady()
         {

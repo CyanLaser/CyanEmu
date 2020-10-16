@@ -378,7 +378,7 @@ namespace VRCPrefabs.CyanEmu
             CyanEmuTriggerExecutor.RemoveTrigger(Trigger);
         }
 
-#region VRCP_Interactable
+        #region ICyanEmuInteractable
 
         public bool CanInteract(float distance)
         {
@@ -395,9 +395,9 @@ namespace VRCPrefabs.CyanEmu
             Trigger.Interact();
         }
 
-#endregion
+        #endregion
 
-#region VRCP_Pickupable
+        #region ICyanEmuPickupable
 
         public void OnPickup()
         {
@@ -419,9 +419,9 @@ namespace VRCPrefabs.CyanEmu
             Trigger.ExecuteTriggerType(VRC_Trigger.TriggerType.OnPickupUseUp);
         }
 
-#endregion
+        #endregion
 
-#region VRCP_StationHandler
+        #region ICyanEmuStationHandler
 
         public void OnStationEnter(VRC.SDKBase.VRCStation station)
         {
@@ -435,7 +435,7 @@ namespace VRCPrefabs.CyanEmu
             Trigger.ExecuteTriggerType(VRC_Trigger.TriggerType.OnStationExited);
         }
 
-#endregion
+        #endregion
     }
 }
 #endif

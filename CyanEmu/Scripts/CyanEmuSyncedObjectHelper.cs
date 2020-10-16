@@ -39,7 +39,7 @@ namespace VRCPrefabs.CyanEmu
             CyanEmuMain.RemoveSyncedObject(this);
         }
 
-        #region VRCP_Syncable
+        #region ICyanEmuSyncable
 
         public int GetOwner()
         {
@@ -53,7 +53,7 @@ namespace VRCPrefabs.CyanEmu
 
         #endregion
 
-        #region VRCP_Respawnable
+        #region ICyanEmuRespawnable
 
         public void Respawn()
         {
