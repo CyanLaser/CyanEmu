@@ -19,7 +19,7 @@ namespace VRCPrefabs.CyanEmu
 #if UNITY_EDITOR
                     instance_ = LoadSettings();
 #else
-                    instance_ = new VRCP_CyanEmuSettings();
+                    instance_ = new CyanEmuSettings();
 #endif
                 }
                 return instance_;
