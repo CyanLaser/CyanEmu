@@ -26,25 +26,39 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        // Left for legacy reasons /shrug
-        const string CYAN_EMU_SETTINGS_PREFS_STRING = "VRCP_TriggerExecutorSettings";
+        const string CYAN_EMU_SETTINGS_PREFS_STRING = "CyanEmuSettings";
+        // TODO delete after release
+        const string CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING = "VRCP_TriggerExecutorSettings";
 
+        [SerializeField] public bool displaySettingsWindowAtLaunch = true;
+
+        [SerializeField] public KeyCode crouchKey = KeyCode.C;
+        [SerializeField] public KeyCode proneKey = KeyCode.Z;
+        [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
+
+        // TODO move settings to be per project instead of global to all
         [FormerlySerializedAs("enableTriggerExecution")]
         [SerializeField] public bool enableCyanEmu = true;
         [SerializeField] public bool displayLogs = true;
         [SerializeField] public bool spawnPlayer = true;
         [SerializeField] public bool replayBufferedTriggers = false;
 
-        [SerializeField] public KeyCode crouchKey = KeyCode.C;
-        [SerializeField] public KeyCode proneKey = KeyCode.Z;
-        [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
-
 #if UNITY_EDITOR
         private static CyanEmuSettings LoadSettings()
         {
             CyanEmuSettings settings = new CyanEmuSettings();
 
-            string data = EditorPrefs.GetString(CYAN_EMU_SETTINGS_PREFS_STRING, JsonUtility.ToJson(settings, false));
+            string data = null;
+            if (EditorPrefs.HasKey(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING))
+            {
+                data = EditorPrefs.GetString(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING);
+                EditorPrefs.DeleteKey(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING);
+            }
+            else
+            {
+                data = EditorPrefs.GetString(CYAN_EMU_SETTINGS_PREFS_STRING, JsonUtility.ToJson(settings, false));
+            }
+
             JsonUtility.FromJsonOverwrite(data, settings);
             return settings;
         }

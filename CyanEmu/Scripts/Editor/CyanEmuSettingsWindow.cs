@@ -10,8 +10,11 @@ namespace VRCPrefabs.CyanEmu
     public class CyanEmuSettingsWindow : EditorWindow
     {
         private const string VERSION_FILE_PATH = "Assets/CyanEmu/version.txt";
+        private const string GITHUB_URL = "https://github.com/CyanLaser/CyanEmu";
+        private const string WIKI_URL = "https://github.com/CyanLaser/CyanEmu/wiki";
 
         // General content
+        private readonly GUIContent generalFoldoutGuiContent = new GUIContent("General Settings", "");
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
         private readonly GUIContent displayLogsToggleGuiContent = new GUIContent("Enable Console Logging", "Enabling logging will print messages to the console when certain events happen. Examples include trigger execution, pickup grabbed, station entered, etc.");
 
@@ -31,14 +34,26 @@ namespace VRCPrefabs.CyanEmu
 
 
 
-        private CyanEmuSettings settings_;
+        private static CyanEmuSettings settings_;
         private Vector2 scrollPosition_;
+        private GUIStyle boxStyle_;
+        private bool showGeneralSettings_ = true;
         private bool showPlayerControllerSettings_;
         private bool showBufferedTriggerSettings_;
         private bool showTriggerEventButtons_;
         private bool showPlayerButtons_;
 
         private string version_;
+
+        [InitializeOnLoadMethod]
+        private static void InitializeOnLoad()
+        {
+            settings_ = CyanEmuSettings.Instance;
+            if (settings_.displaySettingsWindowAtLaunch)
+            {
+                Init();
+            }
+        }
 
         [MenuItem("Window/CyanEmu/CyanEmu Settings")]
         static void Init()
@@ -49,33 +64,31 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnEnable()
         {
-            settings_ = CyanEmuSettings.Instance;
+            if (settings_ == null)
+            {
+                settings_ = CyanEmuSettings.Instance;
+            }
+
             version_ = System.IO.File.ReadAllText(VERSION_FILE_PATH).Trim();
+
+            if (settings_.displaySettingsWindowAtLaunch)
+            {
+                settings_.displaySettingsWindowAtLaunch = false;
+                CyanEmuSettings.SaveSettings(settings_);
+            }
         }
 
         void OnGUI()
         {
+            boxStyle_ = new GUIStyle(EditorStyles.helpBox);
             scrollPosition_ = EditorGUILayout.BeginScrollView(scrollPosition_);
 
-            GUILayout.Label("CyanEmu Settings", EditorStyles.boldLabel);
-            AddIndent();
-            GUILayout.Label("Version: " + version_);
-            RemoveIndent();
-            EditorGUILayout.Space();
+            DrawHeader();
 
             EditorGUI.BeginChangeCheck();
-            
-            if (settings_.enableCyanEmu && Application.isPlaying && !CyanEmuMain.HasInstance())
-            {
-                EditorGUILayout.HelpBox("Please exit and reenter play mode to enable CyanEmu!", MessageType.Warning);
-            }
 
-            settings_.enableCyanEmu = EditorGUILayout.Toggle(enableToggleGuiContent, settings_.enableCyanEmu);
-
-            EditorGUI.BeginDisabledGroup(!settings_.enableCyanEmu);
-            
-
-            settings_.displayLogs = EditorGUILayout.Toggle(displayLogsToggleGuiContent, settings_.displayLogs);
+            // Disables UI if CyanEmu is disabled
+            DrawGeneralSettings();
 
             DrawPlayerControllerSettings();
             
@@ -83,10 +96,12 @@ namespace VRCPrefabs.CyanEmu
 
             DrawPlayerButtons();
 
+            // Disable group from General settings
             EditorGUI.EndDisabledGroup();
 
             // TODO
             UpdateInput();
+
 
             EditorGUILayout.EndScrollView();
 
@@ -96,8 +111,85 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
+        private void DrawHeader()
+        {
+            DrawTitle();
+            DrawLinks();
+            GUILayout.Space(5);
+        }
+
+        private void DrawTitle()
+        {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("CyanEmu Settings", EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Version: " + version_);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Created by CyanLaser");
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawLinks()
+        {
+            EditorGUILayout.BeginHorizontal();
+            
+            GUILayout.Space(10);
+            if (GUILayout.Button("Documentation", GUILayout.ExpandWidth(true)))
+            {
+                Application.OpenURL(WIKI_URL);
+            }
+
+            GUILayout.Space(5);
+
+            if (GUILayout.Button("Github Repo", GUILayout.ExpandWidth(true)))
+            {
+                Application.OpenURL(GITHUB_URL);
+            }
+            GUILayout.Space(10);
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawGeneralSettings()
+        {
+            EditorGUILayout.BeginVertical(boxStyle_);
+            showGeneralSettings_ = EditorGUILayout.Foldout(showGeneralSettings_, generalFoldoutGuiContent);
+
+            if (showGeneralSettings_)
+            {
+                if (settings_.enableCyanEmu && FindObjectOfType<VRC_SceneDescriptor>() == null)
+                {
+                    EditorGUILayout.HelpBox("No VRC_SceneDescriptor in scene. Please add one to enable CyanEmu.", MessageType.Warning);
+                }
+                if (settings_.enableCyanEmu && Application.isPlaying && !CyanEmuMain.HasInstance())
+                {
+                    EditorGUILayout.HelpBox("Please exit and reenter play mode to enable CyanEmu!", MessageType.Warning);
+                }
+
+                settings_.enableCyanEmu = EditorGUILayout.Toggle(enableToggleGuiContent, settings_.enableCyanEmu);
+
+                EditorGUI.BeginDisabledGroup(!settings_.enableCyanEmu);
+
+                settings_.displayLogs = EditorGUILayout.Toggle(displayLogsToggleGuiContent, settings_.displayLogs);
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
         private void DrawPlayerControllerSettings()
         {
+            EditorGUILayout.BeginVertical(boxStyle_);
+
             showPlayerControllerSettings_ = EditorGUILayout.Foldout(showPlayerControllerSettings_, playerControllerFoldoutGuiContent);
             if (showPlayerControllerSettings_)
             {
@@ -116,12 +208,15 @@ namespace VRCPrefabs.CyanEmu
 
                 RemoveIndent();
             }
+
+            EditorGUILayout.EndVertical();
         }
 
         private void DrawBufferedTriggerSettings()
         {
-// TODO convert to enable for Udon and general syncable objects
+            // TODO convert to enable for Udon and general syncable objects
 #if VRC_SDK_VRCSDK2
+            EditorGUILayout.BeginVertical(boxStyle_);
             showBufferedTriggerSettings_ = EditorGUILayout.Foldout(showBufferedTriggerSettings_, bufferedTriggerFoldoutGuiContent);
             if (showBufferedTriggerSettings_)
             {
@@ -149,11 +244,13 @@ namespace VRCPrefabs.CyanEmu
 
                 RemoveIndent();
             }
+            EditorGUILayout.EndVertical();
 #endif
         }
 
         private void DrawPlayerButtons()
         {
+            EditorGUILayout.BeginVertical(boxStyle_);
             showPlayerButtons_ = EditorGUILayout.Foldout(showPlayerButtons_, playerButtonsFoldoutGuiContent);
             if (showPlayerButtons_)
             {
@@ -178,35 +275,39 @@ namespace VRCPrefabs.CyanEmu
                 }
 
                 List<VRCPlayerApi> playersToRemove = new List<VRCPlayerApi>();
-                foreach (var player in VRCPlayerApi.AllPlayers)
+                if (Application.isPlaying)
                 {
-                    GUILayout.BeginHorizontal();
-
-                    GUILayout.Label(player.displayName);
-                    GUILayout.Space(5);
-
-                    EditorGUI.BeginDisabledGroup(VRCPlayerApi.AllPlayers.Count == 1 || player.isLocal);
-
-                    if (GUILayout.Button("Remove Player"))
+                    foreach (var player in VRCPlayerApi.AllPlayers)
                     {
-                        playersToRemove.Add(player);
+                        GUILayout.BeginHorizontal();
+
+                        GUILayout.Label(player.displayName);
+                        GUILayout.Space(5);
+
+                        EditorGUI.BeginDisabledGroup(VRCPlayerApi.AllPlayers.Count == 1 || player.isLocal);
+
+                        if (GUILayout.Button("Remove Player"))
+                        {
+                            playersToRemove.Add(player);
+                        }
+
+                        EditorGUI.EndDisabledGroup();
+
+                        GUILayout.EndHorizontal();
                     }
 
-                    EditorGUI.EndDisabledGroup();
-
-                    GUILayout.EndHorizontal();
+                    for (int i = playersToRemove.Count - 1; i >= 0; --i)
+                    {
+                        CyanEmuMain.RemovePlayer(playersToRemove[i]);
+                    }
+                    playersToRemove.Clear();
                 }
-
-                for (int i = playersToRemove.Count -1; i >= 0; --i)
-                {
-                    CyanEmuMain.RemovePlayer(playersToRemove[i]);
-                }
-                playersToRemove.Clear();
 
                 EditorGUI.EndDisabledGroup();
 
                 RemoveIndent();
             }
+            EditorGUILayout.EndVertical();
         }
 
         // TODO
@@ -224,7 +325,7 @@ namespace VRCPrefabs.CyanEmu
         {
             ++EditorGUI.indentLevel;
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(EditorGUI.indentLevel * 15 + 4);
+            GUILayout.Space(EditorGUI.indentLevel * 7 + 4);
             EditorGUILayout.BeginVertical();
         }
 
