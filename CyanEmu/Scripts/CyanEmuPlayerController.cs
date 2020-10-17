@@ -75,6 +75,7 @@ namespace VRCPrefabs.CyanEmu
         private bool peviouslyGrounded_;
         private bool legacyLocomotion_;
 
+        private Texture2D reticleTexture_;
 
         public static Camera GetPlayerCamera()
         {
@@ -159,6 +160,7 @@ namespace VRCPrefabs.CyanEmu
             Func<bool> shouldCheckForInteracts = () => { return currentPickup_ == null && !menu_.activeInHierarchy && !isDead_; };
             interactHelper_.Initialize(playerCamera_.transform, playerCamera_.transform, shouldCheckForInteracts);
 
+            reticleTexture_ = Resources.Load<Texture2D>("Images/Reticle");
 
             // experimental!
             //interactHelper_.highlightManager = playerCamera_.AddComponent<VRCP_HighlightManager>();
@@ -783,11 +785,10 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnGUI()
         {
-            Vector2 size = Vector2.one * 10;
             Vector2 center = CyanEmuBaseInput.GetScreenCenter();
-            center -= size * 0.5f;
-
-            GUI.Box(new Rect(center, size), "");
+            Vector2 size = new Vector2(reticleTexture_.width, reticleTexture_.height);
+            Rect position = new Rect(center - size * 0.5f, size);
+            GUI.DrawTexture(position, reticleTexture_);
         }
     }
 

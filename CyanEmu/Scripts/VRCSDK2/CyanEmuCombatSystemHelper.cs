@@ -116,9 +116,7 @@ namespace VRCPrefabs.CyanEmu {
             GameObject damage = visualDamagePrefab_;
             if (damage == null)
             {
-#if UNITY_EDITOR
-                damage = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/VRCSDK/Dependencies/VRChat/Resources/VRC_PlayerVisualDamage.prefab", typeof(GameObject)) as GameObject;
-#endif
+                damage = Resources.Load<GameObject>("VRC_PlayerVisualDamage");
             }
 			if (damage != null) {				
 				GameObject visualDamageObject = Instantiate(damage, playerController.GetCamera().transform);
