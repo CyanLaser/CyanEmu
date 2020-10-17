@@ -215,7 +215,7 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            GameObject player = new GameObject("Player");
+            GameObject player = new GameObject("Local Player");
             player.transform.parent = transform;
 
             // Force move the player initially to the spawn point to prevent enter triggers at the origin
@@ -226,7 +226,9 @@ namespace VRCPrefabs.CyanEmu
             playerController_.Teleport(descriptor_.spawns[0], false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
-            playerObj.SetPlayer(CyanEmuPlayerManager.CreateNewPlayer(true, player));
+            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player);
+            playerObj.SetPlayer(playerAPI);
+            player.name = $"[{playerAPI.playerId}] {player.name}";
         }
 
         private void SpawnRemotePlayer()
@@ -248,7 +250,9 @@ namespace VRCPrefabs.CyanEmu
             playerVis.transform.SetParent(player.transform, false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
-            playerObj.SetPlayer(CyanEmuPlayerManager.CreateNewPlayer(false, player));
+            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player);
+            playerObj.SetPlayer(playerAPI);
+            player.name = $"[{playerAPI.playerId}] {player.name}";
         }
 
         public static void RemovePlayer(VRCPlayerApi player)
