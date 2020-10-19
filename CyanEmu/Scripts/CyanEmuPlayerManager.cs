@@ -65,7 +65,7 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi player = new VRCPlayerApi();
             player.gameObject = playerObj;
 
-            player.displayName = (name != null ? name : (local ? "Local" : "Remote") +" Player " + nextPlayerID);
+            player.displayName = (string.IsNullOrEmpty(name) ? (local ? "Local" : "Remote") +" Player " + nextPlayerID : name);
             player.isLocal = local;
             InitializePlayer(player);
 
