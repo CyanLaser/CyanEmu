@@ -206,7 +206,7 @@ namespace VRCPrefabs.CyanEmu
                 settings_.proneKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerProneKeyGuiContent, settings_.proneKey);
                 
                 // custom name
-                settings_.customname = EditorGUILayout.TextField(playerControllerCustomName, settings_.customname);
+                settings_.customLocalPlayerName = EditorGUILayout.TextField(playerControllerCustomName, settings_.customLocalPlayerName);
 
                 EditorGUI.EndDisabledGroup();
 
@@ -273,9 +273,11 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.EndDisabledGroup();
                 */
 
+                settings_.remotePlayerCustomName = EditorGUILayout.TextField(playerControllerCustomName, settings_.remotePlayerCustomName);
+
                 if (GUILayout.Button("Spawn Remote Player"))
                 {
-                    CyanEmuMain.SpawnPlayer(false);
+                    CyanEmuMain.SpawnPlayer(false, settings_.remotePlayerCustomName);
                 }
 
                 List<VRCPlayerApi> playersToRemove = new List<VRCPlayerApi>();
