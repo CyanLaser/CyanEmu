@@ -60,12 +60,12 @@ namespace VRCPrefabs.CyanEmu
             waitingPlayers.Clear();
         }
 
-        public static VRCPlayerApi CreateNewPlayer(bool local, GameObject playerObj)
+        public static VRCPlayerApi CreateNewPlayer(bool local, GameObject playerObj, string name = null)
         {
             VRCPlayerApi player = new VRCPlayerApi();
             player.gameObject = playerObj;
 
-            player.displayName = (local ? "Local" : "Remote") +" Player " + nextPlayerID;
+            player.displayName = (name != null ? name : (local ? "Local" : "Remote") +" Player " + nextPlayerID);
             player.isLocal = local;
             InitializePlayer(player);
 

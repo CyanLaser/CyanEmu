@@ -36,6 +36,8 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public KeyCode proneKey = KeyCode.Z;
         [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
 
+        [SerializeField] public string customname = "";
+
         // TODO move settings to be per project instead of global to all
         [FormerlySerializedAs("enableTriggerExecution")]
         [SerializeField] public bool enableCyanEmu = true;

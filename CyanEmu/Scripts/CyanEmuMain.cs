@@ -226,7 +226,7 @@ namespace VRCPrefabs.CyanEmu
             playerController_.Teleport(descriptor_.spawns[0], false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
-            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player);
+            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player, settings_.customname != "" ? settings_.customname : null);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
         }
