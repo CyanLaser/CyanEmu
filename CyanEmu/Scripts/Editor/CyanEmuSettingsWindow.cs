@@ -44,9 +44,8 @@ namespace VRCPrefabs.CyanEmu
         private bool showPlayerButtons_;
 
         private string version_;
-
-        [InitializeOnLoadMethod]
-        private static void InitializeOnLoad()
+        
+        public static void TryInitOnLoad()
         {
             settings_ = CyanEmuSettings.Instance;
             if (settings_.displaySettingsWindowAtLaunch)
@@ -98,10 +97,7 @@ namespace VRCPrefabs.CyanEmu
 
             // Disable group from General settings
             EditorGUI.EndDisabledGroup();
-
-            // TODO
-            UpdateInput();
-
+            
 
             EditorGUILayout.EndScrollView();
 
@@ -308,17 +304,6 @@ namespace VRCPrefabs.CyanEmu
                 RemoveIndent();
             }
             EditorGUILayout.EndVertical();
-        }
-
-        // TODO
-        private void UpdateInput()
-        {
-            /*
-            if (GUILayout.Button("Read Input"))
-            {
-                CyanEmuInputManager.SetupInputMap();
-            }
-            */
         }
 
         private void AddIndent()
