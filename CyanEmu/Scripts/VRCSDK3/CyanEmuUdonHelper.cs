@@ -4,16 +4,13 @@ using System.Reflection;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
-using VRC.Udon.Common;
 using VRC.Udon.Common.Interfaces;
-using VRC.Udon.Security;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class CyanEmuUdonHelper : CyanEmuSyncedObjectHelper, ICyanEmuInteractable, ICyanEmuPickupable, ICyanEmuStationHandler
+    public class CyanEmuUdonHelper : CyanEmuSyncedObjectHelper, ICyanEmuInteractable, ICyanEmuPickupable, ICyanEmuStationHandler, ICyanEmuSyncableHandler
     {
-        // TODO: have an array of udon behaviours
         private UdonBehaviour udonbehaviour_;
 
         private static FieldInfo isNetworkReady = typeof(UdonBehaviour).GetField("_isNetworkReady", (BindingFlags.Instance | BindingFlags.NonPublic));
@@ -22,11 +19,6 @@ namespace VRCPrefabs.CyanEmu
 
         public static void OnInit(UdonBehaviour behaviour, IUdonProgram program)
         {
-			if (behaviour.gameObject.GetComponent<CyanEmuUdonHelper>() != null) {
-				Debug.Log("Duplicate Udon Helper. This isn't fully supported yet.");
-				return;
-			}
-
             CyanEmuUdonHelper helper = behaviour.gameObject.AddComponent<CyanEmuUdonHelper>();
             helper.SetUdonbehaviour(behaviour);
             
@@ -53,11 +45,6 @@ namespace VRCPrefabs.CyanEmu
 
         private void SetUdonbehaviour(UdonBehaviour udonbehaviour)
         {
-            if (GetComponents<UdonBehaviour>().Length > 1)
-            {
-                this.LogError("Object contains more than one UdonBehaviour component! " + CyanEmuUtils.PathForObject(gameObject));
-            }
-
             if (udonbehaviour == null)
             {
                 this.LogError("UdonBehaviour is null. Destroying helper.");
@@ -78,6 +65,15 @@ namespace VRCPrefabs.CyanEmu
         {
             CyanEmuUdonManager.RemoveUdonBehaviour(udonbehaviour_);
         }
+
+        #region ICyanEmuSyncableHandler
+
+        public void OnOwnershipTransferred(int ownerID)
+        {
+            udonbehaviour_.RunEvent("_onOwnershipTransferred", ("Player", VRCPlayerApi.GetPlayerById(ownerID)));
+        }
+
+        #endregion
 
         #region ICyanEmuInteractable
 

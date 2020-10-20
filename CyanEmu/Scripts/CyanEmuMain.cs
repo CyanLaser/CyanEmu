@@ -290,14 +290,14 @@ namespace VRCPrefabs.CyanEmu
         private void OnPlayerLeft(VRCPlayerApi player)
         {
             int masterID = CyanEmuPlayerManager.GetMasterID();
+            VRCPlayerApi masterPlayer = VRCPlayerApi.GetPlayerById(masterID);
 
             foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
-                ICyanEmuSyncable syncable = sync.GetComponent<ICyanEmuSyncable>();
-                Debug.Assert(syncable != null, "CyanEmuMain:OnPlayerLeft expected syncable component.");
-                if (syncable.GetOwner() == player.playerId)
+                GameObject syncObj = sync.gameObject;
+                if (Networking.GetOwner(syncObj)?.playerId == player.playerId)
                 {
-                    syncable.SetOwner(masterID);
+                    Networking.SetOwner(masterPlayer, syncObj);
                 }
             }
 

@@ -6,7 +6,7 @@ using VRCSDK2;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
-    public class CyanEmuObjectSyncHelper : CyanEmuSyncedObjectHelper
+    public class CyanEmuObjectSyncHelper : CyanEmuSyncedObjectHelper, ICyanEmuSyncableHandler
     {
         private VRC_ObjectSync sync_;
         private CyanEmuPickupHelper pickupHelper_;
@@ -40,6 +40,15 @@ namespace VRCPrefabs.CyanEmu
                 this.LogWarning("Object sync has animtor or animation component but no Sync Animation component. This will be forced synced!");
             }
         }
+
+        #region ICyanEmuSyncableHandler
+
+        public void OnOwnershipTransferred(int ownerID)
+        {
+            VRC_Trigger.Trigger(gameObject, VRC.SDKBase.VRC_Trigger.TriggerType.OnOwnershipTransfer); 
+        }
+
+        #endregion
 
         public void EnableKinematic()
         {

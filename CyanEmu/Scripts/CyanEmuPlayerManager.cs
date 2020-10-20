@@ -206,8 +206,23 @@ namespace VRCPrefabs.CyanEmu
 
         public static void TakeOwnership(VRCPlayerApi player, GameObject obj)
         {
-            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
-            sync?.SetOwner(player.playerId);
+            VRCPlayerApi prevOwner = GetOwner(obj);
+            if (prevOwner == player)
+            {
+                return;
+            }
+
+            ICyanEmuSyncable[] syncs = obj.GetComponents<ICyanEmuSyncable>();
+            foreach (ICyanEmuSyncable sync in syncs)
+            {
+                sync.SetOwner(player.playerId);
+            }
+
+            ICyanEmuSyncableHandler[] syncHandlers = obj.GetComponents<ICyanEmuSyncableHandler>();
+            foreach (ICyanEmuSyncableHandler syncHandler in syncHandlers)
+            {
+                syncHandler.OnOwnershipTransferred(player.playerId);
+            }
         }
 
         public static bool IsOwner(VRCPlayerApi player, GameObject obj)

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
@@ -23,7 +24,7 @@ namespace VRCPrefabs.CyanEmu
             int owner = EditorGUILayout.Popup("Set Owner", currentOwner, playerNames);
             if (owner != currentOwner)
             {
-                syncable.SetOwner(players[owner].playerId);
+                Networking.SetOwner(players[owner], (syncable as MonoBehaviour).gameObject);
             }
         }
     }
