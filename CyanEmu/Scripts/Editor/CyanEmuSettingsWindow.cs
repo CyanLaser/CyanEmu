@@ -45,7 +45,8 @@ namespace VRCPrefabs.CyanEmu
         private bool showPlayerButtons_;
 
         private string version_;
-        
+        private string remotePlayerCustomName = "";
+
         public static void TryInitOnLoad()
         {
             settings_ = CyanEmuSettings.Instance;
@@ -269,11 +270,11 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.EndDisabledGroup();
                 */
 
-                settings_.remotePlayerCustomName = EditorGUILayout.TextField(playerControllerCustomName, settings_.remotePlayerCustomName);
+                remotePlayerCustomName = EditorGUILayout.TextField(playerControllerCustomName, remotePlayerCustomName);
 
                 if (GUILayout.Button("Spawn Remote Player"))
                 {
-                    CyanEmuMain.SpawnPlayer(false, settings_.remotePlayerCustomName);
+                    CyanEmuMain.SpawnPlayer(false, remotePlayerCustomName);
                 }
 
                 List<VRCPlayerApi> playersToRemove = new List<VRCPlayerApi>();
