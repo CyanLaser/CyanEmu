@@ -72,7 +72,7 @@ namespace VRCPrefabs.CyanEmu
             Networking._IsOwner = CyanEmuPlayerManager.IsOwner;
             Networking._SetOwner = CyanEmuPlayerManager.TakeOwnership;
             Networking._GetUniqueName = VRC.Tools.GetGameObjectPath;
-
+            
             VRCPlayerApi._GetPlayerId = CyanEmuPlayerManager.GetPlayerID;
             VRCPlayerApi._GetPlayerById = CyanEmuPlayerManager.GetPlayerByID;
             VRCPlayerApi._isMasterDelegate = CyanEmuPlayerManager.IsMaster;
@@ -91,6 +91,17 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._GetBoneRotation = CyanEmuPlayerManager.GetBoneRotation;
             VRCPlayerApi._TakeOwnership = CyanEmuPlayerManager.TakeOwnership;
             VRCPlayerApi._IsOwner = CyanEmuPlayerManager.IsOwner;
+
+            VRCPlayerApi._ClearPlayerTags = CyanEmuPlayerManager.ClearPlayerTag;
+            VRCPlayerApi._SetPlayerTag = CyanEmuPlayerManager.SetPlayerTag;
+            VRCPlayerApi._GetPlayerTag = CyanEmuPlayerManager.GetPlayerTag;
+            VRCPlayerApi._GetPlayersWithTag = CyanEmuPlayerManager.GetPlayersWithTag;
+            VRCPlayerApi._SetSilencedToTagged = CyanEmuPlayerManager.SetSilencedToTagged;
+            VRCPlayerApi._SetSilencedToUntagged = CyanEmuPlayerManager.SetSilencedToUntagged;
+            VRCPlayerApi._ClearSilence = CyanEmuPlayerManager.ClearSilence;
+            VRCPlayerApi._SetInvisibleToTagged = CyanEmuPlayerManager.SetInvisibleToTagged;
+            VRCPlayerApi._SetInvisibleToUntagged = CyanEmuPlayerManager.SetInvisibleToUntagged;
+            VRCPlayerApi._ClearInvisible = CyanEmuPlayerManager.ClearInvisible;
 
             VRCPlayerApi._IsUserInVR = (VRCPlayerApi _) => false; // TODO one day...
             VRCPlayerApi._GetRunSpeed = CyanEmuPlayerManager.GetRunSpeed;

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
@@ -9,12 +10,18 @@ namespace VRCPrefabs.CyanEmu
         {
             return player.gameObject.GetComponent<CyanEmuPlayerController>();
         }
+
+        public static CyanEmuPlayer GetCyanEmuPlayer(this VRCPlayerApi player)
+        {
+            return player.gameObject.GetComponent<CyanEmuPlayer>();
+        }
     }
 
     [AddComponentMenu("")]
     public class CyanEmuPlayer : MonoBehaviour
     {
         public VRCPlayerApi player;
+        private Dictionary<string, string> tags = new Dictionary<string, string>();
 
         public void SetPlayer(VRCPlayerApi player)
         {
@@ -26,6 +33,30 @@ namespace VRCPrefabs.CyanEmu
             {
                 playerController.SetPlayer(this);
             }
+        }
+
+        public void ClearTags()
+        {
+            tags.Clear();
+        }
+
+        public void SetTag(string tagName, string tagValue)
+        {
+            tags.Add(tagName, tagValue);
+        }
+
+        public string GetTag(string tagName)
+        {
+            if (tags.TryGetValue(tagName, out string tagValue))
+            {
+                return tagValue;
+            }
+            return "";
+        }
+
+        public bool HasTag(string tagName, string tagValue)
+        {
+            return GetTag(tagName) == tagValue;
         }
     }
 }

@@ -367,22 +367,72 @@ namespace VRCPrefabs.CyanEmu
             return null;
         }
 
+        public static List<int> GetPlayersWithTag(string tagName, string tagValue)
+        {
+            List<int> players = new List<int>();
+            foreach (var player in VRCPlayerApi.AllPlayers)
+            {
+                if (player.GetCyanEmuPlayer().HasTag(tagName, tagValue))
+                {
+                    players.Add(player.playerId);
+                }
+            }
+            return players;
+        }
+
+        public static void ClearPlayerTag(VRCPlayerApi player)
+        {
+            player.GetCyanEmuPlayer().ClearTags();
+        }
+
+        public static void SetPlayerTag(VRCPlayerApi player, string tagName, string tagValue)
+        {
+            player.GetCyanEmuPlayer().SetTag(tagName, tagValue);
+        }
+
+        public static string GetPlayerTag(VRCPlayerApi player, string tagName)
+        {
+            return player.GetCyanEmuPlayer().GetTag(tagName);
+        }
+
+
+        public static void ClearSilence(VRCPlayerApi player)
+        {
+            // TODO?
+        }
+
+        public static void SetSilencedToUntagged(VRCPlayerApi player, int number, string tagName, string tagValue)
+        {
+            // TODO?
+        }
+
+        public static void SetSilencedToTagged(VRCPlayerApi player, int number, string tagName, string tagValue)
+        {
+            // TODO?
+        }
+
+
+        public static void ClearInvisible(VRCPlayerApi player)
+        {
+            // TODO?
+        }
+
+        public static void SetInvisibleToUntagged(VRCPlayerApi player, bool invisible, string tagName, string tagValue)
+        {
+            // TODO?
+        }
+
+        public static void SetInvisibleToTagged(VRCPlayerApi player, bool invisible, string tagName, string tagValue)
+        {
+            // TODO?
+        }
+
 
         /*
         TODO all the interfaces:
         
         public static ClaimNetworkControlDelegate ClaimNetworkControl;
         public static GetLookRayDelegate GetLookRay;
-        public static Action<VRCPlayerApi, bool> _Immobilize;
-
-
-        public static Action<VRCPlayerApi> _ClearSilence;
-        public static Action<VRCPlayerApi, int, string, string> _SetSilencedToUntagged;
-        public static Action<VRCPlayerApi, int, string, string> _SetSilencedToTagged;
-
-        public static Action<VRCPlayerApi> _ClearInvisible;
-        public static Action<VRCPlayerApi, bool, string, string> _SetInvisibleToUntagged;
-        public static Action<VRCPlayerApi, bool, string, string> _SetInvisibleToTagged;
 
         public static Action<VRCPlayerApi, RuntimeAnimatorController> _PushAnimations;
         public static Action<VRCPlayerApi> _PopAnimations;
@@ -390,18 +440,6 @@ namespace VRCPrefabs.CyanEmu
 
         public static Func<VRCPlayerApi, bool> _isModeratorDelegate;
         public static Func<VRCPlayerApi, bool> _isSuperDelegate;
-
-        public static List<VRCPlayerApi> sPlayers;
-        public static Func<VRCPlayerApi, int> _GetPlayerId;
-        public static Func<GameObject, VRCPlayerApi> _GetPlayerByGameObject;
-        public static Func<int, VRCPlayerApi> _GetPlayerById;
-        
-        public static Action<VRCPlayerApi, bool> _EnablePickups;
-
-        public static Func<string, string, List<int>> _GetPlayersWithTag;
-        public static Action<VRCPlayerApi> _ClearPlayerTag
-        public static Action<VRCPlayerApi, string, string> _SetPlayerTag;
-        public static Func<VRCPlayerApi, string, string> _GetPlayerTag;
 
         public static Action<VRCPlayerApi, Color> _SetNamePlateColor;
         public static Action<VRCPlayerApi> _RestoreNamePlateColor;
