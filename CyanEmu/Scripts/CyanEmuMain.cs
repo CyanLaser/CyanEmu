@@ -230,11 +230,12 @@ namespace VRCPrefabs.CyanEmu
             player.transform.parent = transform;
 
             // Force move the player initially to the spawn point to prevent enter triggers at the origin
-            player.transform.position = descriptor_.spawns[0].position;
-            player.transform.rotation = descriptor_.spawns[0].rotation;
+            Transform spawn = GetSpawnPoint();
+            player.transform.position = spawn.position;
+            player.transform.rotation = Quaternion.Euler(0, spawn.rotation.eulerAngles.y, 0); 
 
             playerController_ = player.AddComponent<CyanEmuPlayerController>();
-            playerController_.Teleport(descriptor_.spawns[0], false);
+            playerController_.Teleport(spawn, false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
             VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player, settings_.customLocalPlayerName);
@@ -254,8 +255,10 @@ namespace VRCPrefabs.CyanEmu
             player.transform.parent = transform;
             player.layer = LayerMask.NameToLayer("Player");
             // TODO do this better
-            player.transform.position = descriptor_.spawns[0].position;
-            player.transform.rotation = descriptor_.spawns[0].rotation;
+            Transform spawn = GetSpawnPoint();
+            player.transform.position = spawn.position;
+            player.transform.rotation = Quaternion.Euler(0, spawn.rotation.eulerAngles.y, 0);
+
             GameObject playerVis = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             playerVis.layer = player.layer;
             playerVis.transform.SetParent(player.transform, false);
@@ -264,6 +267,16 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player, name);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
+        }
+
+        private Transform GetSpawnPoint()
+        {
+            if (descriptor_.spawns.Length == 0 || descriptor_.spawns[0] == null)
+            {
+                throw new Exception("[CyanEmuMain] Cannot spawn player when descriptor does not have a spawn set!");
+            }
+
+            return descriptor_.spawns[0];
         }
 
         public static void RemovePlayer(VRCPlayerApi player)
