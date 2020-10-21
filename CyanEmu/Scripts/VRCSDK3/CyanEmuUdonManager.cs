@@ -46,9 +46,19 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnNetworkReady()
         {
+            HashSet<GameObject> objs = new HashSet<GameObject>();
             foreach (var udonBehavior in allUdonBehaviours_)
             {
-                udonBehavior.GetComponent<CyanEmuUdonHelper>().OnNetworkReady();
+                if (objs.Contains(udonBehavior.gameObject))
+                {
+                    continue;
+                }
+                objs.Add(udonBehavior.gameObject);
+
+                foreach (var helper in udonBehavior.GetComponents<CyanEmuUdonHelper>())
+                {
+                    helper.OnNetworkReady();
+                }
             }
         }
 

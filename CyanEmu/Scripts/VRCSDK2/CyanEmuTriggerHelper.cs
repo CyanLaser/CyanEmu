@@ -51,11 +51,6 @@ namespace VRCPrefabs.CyanEmu
 
         private void SetTrigger(VRC_Trigger trigger)
         {
-            if (GetComponents<VRC_Trigger>().Length > 1)
-            {
-                this.LogError("Object contains more than one VRC_Trigger component! " + CyanEmuUtils.PathForObject(gameObject));
-            }
-
             if (trigger == null)
             {
                 this.LogError("Trigger is null. Destroying helper.");
@@ -380,9 +375,14 @@ namespace VRCPrefabs.CyanEmu
 
         #region ICyanEmuInteractable
 
-        public bool CanInteract(float distance)
+        public float GetProximity()
         {
-            return Trigger.enabled && interactTriggers.Count > 0 && Trigger.proximity >= distance;
+            return Trigger.proximity;
+        }
+
+        public bool CanInteract()
+        {
+            return Trigger.enabled && interactTriggers.Count > 0;
         }
 
         public string GetInteractText()

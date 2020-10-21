@@ -181,19 +181,6 @@ namespace VRCPrefabs.CyanEmu
             return null;
         }
 
-        public static VRCPlayerApi GetOwner(GameObject obj)
-        {
-            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
-
-            int playerID = sync != null ? sync.GetOwner() : masterID;
-
-            if (!players.TryGetValue(playerID, out VRCPlayerApi player))
-            {
-                return null;
-            }
-            return player;
-        }
-
         public static VRC_Pickup GetPickupInHand(VRCPlayerApi player, VRC_Pickup.PickupHand hand)
         {
             return player.GetPlayerController().GetHeldPickup(hand);
@@ -206,23 +193,20 @@ namespace VRCPrefabs.CyanEmu
 
         public static void TakeOwnership(VRCPlayerApi player, GameObject obj)
         {
-            VRCPlayerApi prevOwner = GetOwner(obj);
-            if (prevOwner == player)
-            {
-                return;
-            }
+            obj.SetOwner(player);
+        }
 
-            ICyanEmuSyncable[] syncs = obj.GetComponents<ICyanEmuSyncable>();
-            foreach (ICyanEmuSyncable sync in syncs)
-            {
-                sync.SetOwner(player.playerId);
-            }
+        public static VRCPlayerApi GetOwner(GameObject obj)
+        {
+            ICyanEmuSyncable sync = obj.GetComponent<ICyanEmuSyncable>();
 
-            ICyanEmuSyncableHandler[] syncHandlers = obj.GetComponents<ICyanEmuSyncableHandler>();
-            foreach (ICyanEmuSyncableHandler syncHandler in syncHandlers)
+            int playerID = sync != null ? sync.GetOwner() : masterID;
+
+            if (!players.TryGetValue(playerID, out VRCPlayerApi player))
             {
-                syncHandler.OnOwnershipTransferred(player.playerId);
+                return null;
             }
+            return player;
         }
 
         public static bool IsOwner(VRCPlayerApi player, GameObject obj)

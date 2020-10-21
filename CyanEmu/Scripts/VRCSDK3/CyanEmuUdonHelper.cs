@@ -77,9 +77,14 @@ namespace VRCPrefabs.CyanEmu
 
         #region ICyanEmuInteractable
 
-        public bool CanInteract(float distance)
+        public float GetProximity()
         {
-            return udonbehaviour_.HasInteractiveEvents && distance <= udonbehaviour_.proximity;
+            return udonbehaviour_.proximity;
+        }
+
+        public bool CanInteract()
+        {
+            return udonbehaviour_.HasInteractiveEvents;
         }
 
         public string GetInteractText()

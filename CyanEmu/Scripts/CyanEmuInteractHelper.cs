@@ -78,22 +78,20 @@ namespace VRCPrefabs.CyanEmu
             for (int curHit = 0; curHit < hitCount && !display; ++curHit)
             {
                 RaycastHit hit = raycastHitBuffer[curHit];
-                ICyanEmuInteractable[] interactables = hit.collider.GetComponents<ICyanEmuInteractable>();
-                foreach (ICyanEmuInteractable interactable in interactables)
+                GameObject hitObject = hit.collider.gameObject;
+                ICyanEmuInteractable interactable = hitObject.GetClosestInteractable(hit.distance);
+
+                if (interactable != null)
                 {
-                    if (interactable != null && interactable.CanInteract(hit.distance))
+                    //highlightManager.AddInteractable(foundInteractable);
+
+                    HighlightCollider(hit.collider, interactable.GetInteractText());
+                    display = true;
+
+                    // TODO get input from input manager
+                    if (Input.GetMouseButtonDown(0))
                     {
-                        //highlightManager.AddInteractable(interactable);
-
-                        HighlightCollider(hit.collider, interactable.GetInteractText());
-                        display = true;
-
-                        // TODO get input from input manager
-                        if (Input.GetMouseButtonDown(0))
-                        {
-                            interactable.Interact();
-                        }
-                        break;
+                        hitObject.Interact(hit.distance);
                     }
                 }
 

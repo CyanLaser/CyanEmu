@@ -12,7 +12,6 @@ namespace VRCPrefabs.CyanEmu
 
         private VRC_Pickup pickup_;
         private Rigidbody rigidbody_;
-        private ICyanEmuPickupable[] pickupables_;
 
         private bool wasKinematic_;
         private bool isHeld_;
@@ -20,9 +19,14 @@ namespace VRCPrefabs.CyanEmu
         private Vector3 positionOffset_;
         private Quaternion rotationOffset_ = Quaternion.identity;
 
-
         public static void InitializePickup(VRC_Pickup pickup)
         {
+            if (pickup.gameObject.GetComponent<CyanEmuPickupHelper>() != null)
+            {
+                pickup.LogWarning("Multiple VRC_Pickup components on the same gameobject! " + VRC.Tools.GetGameObjectPath(pickup.gameObject));
+                return;
+            }
+
             CyanEmuPickupHelper helper = pickup.gameObject.AddComponent<CyanEmuPickupHelper>();
             helper.SetPickup(pickup);
         }
@@ -59,14 +63,14 @@ namespace VRCPrefabs.CyanEmu
             rigidbody_ = GetComponent<Rigidbody>();
         }
 
-        private void Start()
+        public float GetProximity()
         {
-            pickupables_ = GetComponents<ICyanEmuPickupable>();
+            return pickup_.proximity;
         }
 
-        public bool CanInteract(float distance)
+        public bool CanInteract()
         {
-            return pickup_.pickupable && pickup_.proximity >= distance;
+            return pickup_.pickupable;
         }
 
         public string GetInteractText()
@@ -83,7 +87,7 @@ namespace VRCPrefabs.CyanEmu
         {
             Pickup();
         }
-        
+
         public void UpdatePosition(Transform root)
         {
             transform.position = root.transform.position + root.TransformDirection(positionOffset_);
@@ -100,18 +104,15 @@ namespace VRCPrefabs.CyanEmu
                     return;
                 }
 
-                for(int pickupable = 0; pickupable < pickupables_.Length; ++pickupable)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        this.Log("Pickup Use Down");
-                        pickupables_[pickupable].OnPickupUseDown();
-                    }
-                    if (Input.GetMouseButtonUp(0))
-                    {
-                        this.Log("Pickup Use Up");
-                        pickupables_[pickupable].OnPickupUseUp();
-                    }
+                    this.Log("Pickup Use Down");
+                    gameObject.OnPickupUseDown();
+                }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    this.Log("Pickup Use Up");
+                    gameObject.OnPickupUseUp();
                 }
             }
             else
@@ -127,10 +128,7 @@ namespace VRCPrefabs.CyanEmu
         {
             isHeld_ = true;
 
-            for (int pickupable = 0; pickupable < pickupables_.Length; ++pickupable)
-            {
-                pickupables_[pickupable].OnPickup();
-            }
+            gameObject.OnPickup();
 
             CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
@@ -189,10 +187,7 @@ namespace VRCPrefabs.CyanEmu
             this.Log("Dropping up object " + name);
             isHeld_ = false;
 
-            for (int pickupable = 0; pickupable < pickupables_.Length; ++pickupable)
-            {
-                pickupables_[pickupable].OnDrop();
-            }
+            gameObject.OnDrop();
 
             if (CyanEmuPlayerController.instance == null)
             {

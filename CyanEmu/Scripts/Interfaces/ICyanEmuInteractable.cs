@@ -2,7 +2,8 @@
 {
     public interface ICyanEmuInteractable
     {
-        bool CanInteract(float distance);
+        float GetProximity();
+        bool CanInteract();
         string GetInteractText();
         void Interact();
     }

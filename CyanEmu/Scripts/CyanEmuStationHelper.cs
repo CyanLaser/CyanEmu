@@ -7,7 +7,6 @@ namespace VRCPrefabs.CyanEmu
     public class CyanEmuStationHelper : MonoBehaviour, ICyanEmuStationHandler
     {
         private VRCStation station_;
-        private ICyanEmuStationHandler[] stationHandlers_;
         private bool entered_ = false;
 
         public Transform EnterLocation
@@ -36,6 +35,12 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializeStations(VRCStation station)
         {
+            if (station.gameObject.GetComponent<CyanEmuStationHelper>())
+            {
+                station.LogWarning("Multiple VRCStation components on the same gameobject! " + VRC.Tools.GetGameObjectPath(station.gameObject));
+                return;
+            }
+
             station.gameObject.AddComponent<CyanEmuStationHelper>();
         }
 
@@ -69,11 +74,6 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        private void Start()
-        {
-            stationHandlers_ = GetComponents<ICyanEmuStationHandler>();
-        }
-
         public void UseStation()
         {
             if (entered_)
@@ -86,11 +86,8 @@ namespace VRCPrefabs.CyanEmu
             {
                 CyanEmuPlayerController.instance.EnterStation(this);
             }
-            
-            foreach (var handler in stationHandlers_)
-            {
-                handler.OnStationEnter(station_);
-            }
+
+            gameObject.OnStationEnter(station_);
 
             this.Log("Entering Station " + name);
         }
@@ -108,10 +105,7 @@ namespace VRCPrefabs.CyanEmu
                 CyanEmuPlayerController.instance.ExitStation(this);
             }
 
-            foreach (var handler in stationHandlers_)
-            {
-                handler.OnStationExit(station_);
-            }
+            gameObject.OnStationExit(station_);
 
             this.Log("Exiting Station " + name);
         }
