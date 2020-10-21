@@ -206,7 +206,7 @@ namespace VRCPrefabs.CyanEmu
         }
 
 
-        public static void SpawnPlayer(bool local)
+        public static void SpawnPlayer(bool local, string name = null)
         {
             if (local)
             {
@@ -214,7 +214,7 @@ namespace VRCPrefabs.CyanEmu
             }
             else
             {
-                instance_?.SpawnRemotePlayer();
+                instance_?.SpawnRemotePlayer(name);
             }
         }
 
@@ -237,12 +237,12 @@ namespace VRCPrefabs.CyanEmu
             playerController_.Teleport(descriptor_.spawns[0], false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
-            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player);
+            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(true, player, settings_.customLocalPlayerName);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
         }
 
-        private void SpawnRemotePlayer()
+        private void SpawnRemotePlayer(string name = null)
         {
             if (descriptor_ == null)
             {
@@ -261,7 +261,7 @@ namespace VRCPrefabs.CyanEmu
             playerVis.transform.SetParent(player.transform, false);
 
             CyanEmuPlayer playerObj = player.AddComponent<CyanEmuPlayer>();
-            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player);
+            VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player, name);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
         }
