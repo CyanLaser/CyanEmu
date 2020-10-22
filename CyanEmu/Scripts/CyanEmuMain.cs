@@ -128,6 +128,8 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._CombatGetDestructible = CyanEmuCombatSystemHelper.CombatGetDestructible;
             VRCPlayerApi._CombatSetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatSetCurrentHitpoints;
 
+            VRC_SpatialAudioSource.Initialize = CyanEmuSpatialAudioHelper.InitializeAudio;
+
             GameObject executor = new GameObject(CYAN_EMU_GAMEOBJECT_NAME_);
             executor.tag = "EditorOnly";
             instance_ = executor.AddComponent<CyanEmuMain>();
