@@ -111,16 +111,11 @@ namespace VRCPrefabs.CyanEmu
         }
 
         // Returns if should move
-        public bool UpdateSeat(float speed)
+        public bool CanPlayerMoveWhileSeated(float speed)
         {
             if (IsMobile)
             {
                 return true;
-            }
-
-            if (CyanEmuPlayerController.instance != null)
-            {
-                CyanEmuPlayerController.instance.SitPosition(station_.stationEnterPlayerLocation);
             }
 
             if (Mathf.Abs(speed) >= 0.1f && !station_.disableStationExit)

@@ -498,6 +498,7 @@ namespace VRCPrefabs.CyanEmu
         public void SitPosition(Transform seat)
         {
             transform.position = seat.position;
+            UpdateCameraProxyPosition();
         }
 
         public Camera GetCamera()
@@ -575,9 +576,8 @@ namespace VRCPrefabs.CyanEmu
             Vector2 prevInput = prevInputResult_;
             GetInput(out speed, out input);
 
-            if (currentStation_ != null && !currentStation_.UpdateSeat(input.magnitude))
+            if (currentStation_ != null && !currentStation_.CanPlayerMoveWhileSeated(input.magnitude))
             {
-                UpdateCameraProxyPosition();
                 return;
             }
 
@@ -657,6 +657,14 @@ namespace VRCPrefabs.CyanEmu
             velSet = false;
 
             UpdateCameraProxyPosition();
+        }
+
+        private void LateUpdate()
+        {
+            if (currentStation_ != null)
+            {
+                SitPosition(currentStation_.EnterLocation);
+            }
         }
 
         private void UpdateCameraProxyPosition()
