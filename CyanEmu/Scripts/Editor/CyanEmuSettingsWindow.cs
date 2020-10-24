@@ -25,6 +25,7 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent playerControllerCrouchKeyGuiContent = new GUIContent("Crouch Key", "The button used to crouch. Crouching will lower the camera midway to the floor and slow down the player.");
         private readonly GUIContent playerControllerProneKeyGuiContent = new GUIContent("Prone Key", "The button used to go prone. Going prone will lower the camera closer to the floor and slow down the player.");
         private readonly GUIContent playerControllerCustomName = new GUIContent("Player Name", "Set a custom name for testing udon script name detection");
+        private readonly GUIContent playerControllerScale = new GUIContent("Player Scale", "Set a custom scale for the player, 1 is default higher is bigger and lower is smaller (Range 0.001 - 100)");
 
         // Buffered Trigger content
         private readonly GUIContent bufferedTriggerFoldoutGuiContent = new GUIContent("Buffered Trigger Settings", "");
@@ -204,6 +205,7 @@ namespace VRCPrefabs.CyanEmu
                 
                 // custom name
                 settings_.customLocalPlayerName = EditorGUILayout.TextField(playerControllerCustomName, settings_.customLocalPlayerName);
+                settings_.localPlayerScale = Mathf.Clamp(EditorGUILayout.FloatField(playerControllerScale, settings_.localPlayerScale), 0.001f, 100f);
 
                 EditorGUI.EndDisabledGroup();
 

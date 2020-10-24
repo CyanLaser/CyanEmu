@@ -36,9 +36,12 @@ namespace VRCPrefabs.CyanEmu
 
         private readonly KeyCode MenuKey = KeyCode.Escape;
 
-        
+        private Vector3 capsuleSize_ = new Vector3(0.4f, 1, 0.4f);
+        private float currentScale_ = 1f;
+
         private GameObject playspace_;
         private GameObject playerCamera_;
+        private GameObject capsule_;
         private GameObject rightArmPosition_;
         private GameObject leftArmPosition_;
         private GameObject menu_;
@@ -77,6 +80,8 @@ namespace VRCPrefabs.CyanEmu
         private bool legacyLocomotion_;
 
         private Texture2D reticleTexture_;
+
+        private static CyanEmuSettings settings_;
 
         public static Camera GetPlayerCamera()
         {
@@ -118,11 +123,11 @@ namespace VRCPrefabs.CyanEmu
             characterController_.height = 1.6f;
 
 
-            GameObject capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.transform.localScale = new Vector3(0.4f, 1, 0.4f);
-            capsule.transform.parent = transform;
-            capsule.transform.localPosition = new Vector3(0, 1, 0);
-            DestroyImmediate(capsule.GetComponent<Collider>());
+            capsule_ = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            capsule_.transform.localScale = capsuleSize_;
+            capsule_.transform.parent = transform;
+            capsule_.transform.localPosition = new Vector3(0, 1, 0);
+            DestroyImmediate(capsule_.GetComponent<Collider>());
 
 
             playerCamera_ = new GameObject("Player Camera");
@@ -175,6 +180,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void Start()
         {
+            settings_ = CyanEmuSettings.Instance;
             Camera refCamera = null;
             if (descriptor_.ReferenceCamera != null)
             {
@@ -724,11 +730,14 @@ namespace VRCPrefabs.CyanEmu
             }
             
 
-            if (updatePosition)
+            if (updatePosition || (settings_.localPlayerScale != currentScale_))
             {
+                currentScale_ = settings_.localPlayerScale;
                 Vector3 cameraPosition = playerCamera_.transform.localPosition;
-                cameraPosition.y = (stance_ == Stance.STANDING ? STANDING_HEIGHT_ : stance_ == Stance.CROUCHING ? CROUCHING_HEIGHT_ : PRONE_HEIGHT_);
+                cameraPosition.y = (stance_ == Stance.STANDING ? (STANDING_HEIGHT_ * settings_.localPlayerScale) : stance_ == Stance.CROUCHING ? (CROUCHING_HEIGHT_ * settings_.localPlayerScale) : (PRONE_HEIGHT_ * settings_.localPlayerScale));
                 playerCamera_.transform.localPosition = cameraPosition;
+                capsule_.transform.localScale = capsuleSize_ * settings_.localPlayerScale;
+                capsule_.transform.localPosition = new Vector3(0, settings_.localPlayerScale, 0);
             }
         }
 

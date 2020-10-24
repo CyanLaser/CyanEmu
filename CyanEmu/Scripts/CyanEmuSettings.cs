@@ -37,6 +37,7 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public KeyCode runKey = KeyCode.LeftShift;
 
         [SerializeField] public string customLocalPlayerName = "";
+        [SerializeField] public float localPlayerScale = 1;
 
         // TODO move settings to be per project instead of global to all
         [FormerlySerializedAs("enableTriggerExecution")]
