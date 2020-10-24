@@ -7,6 +7,16 @@ namespace VRCPrefabs.CyanEmu
     {
         #region ICyanEmuInteractable
 
+        // Dumb numbers
+        private const float INTERACT_OFFSET = 0.9865f;
+        private const float INTERACT_SCALE = 1.2685f;
+
+        public static float CalculateInteractDistanceFormula()
+        {
+            float camSize = CyanEmuPlayerController.instance.GetCameraScale();
+            return camSize * INTERACT_SCALE + INTERACT_OFFSET;
+        }
+
         public static ICyanEmuInteractable GetClosestInteractable(this GameObject obj, float distance)
         {
             ICyanEmuInteractable closest = null;
@@ -14,11 +24,10 @@ namespace VRCPrefabs.CyanEmu
 
             foreach (var interactable in obj.GetComponents<ICyanEmuInteractable>())
             {
-                float proximity = interactable.GetProximity();
-                if (interactable.CanInteract(distance) && proximity < bestDistance)
+                if (interactable.CanInteract(distance))
                 {
                     closest = interactable;
-                    bestDistance = proximity;
+                    bestDistance = interactable.GetProximity();
                 }
             }
 
@@ -27,7 +36,8 @@ namespace VRCPrefabs.CyanEmu
 
         public static bool CanInteract(this ICyanEmuInteractable interactable, float distance)
         {
-            return interactable.CanInteract() && distance < interactable.GetProximity(); // TODO multiply by camera scale?
+            float proximityCalculation = CalculateInteractDistanceFormula() * interactable.GetProximity();
+            return interactable.CanInteract() && distance <= proximityCalculation;
         }
 
         public static bool CanInteract(this GameObject obj, float distance)

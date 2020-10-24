@@ -42,6 +42,7 @@ namespace VRCPrefabs.CyanEmu
         private GameObject rightArmPosition_;
         private GameObject leftArmPosition_;
         private GameObject menu_;
+        private Transform cameraProxyObject_;
         private Rigidbody rigidbody_;
         private VRC_SceneDescriptor descriptor_;
         private CharacterController characterController_;
@@ -132,6 +133,8 @@ namespace VRCPrefabs.CyanEmu
             playerCamera_.transform.parent = transform;
             playerCamera_.transform.localPosition = new Vector3(0, STANDING_HEIGHT_, .1f);
             playerCamera_.transform.localRotation = Quaternion.identity;
+            // TODO, make based on avatar armspan/settings
+            playerCamera_.transform.localScale = Vector3.one * 1.13f;
 
             playspace_ = new GameObject("Playspace Center");
             playspace_.transform.parent = transform;
@@ -161,6 +164,10 @@ namespace VRCPrefabs.CyanEmu
             interactHelper_.Initialize(playerCamera_.transform, playerCamera_.transform, shouldCheckForInteracts);
 
             reticleTexture_ = Resources.Load<Texture2D>("Images/Reticle");
+            
+            cameraProxyObject_ = new GameObject("CameraDamageProxy").transform;
+            cameraProxyObject_.parent = CyanEmuMain.GetProxyObjectTransform();
+            UpdateCameraProxyPosition();
 
             // experimental!
             //interactHelper_.highlightManager = playerCamera_.AddComponent<VRCP_HighlightManager>();
@@ -436,6 +443,7 @@ namespace VRCPrefabs.CyanEmu
             transform.rotation = floorRotation;
             transform.position = position;
             mouseLook_.SetRotation(floorRotation);
+            UpdateCameraProxyPosition();
             Physics.SyncTransforms();
         }
 
@@ -497,6 +505,16 @@ namespace VRCPrefabs.CyanEmu
             return camera_;
         }
 
+        public float GetCameraScale()
+        {
+            return camera_.transform.lossyScale.x;
+        }
+
+        public Transform GetCameraProxyTransform()
+        {
+            return cameraProxyObject_;
+        }
+
         public Transform GetArmTransform()
         {
             return rightArmPosition_.transform;
@@ -545,6 +563,8 @@ namespace VRCPrefabs.CyanEmu
                 currentPickup_.UpdatePosition(rightArmPosition_.transform);
                 currentPickup_.UpdateUse();
             }
+
+            UpdateCameraProxyPosition();
         }
 
         private void FixedUpdate()
@@ -557,6 +577,7 @@ namespace VRCPrefabs.CyanEmu
 
             if (currentStation_ != null && !currentStation_.UpdateSeat(input.magnitude))
             {
+                UpdateCameraProxyPosition();
                 return;
             }
 
@@ -634,6 +655,15 @@ namespace VRCPrefabs.CyanEmu
             }
 
             velSet = false;
+
+            UpdateCameraProxyPosition();
+        }
+
+        private void UpdateCameraProxyPosition()
+        {
+            cameraProxyObject_.position = camera_.transform.position;
+            cameraProxyObject_.rotation = camera_.transform.rotation;
+            cameraProxyObject_.localScale = camera_.transform.lossyScale;
         }
 
         private void UpdateMenu()

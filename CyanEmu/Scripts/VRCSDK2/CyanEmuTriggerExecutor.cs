@@ -61,8 +61,6 @@ namespace VRCPrefabs.CyanEmu
             {
                 CyanEmuBufferManager.LoadBufferedTriggersFromFile();
             }
-
-            SetupCombat();
         }
 
         public static void SetupCombat()
@@ -135,6 +133,11 @@ namespace VRCPrefabs.CyanEmu
         
         public void OnPlayerJoined(VRCPlayerApi player)
         {
+            if (player.isLocal)
+            {
+                SetupCombat();
+            }
+
             FireTriggerTypeInternal(VRC_Trigger.TriggerType.OnPlayerJoined);
         }
 

@@ -21,6 +21,7 @@ namespace VRCPrefabs.CyanEmu
         private CyanEmuPlayerController playerController_;
         private VRC_SceneDescriptor descriptor_;
         private HashSet<CyanEmuSyncedObjectHelper> allSyncedObjects_ = new HashSet<CyanEmuSyncedObjectHelper>();
+        private Transform proxyObjectParents_;
 
         private int spawnedObjectCount_;
         private bool networkReady_;
@@ -159,6 +160,8 @@ namespace VRCPrefabs.CyanEmu
             instance_ = this;
             DontDestroyOnLoad(this);
 
+            proxyObjectParents_ = new GameObject(CYAN_EMU_GAMEOBJECT_NAME_ + "ProxyObjects").transform;
+            DontDestroyOnLoad(proxyObjectParents_);
 
             CyanEmuInputModule.DisableOtherInputModules();
             gameObject.AddComponent<CyanEmuBaseInput>();
@@ -205,6 +208,11 @@ namespace VRCPrefabs.CyanEmu
 
             networkReady_ = true;
             CyanEmuPlayerManager.OnNetworkReady();
+        }
+
+        public static Transform GetProxyObjectTransform()
+        {
+            return instance_.proxyObjectParents_;
         }
 
 

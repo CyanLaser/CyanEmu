@@ -65,6 +65,7 @@ namespace VRCPrefabs.CyanEmu {
         public static void CombatSetDamageGraphic(VRCPlayerApi player, GameObject visualDamage)
         {
             instance.visualDamagePrefab_ = visualDamage;
+            instance.CreateVisualDamage();
         }
 
 
@@ -113,13 +114,18 @@ namespace VRCPrefabs.CyanEmu {
 
         public void CreateVisualDamage()
         {
+            if (visualDamage_ != null)
+            {
+                Destroy(visualDamage_.gameObject);
+            }
+
             GameObject damage = visualDamagePrefab_;
             if (damage == null)
             {
                 damage = Resources.Load<GameObject>("VRC_PlayerVisualDamage");
             }
 			if (damage != null) {				
-				GameObject visualDamageObject = Instantiate(damage, playerController.GetCamera().transform);
+				GameObject visualDamageObject = Instantiate(damage, playerController.GetCameraProxyTransform());
 				float offset = 0;
 				visualDamage_ = visualDamageObject.GetComponent<VRC_VisualDamage>();
 				if (visualDamage_ != null) {
