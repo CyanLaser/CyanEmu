@@ -366,6 +366,8 @@ namespace VRCPrefabs.CyanEmu
             return null;
         }
 
+        #region Player Tags
+
         public static List<int> GetPlayersWithTag(string tagName, string tagValue)
         {
             List<int> players = new List<int>();
@@ -426,6 +428,56 @@ namespace VRCPrefabs.CyanEmu
             // TODO?
         }
 
+        #endregion
+
+        #region Player Audio
+
+        public static void SetAvatarAudioVolumetricRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioNearRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioFarRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioGain(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceLowpass(VRCPlayerApi player, bool value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceVolumetricRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceDistanceFar(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceDistanceNear(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceGain(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        #endregion 
 
         /*
         TODO all the interfaces:

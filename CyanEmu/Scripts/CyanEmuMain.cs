@@ -104,6 +104,16 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._SetInvisibleToUntagged = CyanEmuPlayerManager.SetInvisibleToUntagged;
             VRCPlayerApi._ClearInvisible = CyanEmuPlayerManager.ClearInvisible;
 
+            VRCPlayerApi._SetAvatarAudioVolumetricRadius = CyanEmuPlayerManager.SetAvatarAudioVolumetricRadius;
+            VRCPlayerApi._SetAvatarAudioNearRadius = CyanEmuPlayerManager.SetAvatarAudioNearRadius;
+            VRCPlayerApi._SetAvatarAudioFarRadius = CyanEmuPlayerManager.SetAvatarAudioFarRadius;
+            VRCPlayerApi._SetAvatarAudioGain = CyanEmuPlayerManager.SetAvatarAudioGain;
+            VRCPlayerApi._SetVoiceLowpass = CyanEmuPlayerManager.SetVoiceLowpass;
+            VRCPlayerApi._SetVoiceVolumetricRadius = CyanEmuPlayerManager.SetVoiceVolumetricRadius;
+            VRCPlayerApi._SetVoiceDistanceFar = CyanEmuPlayerManager.SetVoiceDistanceFar;
+            VRCPlayerApi._SetVoiceDistanceNear = CyanEmuPlayerManager.SetVoiceDistanceNear;
+            VRCPlayerApi._SetVoiceGain = CyanEmuPlayerManager.SetVoiceGain;
+
             VRCPlayerApi._IsUserInVR = (VRCPlayerApi _) => false; // TODO one day...
             VRCPlayerApi._GetRunSpeed = CyanEmuPlayerManager.GetRunSpeed;
             VRCPlayerApi._SetRunSpeed = CyanEmuPlayerManager.SetRunSpeed;
@@ -150,8 +160,8 @@ namespace VRCPrefabs.CyanEmu
         {
             if (instance_ != null)
             {
-                this.LogError("Already have an instance of Trigger executor!");
-                DestroyImmediate(this);
+                this.LogError("Already have an instance of CyanEmu!");
+                DestroyImmediate(gameObject);
                 return;
             }
             

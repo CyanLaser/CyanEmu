@@ -22,7 +22,6 @@ namespace VRCPrefabs.CyanEmu
 
         private CyanEmuSettings settings_;
         private CyanEmuPlayerController playerController_;
-        private VRC_SceneDescriptor descriptor_;
         private CyanEmuBufferManager bufferManager_;
 
         private bool networkReady_;
@@ -53,7 +52,6 @@ namespace VRCPrefabs.CyanEmu
             instance_ = this;
 
             settings_ = CyanEmuSettings.Instance;
-            descriptor_ = FindObjectOfType<VRC_SceneDescriptor>();
 
             bufferManager_ = new CyanEmuBufferManager();
 
