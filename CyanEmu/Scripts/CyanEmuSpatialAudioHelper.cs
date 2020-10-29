@@ -12,6 +12,7 @@ namespace VRCPrefabs.CyanEmu
         private VRC_SpatialAudioSource spatialAudioSource_;
         private AudioSource audioSource_;
         private bool useAudioSourceCurve;
+        private ONSPAudioSource onsp_;
 
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
@@ -28,10 +29,11 @@ namespace VRCPrefabs.CyanEmu
         {
             spatialAudioSource_ = obj;
             audioSource_ = GetComponent<AudioSource>();
+            onsp_ = this;
 
             UpdateSettings();
         }
-        
+
         // Late update to help with testing
         private void LateUpdate()
         {
@@ -48,40 +50,33 @@ namespace VRCPrefabs.CyanEmu
 
             // Check if we need to make changes.
             if (
-                EnableSpatialization == spatialAudioSource_.EnableSpatialization &&
-                Gain == spatialAudioSource_.Gain &&
-                Near == spatialAudioSource_.Near &&
-                Far == spatialAudioSource_.Far &&
+                onsp_.EnableSpatialization == spatialAudioSource_.EnableSpatialization &&
+                onsp_.Gain == spatialAudioSource_.Gain &&
+                onsp_.Near == spatialAudioSource_.Near &&
+                onsp_.Far == spatialAudioSource_.Far &&
                 useAudioSourceCurve == spatialAudioSource_.UseAudioSourceVolumeCurve
             )
             {
                 return;
             }
 
-            EnableSpatialization = spatialAudioSource_.EnableSpatialization;
-            Gain = spatialAudioSource_.Gain;
+            onsp_.EnableSpatialization = spatialAudioSource_.EnableSpatialization;
+            onsp_.Gain = spatialAudioSource_.Gain;
             useAudioSourceCurve = spatialAudioSource_.UseAudioSourceVolumeCurve;
+            onsp_.Near = spatialAudioSource_.Near;
+            onsp_.Far = spatialAudioSource_.Far;
+            onsp_.VolumetricRadius = spatialAudioSource_.VolumetricRadius;
 
-            if (!EnableSpatialization)
+            if (!onsp_.EnableSpatialization)
             {
-                Reset();
+                onsp_.Reset();
                 return;
             }
 
-            if (spatialAudioSource_.UseAudioSourceVolumeCurve)
+            if (!spatialAudioSource_.UseAudioSourceVolumeCurve)
             {
-                // Sure why not. This looks good enough.
-                Near = audioSource_.minDistance;
-                Far = audioSource_.maxDistance;
-            }
-            else 
-            {
-                VolumetricRadius = spatialAudioSource_.VolumetricRadius;
-                Near = spatialAudioSource_.Near;
-                Far = spatialAudioSource_.Far;
-
-                float near = VolumetricRadius + Near;
-                float far = VolumetricRadius + Mathf.Max(near, Far + EPS_);
+                float near = onsp_.VolumetricRadius + onsp_.Near;
+                float far = onsp_.VolumetricRadius + Mathf.Max(near, onsp_.Far + EPS_);
 
                 audioSource_.maxDistance = far;
                 
@@ -89,7 +84,7 @@ namespace VRCPrefabs.CyanEmu
                 CreateSpatialCurve(near, far);
             }
 
-            Reset();
+            onsp_.Reset();
         }
 
         // Create volume rolloff curve where Volumetric + near is volume 1, then 2^-x fall off to far.
@@ -121,7 +116,7 @@ namespace VRCPrefabs.CyanEmu
         {
             AnimationCurve spatialCurve = new AnimationCurve();
             spatialCurve.AddKey(0, audioSource_.spatialBlend);
-            spatialCurve.AddKey(VolumetricRadius, audioSource_.spatialBlend);
+            spatialCurve.AddKey(onsp_.VolumetricRadius, audioSource_.spatialBlend);
 
             Keyframe nearFrame = new Keyframe(near + EPS_, 1);
             nearFrame.outTangent = 0;

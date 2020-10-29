@@ -34,6 +34,9 @@ namespace VRCPrefabs.CyanEmu
         private const float STICK_TO_GROUND_FORCE_ = 2f;
         private const float RATE_OF_AIR_ACCELERATION_ = 5f;
 
+        // TODO, make based on avatar armspan/settings
+        private const float AVATAR_SCALE_ = 1.13f;
+
         private readonly KeyCode MenuKey = KeyCode.Escape;
 
         
@@ -126,15 +129,18 @@ namespace VRCPrefabs.CyanEmu
 
 
             playerCamera_ = new GameObject("Player Camera");
-            camera_ = playerCamera_.AddComponent<Camera>();
+            GameObject cameraHolder = new GameObject("CameraHolder");
+            cameraHolder.transform.SetParent(playerCamera_.transform, false);
+            camera_ = cameraHolder.AddComponent<Camera>();
             camera_.cullingMask &= ~(1 << 18); // remove mirror reflection
+
+            // TODO, make based on avatar armspan/settings
+            cameraHolder.transform.localScale = Vector3.one * AVATAR_SCALE_;
 
             playerCamera_.AddComponent<AudioListener>();
             playerCamera_.transform.parent = transform;
             playerCamera_.transform.localPosition = new Vector3(0, STANDING_HEIGHT_, .1f);
             playerCamera_.transform.localRotation = Quaternion.identity;
-            // TODO, make based on avatar armspan/settings
-            playerCamera_.transform.localScale = Vector3.one * 1.13f;
 
             playspace_ = new GameObject("Playspace Center");
             playspace_.transform.parent = transform;
@@ -150,7 +156,7 @@ namespace VRCPrefabs.CyanEmu
             leftArmPosition_.transform.localPosition = new Vector3(-0.2f, -0.2f, 0.75f);
             
             mouseLook_ = new MouseLook();
-            mouseLook_.Init(transform, camera_.transform);
+            mouseLook_.Init(transform, playerCamera_.transform);
 
             stance_ = Stance.STANDING;
 
@@ -669,9 +675,9 @@ namespace VRCPrefabs.CyanEmu
 
         private void UpdateCameraProxyPosition()
         {
-            cameraProxyObject_.position = camera_.transform.position;
-            cameraProxyObject_.rotation = camera_.transform.rotation;
-            cameraProxyObject_.localScale = camera_.transform.lossyScale;
+            cameraProxyObject_.position = playerCamera_.transform.position;
+            cameraProxyObject_.rotation = playerCamera_.transform.rotation;
+            cameraProxyObject_.localScale = playerCamera_.transform.lossyScale;
         }
 
         private void UpdateMenu()
@@ -788,7 +794,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void RotateView()
         {
-            mouseLook_.LookRotation(transform, camera_.transform, currentStation_ != null && !currentStation_.IsMobile);
+            mouseLook_.LookRotation(transform, playerCamera_.transform, currentStation_ != null && !currentStation_.IsMobile);
         }
 
 
