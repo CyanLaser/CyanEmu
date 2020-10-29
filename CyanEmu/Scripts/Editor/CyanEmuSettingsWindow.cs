@@ -56,7 +56,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        [MenuItem("Window/CyanEmu/CyanEmu Settings")]
+        [MenuItem("Window/CyanEmu/CyanEmu Settings", priority = 0)]
         static void Init()
         {
             CyanEmuSettingsWindow window = (CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(CyanEmuSettingsWindow), false, "CyanEmu Settings");

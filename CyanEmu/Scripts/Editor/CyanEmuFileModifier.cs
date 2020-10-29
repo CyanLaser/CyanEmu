@@ -17,9 +17,14 @@ namespace VRCPrefabs.CyanEmu
         static readonly char[] WHITE_SPACE = { ' ' };
 
 
-        [MenuItem("Window/CyanEmu/Apply SDK Modifications")]
+        [MenuItem("Window/CyanEmu/Apply SDK Modifications", priority = 100)]
         public static void PerformModifications()
         {
+            if (!EditorUtility.DisplayDialog("Apply SDK Modifications", "Would you like to modify the VRCSDK to include scrollbars for the build panel and an \"Execute\" button on VRC_Triggers?", "Modify SDK", "Cancel"))
+            {
+                return;
+            }
+
             FileInfo modificationsFile = new FileInfo(MODIFICATIONS_FILE_PATH);
             if (!modificationsFile.Exists)
             {
