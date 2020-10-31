@@ -27,8 +27,6 @@ namespace VRCPrefabs.CyanEmu
         }
 
         const string CYAN_EMU_SETTINGS_PREFS_STRING = "CyanEmuSettings";
-        // TODO delete after release
-        const string CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING = "VRCP_TriggerExecutorSettings";
 
         [SerializeField] public bool displaySettingsWindowAtLaunch = true;
 
@@ -39,9 +37,9 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public string customLocalPlayerName = "";
 
         // TODO move settings to be per project instead of global to all
-        [FormerlySerializedAs("enableTriggerExecution")]
         [SerializeField] public bool enableCyanEmu = true;
         [SerializeField] public bool displayLogs = true;
+        [SerializeField] public bool deleteEditorOnly = true;
         [SerializeField] public bool spawnPlayer = true;
         [SerializeField] public bool replayBufferedTriggers = false;
 
@@ -50,16 +48,7 @@ namespace VRCPrefabs.CyanEmu
         {
             CyanEmuSettings settings = new CyanEmuSettings();
 
-            string data = null;
-            if (EditorPrefs.HasKey(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING))
-            {
-                data = EditorPrefs.GetString(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING);
-                EditorPrefs.DeleteKey(CYAN_EMU_LEGACY_SETTINGS_PREFS_STRING);
-            }
-            else
-            {
-                data = EditorPrefs.GetString(CYAN_EMU_SETTINGS_PREFS_STRING, JsonUtility.ToJson(settings, false));
-            }
+            string data = EditorPrefs.GetString(CYAN_EMU_SETTINGS_PREFS_STRING, JsonUtility.ToJson(settings, false));
 
             JsonUtility.FromJsonOverwrite(data, settings);
             return settings;

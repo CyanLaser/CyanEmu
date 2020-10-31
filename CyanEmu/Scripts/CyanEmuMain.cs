@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using VRC.SDKBase;
 
 
@@ -12,6 +12,7 @@ namespace VRCPrefabs.CyanEmu
     public class CyanEmuMain : MonoBehaviour
     {
         private const string CYAN_EMU_GAMEOBJECT_NAME_ = "__CyanEmu";
+        private const string EDITOR_ONLY_TAG_ = "EditorOnly";
 
         private static CyanEmuMain instance_;
 
@@ -32,16 +33,40 @@ namespace VRCPrefabs.CyanEmu
 
         // Dummy method to get the static initializer to be called early on.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void OnBeforeSceneLoadRuntimeMethod() { }
+        static void OnBeforeSceneLoad() { }
 
-
-        static CyanEmuMain()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        static void OnAfterSceneLoad()
         {
-            if (!CyanEmuSettings.Instance.enableCyanEmu || FindObjectOfType<PipelineSaver>() != null || !Application.isPlaying)
+            if (!CyanEmuEnabled())
             {
                 return;
             }
-            
+
+            DestroyEditorOnly();
+        }
+
+        static CyanEmuMain()
+        {
+            if (!CyanEmuEnabled())
+            {
+                return;
+            }
+
+            LinkAPI();
+            CreateInstance();
+        }
+
+        private static bool CyanEmuEnabled()
+        {
+            return 
+                CyanEmuSettings.Instance.enableCyanEmu &&
+                FindObjectOfType<PipelineSaver>() == null && 
+                Application.isPlaying;
+        }
+
+        private static void LinkAPI()
+        {
             VRCStation.Initialize += CyanEmuStationHelper.InitializeStations;
             VRCStation.useStationDelegate = CyanEmuStationHelper.UseStation;
             VRCStation.exitStationDelegate = CyanEmuStationHelper.ExitStation;
@@ -73,7 +98,7 @@ namespace VRCPrefabs.CyanEmu
             Networking._IsOwner = CyanEmuPlayerManager.IsOwner;
             Networking._SetOwner = CyanEmuPlayerManager.TakeOwnership;
             Networking._GetUniqueName = VRC.Tools.GetGameObjectPath;
-            
+
             VRCPlayerApi._GetPlayerId = CyanEmuPlayerManager.GetPlayerID;
             VRCPlayerApi._GetPlayerById = CyanEmuPlayerManager.GetPlayerByID;
             VRCPlayerApi._isMasterDelegate = CyanEmuPlayerManager.IsMaster;
@@ -130,7 +155,7 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi.IsGrounded = CyanEmuPlayerManager.IsGrounded;
             VRCPlayerApi._UseAttachedStation = CyanEmuPlayerManager.UseAttachedStation;
             VRCPlayerApi._UseLegacyLocomotion = CyanEmuPlayerManager.UseLegacyLocomotion;
-            
+
             VRCPlayerApi._CombatSetup = CyanEmuCombatSystemHelper.CombatSetup;
             VRCPlayerApi._CombatSetMaxHitpoints = CyanEmuCombatSystemHelper.CombatSetMaxHitpoints;
             VRCPlayerApi._CombatGetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatGetCurrentHitpoints;
@@ -140,10 +165,43 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._CombatSetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatSetCurrentHitpoints;
 
             VRC_SpatialAudioSource.Initialize = CyanEmuSpatialAudioHelper.InitializeAudio;
+        }
 
+        private static void CreateInstance()
+        {
             GameObject executor = new GameObject(CYAN_EMU_GAMEOBJECT_NAME_);
-            executor.tag = "EditorOnly";
+            executor.tag = EDITOR_ONLY_TAG_;
             instance_ = executor.AddComponent<CyanEmuMain>();
+        }
+
+        private static void DestroyEditorOnly()
+        {
+            if (!CyanEmuSettings.Instance.deleteEditorOnly)
+            {
+                return;
+            }
+
+            List<GameObject> rootObjects = new List<GameObject>();
+            Scene scene = SceneManager.GetActiveScene();
+            scene.GetRootGameObjects(rootObjects);
+            Queue<GameObject> queue = new Queue<GameObject>(rootObjects);
+            while (queue.Count > 0)
+            {
+                GameObject obj = queue.Dequeue();
+                // Debug.Log("Object: " + VRC.Tools.GetGameObjectPath(obj));
+                if (obj.tag == EDITOR_ONLY_TAG_)
+                {
+                    obj.Log("Deleting editor only object: " + VRC.Tools.GetGameObjectPath(obj));
+                    DestroyImmediate(obj);
+                }
+                else
+                {
+                    for (int child = 0; child < obj.transform.childCount; ++child)
+                    {
+                        queue.Enqueue(obj.transform.GetChild(child).gameObject);
+                    }
+                }
+            }
         }
 
         public static bool HasInstance()

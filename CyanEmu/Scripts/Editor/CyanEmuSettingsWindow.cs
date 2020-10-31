@@ -17,6 +17,7 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent generalFoldoutGuiContent = new GUIContent("General Settings", "");
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
         private readonly GUIContent displayLogsToggleGuiContent = new GUIContent("Enable Console Logging", "Enabling logging will print messages to the console when certain events happen. Examples include trigger execution, pickup grabbed, station entered, etc.");
+        private readonly GUIContent deleteEditorOnlyToggleGuiContent = new GUIContent("Remove \"EditorOnly\"", "Enabling this setting will ensure that all objects with the tag \"EditorOnly\" are deleted when in playmode. This can be helpful in finding objects that will not be uploaded with your world. Enable console logging to see which objects are deleted.");
 
         // Player Controller content
         private readonly GUIContent playerControllerFoldoutGuiContent = new GUIContent("Player Controller Settings", "");
@@ -179,6 +180,8 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.BeginDisabledGroup(!settings_.enableCyanEmu);
 
                 settings_.displayLogs = EditorGUILayout.Toggle(displayLogsToggleGuiContent, settings_.displayLogs);
+
+                settings_.deleteEditorOnly = EditorGUILayout.Toggle(deleteEditorOnlyToggleGuiContent, settings_.deleteEditorOnly);
             }
 
             EditorGUILayout.EndVertical();

@@ -124,6 +124,12 @@ namespace VRCPrefabs.CyanEmu
             
             foreach (VRC_Trigger.TriggerEvent evt in deferredTriggers_)
             {
+                // Prevent deleted triggers from throwing errors.
+                if (GetTriggerForEvent(evt) == null)
+                {
+                    continue;
+                }
+
                 ExecuteTrigger(evt);
             }
             deferredTriggers_.Clear();
@@ -159,7 +165,7 @@ namespace VRCPrefabs.CyanEmu
         {
             foreach (VRC_Trigger trigger in allTriggers_)
             {
-                if (trigger == null || !trigger.gameObject.activeInHierarchy || !trigger.enabled)
+                if (trigger == null || trigger.gameObject == null || !trigger.gameObject.activeInHierarchy || !trigger.enabled)
                 {
                     continue;
                 }
