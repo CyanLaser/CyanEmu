@@ -667,10 +667,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void LateUpdate()
         {
-            if (currentStation_ != null)
-            {
-                SitPosition(currentStation_.EnterLocation);
-            }
+            currentStation_?.UpdatePlayerPosition(this);
         }
 
         private void UpdateCameraProxyPosition()

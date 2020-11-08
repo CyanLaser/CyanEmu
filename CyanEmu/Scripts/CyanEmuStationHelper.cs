@@ -29,7 +29,9 @@ namespace VRCPrefabs.CyanEmu
         {
             get
             {
-                return station_.PlayerMobility == VRCStation.Mobility.Mobile;
+                return 
+                    station_.PlayerMobility == VRCStation.Mobility.Mobile &&
+                    !station_.seated;
             }
         }
 
@@ -42,6 +44,11 @@ namespace VRCPrefabs.CyanEmu
             }
 
             station.gameObject.AddComponent<CyanEmuStationHelper>();
+
+            if (!station.seated && station.PlayerMobility != VRCStation.Mobility.Mobile)
+            {
+                station.LogWarning("Station has seated unchecked but is not mobile! " + VRC.Tools.GetGameObjectPath(station.gameObject));
+            }
         }
 
         public static void UseStation(VRCStation station, VRCPlayerApi player)
@@ -113,17 +120,28 @@ namespace VRCPrefabs.CyanEmu
         // Returns if should move
         public bool CanPlayerMoveWhileSeated(float speed)
         {
-            if (IsMobile)
-            {
-                return true;
-            }
-
             if (Mathf.Abs(speed) >= 0.1f && !station_.disableStationExit)
             {
                 ExitStation();
                 return true;
             }
+
+            if (IsMobile)
+            {
+                return true;
+            }
+
             return false;
+        }
+
+        public void UpdatePlayerPosition(CyanEmuPlayerController player)
+        {
+            if (IsMobile)
+            {
+                return;
+            }
+
+            player.SitPosition(EnterLocation);
         }
 
         public void OnStationEnter(VRCStation station)
