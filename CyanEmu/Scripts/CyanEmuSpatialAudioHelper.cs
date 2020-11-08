@@ -5,6 +5,7 @@ using VRC.SDKBase;
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class CyanEmuSpatialAudioHelper : ONSPAudioSource
     {
         private const float EPS_ = 1e-3f;
@@ -17,7 +18,7 @@ namespace VRCPrefabs.CyanEmu
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
             // Why?
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || !Application.IsPlaying(obj.gameObject))
             {
                 return;
             }
