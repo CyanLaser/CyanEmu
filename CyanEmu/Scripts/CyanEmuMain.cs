@@ -188,7 +188,6 @@ namespace VRCPrefabs.CyanEmu
             while (queue.Count > 0)
             {
                 GameObject obj = queue.Dequeue();
-                // Debug.Log("Object: " + VRC.Tools.GetGameObjectPath(obj));
                 if (obj.tag == EDITOR_ONLY_TAG_)
                 {
                     obj.Log("Deleting editor only object: " + VRC.Tools.GetGameObjectPath(obj));

@@ -42,7 +42,10 @@ namespace VRCPrefabs.CyanEmu
 
         public void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
         {
-            if (!gameObject.activeInHierarchy || !Trigger.enabled) {
+            if (
+                (!gameObject.activeInHierarchy || !Trigger.enabled) && 
+                trigger.TriggerType != VRC.SDKBase.VRC_Trigger.TriggerType.OnDisable
+            ) {
                 return;
             }
 
