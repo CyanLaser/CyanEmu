@@ -125,6 +125,7 @@ namespace VRCPrefabs.CyanEmu
             capsule.transform.localScale = new Vector3(0.4f, 1, 0.4f);
             capsule.transform.parent = transform;
             capsule.transform.localPosition = new Vector3(0, 1, 0);
+            capsule.layer = LayerMask.NameToLayer("MirrorReflection");
             DestroyImmediate(capsule.GetComponent<Collider>());
 
 
