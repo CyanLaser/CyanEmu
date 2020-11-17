@@ -14,6 +14,7 @@ namespace VRCPrefabs.CyanEmu
         private AudioSource audioSource_;
         private bool useAudioSourceCurve;
         private ONSPAudioSource onsp_;
+        private bool playOnAwake_ = false;
 
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
@@ -23,7 +24,14 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            obj.gameObject.AddComponent<CyanEmuSpatialAudioHelper>().SetSpatializer(obj);
+            CyanEmuSpatialAudioHelper spatialAudio = obj.GetComponent<CyanEmuSpatialAudioHelper>();
+            if (spatialAudio != null)
+            {
+                return;
+            }
+
+            spatialAudio = obj.gameObject.AddComponent<CyanEmuSpatialAudioHelper>();
+            spatialAudio.SetSpatializer(obj);
         }
 
         public void SetSpatializer(VRC_SpatialAudioSource obj)
@@ -32,7 +40,22 @@ namespace VRCPrefabs.CyanEmu
             audioSource_ = GetComponent<AudioSource>();
             onsp_ = this;
 
+            // Hack to fix spatialization on first play for play on awake.
+            playOnAwake_ = audioSource_.playOnAwake;
+            audioSource_.playOnAwake = false;
+
             UpdateSettings();
+        }
+
+        private void Start()
+        {
+            // What a hack, otherwise audio will play without spatialization the first time...
+            if (playOnAwake_)
+            {
+                audioSource_.playOnAwake = true;
+                audioSource_.Play();
+                playOnAwake_ = false;
+            }
         }
 
         // Late update to help with testing

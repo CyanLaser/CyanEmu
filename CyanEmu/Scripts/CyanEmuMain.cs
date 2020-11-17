@@ -44,6 +44,7 @@ namespace VRCPrefabs.CyanEmu
             }
 
             DestroyEditorOnly();
+            ProcessAudio();
         }
 
         static CyanEmuMain()
@@ -228,6 +229,21 @@ namespace VRCPrefabs.CyanEmu
                     {
                         queue.Enqueue(obj.transform.GetChild(child).gameObject);
                     }
+                }
+            }
+        }
+
+        // Process Audio before scene loads since spatialization will not play properly the first time...
+        private static void ProcessAudio()
+        {
+            List<GameObject> rootObjects = new List<GameObject>();
+            Scene scene = SceneManager.GetActiveScene();
+            scene.GetRootGameObjects(rootObjects);
+            foreach (var obj in rootObjects)
+            {
+                foreach (var source in obj.GetComponentsInChildren<VRC_SpatialAudioSource>(true))
+                {
+                    VRC_SpatialAudioSource.Initialize(source);
                 }
             }
         }
