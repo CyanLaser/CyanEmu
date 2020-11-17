@@ -123,7 +123,7 @@ namespace VRCPrefabs.CyanEmu
 
             GameObject capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             capsule.transform.localScale = new Vector3(0.4f, 1, 0.4f);
-            capsule.transform.parent = transform;
+            capsule.transform.SetParent(transform, false);
             capsule.transform.localPosition = new Vector3(0, 1, 0);
             capsule.layer = LayerMask.NameToLayer("MirrorReflection");
             DestroyImmediate(capsule.GetComponent<Collider>());
@@ -139,21 +139,21 @@ namespace VRCPrefabs.CyanEmu
             cameraHolder.transform.localScale = Vector3.one * AVATAR_SCALE_;
 
             playerCamera_.AddComponent<AudioListener>();
-            playerCamera_.transform.parent = transform;
+            playerCamera_.transform.SetParent(transform, false);
             playerCamera_.transform.localPosition = new Vector3(0, STANDING_HEIGHT_, .1f);
             playerCamera_.transform.localRotation = Quaternion.identity;
 
             playspace_ = new GameObject("Playspace Center");
-            playspace_.transform.parent = transform;
+            playspace_.transform.SetParent(transform, false);
             playspace_.transform.localPosition = new Vector3(-1, 0, -1);
             playspace_.transform.localRotation = Quaternion.Euler(0, 45, 0);
 
             rightArmPosition_ = new GameObject("Right Arm Position");
-            rightArmPosition_.transform.parent = playerCamera_.transform;
+            rightArmPosition_.transform.SetParent(playerCamera_.transform, false);
             rightArmPosition_.transform.localPosition = new Vector3(0.2f, -0.2f, 0.75f);
             
             leftArmPosition_ = new GameObject("Left Arm Position");
-            leftArmPosition_.transform.parent = playerCamera_.transform;
+            leftArmPosition_.transform.SetParent(playerCamera_.transform, false);
             leftArmPosition_.transform.localPosition = new Vector3(-0.2f, -0.2f, 0.75f);
             
             mouseLook_ = new MouseLook();
@@ -165,7 +165,7 @@ namespace VRCPrefabs.CyanEmu
             CreateMenu();
 
             GameObject interactHelper = new GameObject("InteractHelper");
-            interactHelper.transform.parent = transform.parent;
+            interactHelper.transform.SetParent(transform.parent, false);
             interactHelper_ = interactHelper.AddComponent<CyanEmuInteractHelper>();
             Func<bool> shouldCheckForInteracts = () => { return currentPickup_ == null && !menu_.activeInHierarchy && !isDead_; };
             interactHelper_.Initialize(playerCamera_.transform, playerCamera_.transform, shouldCheckForInteracts);
@@ -173,7 +173,7 @@ namespace VRCPrefabs.CyanEmu
             reticleTexture_ = Resources.Load<Texture2D>("Images/Reticle");
             
             cameraProxyObject_ = new GameObject("CameraDamageProxy").transform;
-            cameraProxyObject_.parent = CyanEmuMain.GetProxyObjectTransform();
+            cameraProxyObject_.SetParent(CyanEmuMain.GetProxyObjectTransform(), false);
             UpdateCameraProxyPosition();
 
             // experimental!
