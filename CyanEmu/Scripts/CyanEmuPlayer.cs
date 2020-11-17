@@ -42,7 +42,7 @@ namespace VRCPrefabs.CyanEmu
 
         public void SetTag(string tagName, string tagValue)
         {
-            tags.Add(tagName, tagValue);
+            tags[tagName] = tagValue;
         }
 
         public string GetTag(string tagName)
