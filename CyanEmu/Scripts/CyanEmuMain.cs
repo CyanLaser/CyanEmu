@@ -84,7 +84,7 @@ namespace VRCPrefabs.CyanEmu
 #endif
 
 #if VRC_SDK_VRCSDK2
-            VRC_Trigger.InitializeTrigger = new Action<VRC_Trigger>(CyanEmuTriggerHelper.InitializeTrigger);
+            VRC_Trigger.InitializeTrigger = CyanEmuTriggerHelper.InitializeTrigger;
             VRCSDK2.VRC_ObjectSync.Initialize += CyanEmuObjectSyncHelper.InitializeObjectSync;
             VRCSDK2.VRC_ObjectSync.TeleportHandler += CyanEmuObjectSyncHelper.TeleportTo;
             VRCSDK2.VRC_ObjectSync.RespawnHandler += CyanEmuObjectSyncHelper.RespawnObject;
@@ -129,16 +129,6 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._SetInvisibleToUntagged = CyanEmuPlayerManager.SetInvisibleToUntagged;
             VRCPlayerApi._ClearInvisible = CyanEmuPlayerManager.ClearInvisible;
 
-            VRCPlayerApi._SetAvatarAudioVolumetricRadius = CyanEmuPlayerManager.SetAvatarAudioVolumetricRadius;
-            VRCPlayerApi._SetAvatarAudioNearRadius = CyanEmuPlayerManager.SetAvatarAudioNearRadius;
-            VRCPlayerApi._SetAvatarAudioFarRadius = CyanEmuPlayerManager.SetAvatarAudioFarRadius;
-            VRCPlayerApi._SetAvatarAudioGain = CyanEmuPlayerManager.SetAvatarAudioGain;
-            VRCPlayerApi._SetVoiceLowpass = CyanEmuPlayerManager.SetVoiceLowpass;
-            VRCPlayerApi._SetVoiceVolumetricRadius = CyanEmuPlayerManager.SetVoiceVolumetricRadius;
-            VRCPlayerApi._SetVoiceDistanceFar = CyanEmuPlayerManager.SetVoiceDistanceFar;
-            VRCPlayerApi._SetVoiceDistanceNear = CyanEmuPlayerManager.SetVoiceDistanceNear;
-            VRCPlayerApi._SetVoiceGain = CyanEmuPlayerManager.SetVoiceGain;
-
             VRCPlayerApi._IsUserInVR = (VRCPlayerApi _) => false; // TODO one day...
             VRCPlayerApi._GetRunSpeed = CyanEmuPlayerManager.GetRunSpeed;
             VRCPlayerApi._SetRunSpeed = CyanEmuPlayerManager.SetRunSpeed;
@@ -165,6 +155,45 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._CombatSetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatSetCurrentHitpoints;
 
             VRC_SpatialAudioSource.Initialize = CyanEmuSpatialAudioHelper.InitializeAudio;
+
+            // New methods added. Try not to break older sdks
+            // TODO figure out a better way...
+
+            // 2020-10-27 
+            var _SetAvatarAudioVolumetricRadius = typeof(VRCPlayerApi).GetField("_SetAvatarAudioVolumetricRadius", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetAvatarAudioVolumetricRadius != null) _SetAvatarAudioVolumetricRadius.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetAvatarAudioVolumetricRadius);
+
+            var _SetAvatarAudioNearRadius = typeof(VRCPlayerApi).GetField("_SetAvatarAudioNearRadius", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetAvatarAudioNearRadius != null) _SetAvatarAudioNearRadius.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetAvatarAudioNearRadius);
+
+            var _SetAvatarAudioFarRadius = typeof(VRCPlayerApi).GetField("_SetAvatarAudioFarRadius", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetAvatarAudioFarRadius != null) _SetAvatarAudioFarRadius.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetAvatarAudioFarRadius);
+
+            var _SetAvatarAudioGain = typeof(VRCPlayerApi).GetField("_SetAvatarAudioGain", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetAvatarAudioGain != null) _SetAvatarAudioGain.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetAvatarAudioGain);
+
+            var _SetVoiceLowpass = typeof(VRCPlayerApi).GetField("_SetVoiceLowpass", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetVoiceLowpass != null) _SetVoiceLowpass.SetValue(null, (Action<VRCPlayerApi, bool>)CyanEmuPlayerManager.SetVoiceLowpass);
+
+            var _SetVoiceVolumetricRadius = typeof(VRCPlayerApi).GetField("_SetVoiceVolumetricRadius", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetVoiceVolumetricRadius != null) _SetVoiceVolumetricRadius.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetVoiceVolumetricRadius);
+
+            var _SetVoiceDistanceFar = typeof(VRCPlayerApi).GetField("_SetVoiceDistanceFar", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetVoiceDistanceFar != null) _SetVoiceDistanceFar.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetVoiceDistanceFar);
+
+            var _SetVoiceDistanceNear = typeof(VRCPlayerApi).GetField("_SetVoiceDistanceNear", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetVoiceDistanceNear != null) _SetVoiceDistanceNear.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetVoiceDistanceNear);
+
+            var _SetVoiceGain = typeof(VRCPlayerApi).GetField("_SetVoiceGain", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetVoiceGain != null) _SetVoiceGain.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetVoiceGain);
+
+            
+            // 2020-11-16
+            var _GetStrafeSpeed = typeof(VRCPlayerApi).GetField("_GetStrafeSpeed", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_GetStrafeSpeed != null) _GetStrafeSpeed.SetValue(null, (Func<VRCPlayerApi, float>)CyanEmuPlayerManager.GetStrafeSpeed);
+
+            var _SetStrafeSpeed = typeof(VRCPlayerApi).GetField("_SetStrafeSpeed", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (_SetStrafeSpeed != null) _SetStrafeSpeed.SetValue(null, (Action<VRCPlayerApi, float>)CyanEmuPlayerManager.SetStrafeSpeed);
         }
 
         private static void CreateInstance()

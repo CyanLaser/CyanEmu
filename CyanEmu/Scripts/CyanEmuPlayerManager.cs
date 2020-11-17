@@ -234,6 +234,24 @@ namespace VRCPrefabs.CyanEmu
             player.GetPlayerController().SetRunSpeed(speed);
         }
 
+        public static float GetStrafeSpeed(VRCPlayerApi player)
+        {
+            if (!player.isLocal)
+            {
+                return 0;
+            }
+            return player.GetPlayerController().GetStrafeSpeed();
+        }
+
+        public static void SetStrafeSpeed(VRCPlayerApi player, float speed)
+        {
+            if (!player.isLocal)
+            {
+                return;
+            }
+            player.GetPlayerController().SetStrafeSpeed(speed);
+        }
+
         public static float GetWalkSpeed(VRCPlayerApi player)
         {
             if (!player.isLocal)
