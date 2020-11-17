@@ -14,7 +14,7 @@ namespace VRCPrefabs.CyanEmu
         private AudioSource audioSource_;
         private bool useAudioSourceCurve;
         private ONSPAudioSource onsp_;
-        private bool playOnAwake_ = false;
+        private bool forceUpdate_ = true;
 
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
@@ -40,22 +40,13 @@ namespace VRCPrefabs.CyanEmu
             audioSource_ = GetComponent<AudioSource>();
             onsp_ = this;
 
-            // Hack to fix spatialization on first play for play on awake.
-            playOnAwake_ = audioSource_.playOnAwake;
-            audioSource_.playOnAwake = false;
-
             UpdateSettings();
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            // What a hack, otherwise audio will play without spatialization the first time...
-            if (playOnAwake_)
-            {
-                audioSource_.playOnAwake = true;
-                audioSource_.Play();
-                playOnAwake_ = false;
-            }
+            // ONSP needs to reapply audio settings everytime the object is enabled.
+            forceUpdate_ = true;
         }
 
         // Late update to help with testing
@@ -74,6 +65,7 @@ namespace VRCPrefabs.CyanEmu
 
             // Check if we need to make changes.
             if (
+                !forceUpdate_ &&
                 onsp_.EnableSpatialization == spatialAudioSource_.EnableSpatialization &&
                 onsp_.Gain == spatialAudioSource_.Gain &&
                 onsp_.Near == spatialAudioSource_.Near &&
@@ -83,6 +75,8 @@ namespace VRCPrefabs.CyanEmu
             {
                 return;
             }
+
+            forceUpdate_ = false;
 
             onsp_.EnableSpatialization = spatialAudioSource_.EnableSpatialization;
             onsp_.Gain = spatialAudioSource_.Gain;
