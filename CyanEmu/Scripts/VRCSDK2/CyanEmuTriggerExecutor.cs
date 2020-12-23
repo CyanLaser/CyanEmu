@@ -485,7 +485,7 @@ namespace VRCPrefabs.CyanEmu
                 AudioSource[] audioSources = obj.GetComponents<AudioSource>();
                 foreach (var source in audioSources)
                 {
-                    if (source.clip.name == triggerEvent.ParameterString)
+                    if (string.IsNullOrEmpty(triggerEvent.ParameterString) || source.clip.name == triggerEvent.ParameterString)
                     {
                         source.Play();
                     }
