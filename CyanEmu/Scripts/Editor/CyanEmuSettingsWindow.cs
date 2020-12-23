@@ -162,7 +162,7 @@ namespace VRCPrefabs.CyanEmu
         private void DrawGeneralSettings()
         {
             EditorGUILayout.BeginVertical(boxStyle_);
-            showGeneralSettings_ = EditorGUILayout.Foldout(showGeneralSettings_, generalFoldoutGuiContent);
+            showGeneralSettings_ = EditorGUILayout.Foldout(showGeneralSettings_, generalFoldoutGuiContent, true);
 
             if (showGeneralSettings_)
             {
@@ -191,7 +191,7 @@ namespace VRCPrefabs.CyanEmu
         {
             EditorGUILayout.BeginVertical(boxStyle_);
 
-            showPlayerControllerSettings_ = EditorGUILayout.Foldout(showPlayerControllerSettings_, playerControllerFoldoutGuiContent);
+            showPlayerControllerSettings_ = EditorGUILayout.Foldout(showPlayerControllerSettings_, playerControllerFoldoutGuiContent, true);
             if (showPlayerControllerSettings_)
             {
                 AddIndent();
@@ -221,7 +221,7 @@ namespace VRCPrefabs.CyanEmu
             // TODO convert to enable for Udon and general syncable objects
 #if VRC_SDK_VRCSDK2
             EditorGUILayout.BeginVertical(boxStyle_);
-            showBufferedTriggerSettings_ = EditorGUILayout.Foldout(showBufferedTriggerSettings_, bufferedTriggerFoldoutGuiContent);
+            showBufferedTriggerSettings_ = EditorGUILayout.Foldout(showBufferedTriggerSettings_, bufferedTriggerFoldoutGuiContent, true);
             if (showBufferedTriggerSettings_)
             {
                 AddIndent();
@@ -255,7 +255,7 @@ namespace VRCPrefabs.CyanEmu
         private void DrawPlayerButtons()
         {
             EditorGUILayout.BeginVertical(boxStyle_);
-            showPlayerButtons_ = EditorGUILayout.Foldout(showPlayerButtons_, playerButtonsFoldoutGuiContent);
+            showPlayerButtons_ = EditorGUILayout.Foldout(showPlayerButtons_, playerButtonsFoldoutGuiContent, true);
             if (showPlayerButtons_)
             {
                 AddIndent();
