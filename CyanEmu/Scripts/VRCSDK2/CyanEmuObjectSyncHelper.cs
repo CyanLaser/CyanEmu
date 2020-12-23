@@ -30,6 +30,7 @@ namespace VRCPrefabs.CyanEmu
         protected override void Awake()
         {
             base.Awake();
+            SyncPosition = true;
 
             sync_ = GetComponent<VRC_ObjectSync>();
             pickupHelper_ = GetComponent<CyanEmuPickupHelper>();

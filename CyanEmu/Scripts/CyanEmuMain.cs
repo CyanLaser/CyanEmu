@@ -460,6 +460,11 @@ namespace VRCPrefabs.CyanEmu
 
             foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
+                if (!sync.SyncPosition)
+                {
+                    continue;
+                }
+                
                 if (sync.transform.position.y < descriptor_.RespawnHeightY)
                 {
                     if (descriptor_.ObjectBehaviourAtRespawnHeight == VRC_SceneDescriptor.RespawnHeightBehaviour.Respawn)

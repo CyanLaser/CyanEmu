@@ -52,6 +52,7 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
             udonbehaviour_ = udonbehaviour;
+            SyncPosition = udonbehaviour_.SynchronizePosition;
 
             CyanEmuUdonManager.AddUdonBehaviour(udonbehaviour_);
         }
