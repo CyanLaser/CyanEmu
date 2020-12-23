@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
@@ -19,7 +18,7 @@ namespace VRCPrefabs.CyanEmu
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
             // Why?
-            if (!Application.isPlaying || !Application.IsPlaying(obj.gameObject))
+            if (!Application.isPlaying || string.IsNullOrEmpty(obj.gameObject.scene.path))
             {
                 return;
             }
@@ -27,18 +26,19 @@ namespace VRCPrefabs.CyanEmu
             CyanEmuSpatialAudioHelper spatialAudio = obj.GetComponent<CyanEmuSpatialAudioHelper>();
             if (spatialAudio != null)
             {
-                return;
+                DestroyImmediate(spatialAudio);
             }
-
+            
             spatialAudio = obj.gameObject.AddComponent<CyanEmuSpatialAudioHelper>();
             spatialAudio.SetSpatializer(obj);
         }
 
-        public void SetSpatializer(VRC_SpatialAudioSource obj)
+        private void SetSpatializer(VRC_SpatialAudioSource obj)
         {
             spatialAudioSource_ = obj;
             audioSource_ = GetComponent<AudioSource>();
             onsp_ = this;
+            forceUpdate_ = true;
 
             UpdateSettings();
         }
@@ -57,39 +57,48 @@ namespace VRCPrefabs.CyanEmu
 
         private void UpdateSettings()
         {
-            if (audioSource_ == null)
+            if (spatialAudioSource_ == null)
             {
-                Destroy(this);
+                spatialAudioSource_ = GetComponent<VRC_SpatialAudioSource>();
+                if (spatialAudioSource_ == null)
+                {
+                    Destroy(this);
+                }
+                SetSpatializer(spatialAudioSource_);  
                 return;
             }
 
             // Check if we need to make changes.
             if (
-                !forceUpdate_ &&
-                onsp_.EnableSpatialization == spatialAudioSource_.EnableSpatialization &&
-                onsp_.Gain == spatialAudioSource_.Gain &&
-                onsp_.Near == spatialAudioSource_.Near &&
-                onsp_.Far == spatialAudioSource_.Far &&
-                useAudioSourceCurve == spatialAudioSource_.UseAudioSourceVolumeCurve
-            )
-            {
-                return;
+                onsp_.EnableSpatialization != spatialAudioSource_.EnableSpatialization ||
+                onsp_.Gain != spatialAudioSource_.Gain ||
+                onsp_.Near != spatialAudioSource_.Near ||
+                onsp_.Far != spatialAudioSource_.Far ||
+                useAudioSourceCurve != spatialAudioSource_.UseAudioSourceVolumeCurve
+            ) {
+                forceUpdate_ = true;
             }
-
-            forceUpdate_ = false;
-
+            
             onsp_.EnableSpatialization = spatialAudioSource_.EnableSpatialization;
             onsp_.Gain = spatialAudioSource_.Gain;
             useAudioSourceCurve = spatialAudioSource_.UseAudioSourceVolumeCurve;
             onsp_.Near = spatialAudioSource_.Near;
             onsp_.Far = spatialAudioSource_.Far;
             onsp_.VolumetricRadius = spatialAudioSource_.VolumetricRadius;
-
+            
+            onsp_.SetParameters(ref audioSource_);
+            
             if (!onsp_.EnableSpatialization)
             {
-                onsp_.Reset();
                 return;
             }
+
+            if (!forceUpdate_)
+            {
+                return;
+            }
+            
+            forceUpdate_ = false;
 
             if (!spatialAudioSource_.UseAudioSourceVolumeCurve)
             {
@@ -101,8 +110,6 @@ namespace VRCPrefabs.CyanEmu
                 CreateRolloffCurve(near, far);
                 CreateSpatialCurve(near, far);
             }
-
-            onsp_.Reset();
         }
 
         // Create volume rolloff curve where Volumetric + near is volume 1, then 2^-x fall off to far.
