@@ -230,7 +230,7 @@ namespace VRCPrefabs.CyanEmu
                 camera.backgroundColor = refCamera.backgroundColor;
                 camera.tag = "MainCamera";
 
-#if UNITY_POST_PROCESSING_STACK_V2
+#if UNITY_POST_PROCESSING_STACK_V2 && !UNITY_ANDROID
                 PostProcessLayer refPostProcessLayer = refCamera.GetComponent<PostProcessLayer>();
                 if (refPostProcessLayer != null)
                 {
