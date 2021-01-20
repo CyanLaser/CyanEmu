@@ -85,7 +85,7 @@ namespace VRCPrefabs.CyanEmu
 
         public bool CanInteract()
         {
-            return udonbehaviour_.HasInteractiveEvents;
+            return udonbehaviour_.IsInteractive;
         }
 
         public string GetInteractText()
