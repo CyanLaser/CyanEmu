@@ -230,10 +230,13 @@ namespace VRCPrefabs.CyanEmu
                 camera.backgroundColor = refCamera.backgroundColor;
                 camera.tag = "MainCamera";
 
-#if UNITY_POST_PROCESSING_STACK_V2 && !UNITY_ANDROID
+#if UNITY_POST_PROCESSING_STACK_V2
                 PostProcessLayer refPostProcessLayer = refCamera.GetComponent<PostProcessLayer>();
                 if (refPostProcessLayer != null)
                 {
+#if UNITY_ANDROID
+                    instance.LogWarning("Post processing is not supported on Android");
+#else
                     PostProcessLayer postProcessLayer = camera.gameObject.AddComponent<PostProcessLayer>();
                     postProcessLayer.volumeLayer = refPostProcessLayer.volumeLayer;
 
@@ -248,6 +251,7 @@ namespace VRCPrefabs.CyanEmu
                     FieldInfo resourcesInfo = typeof(PostProcessLayer).GetField("m_Resources", BindingFlags.NonPublic | BindingFlags.Instance);
                     PostProcessResources postProcessResources = resourcesInfo.GetValue(refPostProcessLayer) as PostProcessResources;
                     postProcessLayer.Init(postProcessResources);
+#endif
                 }
 #endif
                 refCamera.gameObject.SetActive(false);
