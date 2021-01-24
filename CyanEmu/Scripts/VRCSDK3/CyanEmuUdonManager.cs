@@ -1,5 +1,6 @@
 ﻿#if UDON
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,7 +58,15 @@ namespace VRCPrefabs.CyanEmu
 
                 foreach (var helper in udonBehavior.GetComponents<CyanEmuUdonHelper>())
                 {
-                    helper.OnNetworkReady();
+                    try
+                    {
+                        helper.OnNetworkReady();
+                    }
+                    catch (Exception e)
+                    {
+                        this.LogError(e.Message + "\n" +e.StackTrace);
+                        this.LogWarning("Failed to send network ready for object: " +VRC.Tools.GetGameObjectPath(helper.gameObject));
+                    }
                 }
             }
         }
