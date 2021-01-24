@@ -59,6 +59,7 @@ namespace VRCPrefabs.CyanEmu
 
         private Stance stance_;
         private bool isDead_;
+        private bool isImmobile_;
         private bool isWalking_;
 
         private float walkSpeed_ = DEFAULT_WALK_SPEED_;
@@ -560,6 +561,11 @@ namespace VRCPrefabs.CyanEmu
             isDead_ = false;
         }
 
+        public void Immobilize(bool immobilize)
+        {
+            isImmobile_ = immobilize;
+        }
+
         private void Update()
         {
             RotateView();
@@ -597,6 +603,12 @@ namespace VRCPrefabs.CyanEmu
             {
                 input = Vector2.zero;
                 jump_ = false;
+            }
+
+            // Immobile does not affect Jump
+            if (isImmobile_)
+            {
+                input = Vector2.zero;
             }
 
             // always move along the camera forward as it is the direction that it being aimed at

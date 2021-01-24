@@ -153,7 +153,7 @@ namespace VRCPrefabs.CyanEmu
                 throw new Exception("[VRCPlayerAPI.Immobilize] You cannot set remote players Immobilized");
             }
             
-            // TODO
+            player.GetPlayerController().Immobilize(immobilized);
         }
 
         public static void TeleportToOrientationLerp(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation, bool lerp)
