@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -104,17 +105,24 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRCPlayerApi LocalPlayer()
         {
-            return players[localPlayerID];
+            return GetPlayerByID(localPlayerID);
         }
 
         public static VRCPlayerApi GetPlayerByID(int playerID)
         {
-            return players[playerID];
+            players.TryGetValue(playerID, out VRCPlayerApi player);
+            return player;
         }
 
         public static int GetPlayerID(VRCPlayerApi player)
         {
-            return playerIDs[player];
+            if (player == null)
+            {
+                return -1;
+            }
+            
+            playerIDs.TryGetValue(player, out int playerId);
+            return playerId;
         }
 
         public static bool IsMaster(VRCPlayerApi player)
@@ -129,40 +137,55 @@ namespace VRCPrefabs.CyanEmu
 
         public static void EnablePickups(VRCPlayerApi player, bool enabled)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.EnablePickups] EnablePickups for remote players will do nothing.");
+                return;
+            }
+            
             // TODO
         }
 
         public static void Immobilize(VRCPlayerApi player, bool immobilized)
         {
+            if (!player.isLocal)
+            {
+                throw new Exception("[VRCPlayerAPI.Immobilize] You cannot set remote players Immobilized");
+            }
+            
             // TODO
         }
 
         public static void TeleportToOrientationLerp(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation, bool lerp)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.TeleportTo] Teleporting remote players will do nothing.");
+                return;
+            }
+            
             // Ignore lerp since there is no networking here
-            TeleportToOrientation(player, position, rotation, orientation);
+            player.GetPlayerController().Teleport(position, rotation, orientation == VRC_SceneDescriptor.SpawnOrientation.AlignRoomWithSpawnPoint);
         }
 
         public static void TeleportToOrientation(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation)
         {
-            if (!player.isLocal)
-            {
-                return;
-            }
-            player.GetPlayerController().Teleport(position, rotation, orientation == VRC_SceneDescriptor.SpawnOrientation.AlignRoomWithSpawnPoint);
+            TeleportToOrientationLerp(player, position, rotation, VRC_SceneDescriptor.SpawnOrientation.Default, false);
         }
 
         public static void TeleportTo(VRCPlayerApi player, Vector3 position, Quaternion rotation)
         {
-            if (!player.isLocal)
-            {
-                return;
-            }
-            player.GetPlayerController().Teleport(position, rotation, false);
+            TeleportToOrientationLerp(player, position, rotation, VRC_SceneDescriptor.SpawnOrientation.Default, false);
         }
 
         public static void PlayHapticEventInHand(VRCPlayerApi player, VRC_Pickup.PickupHand hand, float f1, float f2, float f3)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.PlayHapticEventInHand] PlayHapticEventInHand for remote players will do nothing.");
+                return;
+            }
+            
             // TODO
         }
 
@@ -220,7 +243,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetRunSpeed] You cannot get run speed for remote clients!");
             }
             return player.GetPlayerController().GetRunSpeed();
         }
@@ -229,7 +252,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetRunSpeed] You cannot set run speed for remote clients!");
             }
             player.GetPlayerController().SetRunSpeed(speed);
         }
@@ -238,7 +261,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetStrafeSpeed] You cannot get strafe speed for remote clients!");
             }
             return player.GetPlayerController().GetStrafeSpeed();
         }
@@ -247,7 +270,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetStrafeSpeed] You cannot set strafe speed for remote clients!");
             }
             player.GetPlayerController().SetStrafeSpeed(speed);
         }
@@ -256,7 +279,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetWalkSpeed] You cannot get walk speed for remote clients!");
             }
             return player.GetPlayerController().GetWalkSpeed();
         }
@@ -265,7 +288,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetWalkSpeed] You cannot set walk speed for remote clients!");
             }
             player.GetPlayerController().SetWalkSpeed(speed);
         }
@@ -274,7 +297,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetJumpImpulse] You cannot get jump impulse for remote clients!");
             }
             return player.GetPlayerController().GetJump();
         }
@@ -283,7 +306,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetJumpImpulse] You cannot set jump impulse for remote clients!");
             }
             player.GetPlayerController().SetJump(jump);
         }
@@ -292,7 +315,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetGravityStrength] You cannot get gravity strength for remote clients!");
             }
             return player.GetPlayerController().GetGravityStrength();
         }
@@ -301,7 +324,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetGravityStrength] You cannot set gravity strength for remote clients!");
             }
             player.GetPlayerController().SetGravityStrength(gravity);
         }
@@ -338,7 +361,8 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return false;
+                // TODO verify remote player values when not grounded.
+                return true;
             }
             return player.GetPlayerController().IsGrounded();
         }

@@ -377,6 +377,7 @@ namespace VRCPrefabs.CyanEmu
 
         public Vector3 GetVelocity()
         {
+            // TODO fix value
             return characterController_.velocity;
         }
         
