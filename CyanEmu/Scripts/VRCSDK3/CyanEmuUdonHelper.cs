@@ -13,21 +13,26 @@ namespace VRCPrefabs.CyanEmu
     {
         private UdonBehaviour udonbehaviour_;
 
-        private static FieldInfo isNetworkReady = typeof(UdonBehaviour).GetField("_isNetworkReady", (BindingFlags.Instance | BindingFlags.NonPublic));
-        private static FieldInfo programFieldInfo = typeof(UdonBehaviour).GetField("program", (BindingFlags.Instance | BindingFlags.NonPublic));
-        private static FieldInfo udonVMFieldInfo = typeof(UdonBehaviour).GetField("_udonVM", (BindingFlags.Instance | BindingFlags.NonPublic));
+        // VRCSDK3-2021.01.28.19.07 modified the name of the _isNetworkReady variable to _isReady.
+        // Check both for backwards compatibility so I don't require users to update their old sdks.
+        private static FieldInfo isNetworkReady_ = 
+            typeof(UdonBehaviour).GetField("_isNetworkReady", (BindingFlags.Instance | BindingFlags.NonPublic));
+        private static FieldInfo isReady_ = 
+            typeof(UdonBehaviour).GetField("_isReady", (BindingFlags.Instance | BindingFlags.NonPublic));
+
+        private static FieldInfo NetworkReadyFieldInfo_ => isNetworkReady_ ?? isReady_;
 
         public static void OnInit(UdonBehaviour behaviour, IUdonProgram program)
         {
             CyanEmuUdonHelper helper = behaviour.gameObject.AddComponent<CyanEmuUdonHelper>();
             helper.SetUdonbehaviour(behaviour);
-            
-            isNetworkReady.SetValue(behaviour, CyanEmuMain.IsNetworkReady());
+
+            NetworkReadyFieldInfo_.SetValue(behaviour, CyanEmuMain.IsNetworkReady());
         }
 
         public void OnNetworkReady()
         {
-            isNetworkReady.SetValue(udonbehaviour_, true);
+            NetworkReadyFieldInfo_.SetValue(udonbehaviour_, true);
         }
 
         public static void SendCustomNetworkEventHook(UdonBehaviour behaviour, NetworkEventTarget target, string eventName)
