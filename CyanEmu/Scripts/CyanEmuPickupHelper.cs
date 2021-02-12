@@ -194,7 +194,7 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
             
-            this.Log("Dropping up object " + name);
+            this.Log("Dropping object " + name);
             isHeld_ = false;
 
             gameObject.OnDrop();
