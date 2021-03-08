@@ -261,10 +261,12 @@ namespace VRCPrefabs.CyanEmu
 
         private void CreateMenu()
         {
+            const int menuLayer = 12;
             Font font = Font.CreateDynamicFontFromOSFont("Ariel", 20);
 
             // Create Menu
             menu_ = new GameObject("Menu");
+            menu_.layer = menuLayer;
             menu_.transform.parent = transform.parent;
             Canvas canvas = menu_.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceCamera;
@@ -274,6 +276,7 @@ namespace VRCPrefabs.CyanEmu
             menu_.AddComponent<GraphicRaycaster>();
 
             GameObject respawnButton = new GameObject("RespawnButton");
+            respawnButton.layer = menuLayer;
             respawnButton.transform.SetParent(menu_.transform, false);
             respawnButton.transform.localPosition = new Vector3(60, 0, 0);
             respawnButton.AddComponent<Image>();
@@ -281,6 +284,7 @@ namespace VRCPrefabs.CyanEmu
             button.onClick.AddListener(Respawn);
 
             GameObject respawnText = new GameObject("RespawnText");
+            respawnText.layer = menuLayer;
             respawnText.transform.SetParent(respawnButton.transform, false);
             Text text = respawnText.AddComponent<Text>();
             respawnText.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
@@ -294,6 +298,7 @@ namespace VRCPrefabs.CyanEmu
 
 
             GameObject exitMenuButton = new GameObject("ExitMenuButton");
+            exitMenuButton.layer = menuLayer;
             exitMenuButton.transform.SetParent(menu_.transform, false);
             exitMenuButton.transform.localPosition = new Vector3(-60, 0, 0);
             exitMenuButton.AddComponent<Image>();
@@ -301,6 +306,7 @@ namespace VRCPrefabs.CyanEmu
             button.onClick.AddListener(CloseMenu);
 
             GameObject exitMenuText = new GameObject("ExitMenuText");
+            exitMenuText.layer = menuLayer;
             exitMenuText.transform.SetParent(exitMenuButton.transform, false);
             text = exitMenuText.AddComponent<Text>();
             exitMenuText.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
