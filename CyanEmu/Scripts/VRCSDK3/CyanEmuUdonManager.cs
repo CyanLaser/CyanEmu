@@ -89,6 +89,14 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
+        public void OnPlayerRespawn(VRCPlayerApi player)
+        {
+            foreach (var udonBehavior in allUdonBehaviours_)
+            {
+                udonBehavior.RunEvent("_onPlayerRespawn", ("player", player));
+            }
+        }
+
         public void OnSpawnedObject(GameObject spawnedObject)
         {
             UdonBehaviour[] udonBehaviours = spawnedObject.GetComponentsInChildren<UdonBehaviour>();

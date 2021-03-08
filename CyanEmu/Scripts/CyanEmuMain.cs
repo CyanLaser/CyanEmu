@@ -423,6 +423,16 @@ namespace VRCPrefabs.CyanEmu
             sdkManager_.OnPlayerLeft(player);
         }
 
+        public static void PlayerRespawned(VRCPlayerApi player)
+        {
+            instance_?.OnPlayerRespawn(player);
+        }
+
+        private void OnPlayerRespawn(VRCPlayerApi player)
+        {
+            sdkManager_.OnPlayerRespawn(player);
+        }
+
         public static GameObject SpawnObject(GameObject prefab)
         {
             return SpawnObject(prefab, Vector3.zero, Quaternion.identity);

@@ -150,6 +150,8 @@ namespace VRCPrefabs.CyanEmu
             FireTriggerTypeInternal(VRC_Trigger.TriggerType.OnPlayerLeft);
         }
 
+        public void OnPlayerRespawn(VRCPlayerApi player) { } // SDK2 does not support this method
+
         public void OnSpawnedObject(GameObject spawnedObject)
         {
             VRC_Trigger[] triggers = spawnedObject.GetComponentsInChildren<VRC_Trigger>();

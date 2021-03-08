@@ -435,6 +435,7 @@ namespace VRCPrefabs.CyanEmu
             }
             CloseMenu();
             Teleport(descriptor_.spawns[0], false);
+            CyanEmuMain.PlayerRespawned(player_.player);
         }
 
         public void Teleport(Transform point, bool fromPlaySpace)
