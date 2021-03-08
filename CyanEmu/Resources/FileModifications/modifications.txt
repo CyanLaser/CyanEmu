@@ -1,4 +1,4 @@
-2
+4
 VRC_TriggerEditor.cs
 1
 AddAfter 3 4
@@ -31,3 +31,21 @@ AddAfter 3 1
                 break;
         }
         GUILayout.EndScrollView();
+VRC_SpatialAudioSourceEditor3.cs
+3
+AddAfter 1 1
+    [CustomEditor(typeof(VRC.SDK3.Components.VRCSpatialAudioSource))]
+    [CanEditMultipleObjects]
+Delete 1
+            showAdvancedOptions = EditorGUILayout.Foldout(showAdvancedOptions, "Advanced Options");
+Delete 1
+            if (showAdvancedOptions)
+VRC_SpatialAudioSourceEditor.cs
+3
+AddAfter 1 1
+    [CustomEditor(typeof(VRCSDK2.VRC_SpatialAudioSource))]
+    [CanEditMultipleObjects]
+Delete 1
+            showAdvancedOptions = EditorGUILayout.Foldout(showAdvancedOptions, "Advanced Options");
+Delete 1
+            if (showAdvancedOptions)
