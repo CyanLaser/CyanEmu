@@ -4,6 +4,11 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using System.Reflection;
 
+#if UDON
+using VRC.Udon;
+using VRC.Udon.Common;
+#endif
+
 #if UNITY_POST_PROCESSING_STACK_V2
 using UnityEngine.Rendering.PostProcessing;
 #endif
@@ -592,7 +597,7 @@ namespace VRCPrefabs.CyanEmu
 
             UpdateCameraProxyPosition();
         }
-
+   
         private void FixedUpdate()
         {
             Physics.SyncTransforms();
@@ -688,7 +693,83 @@ namespace VRCPrefabs.CyanEmu
             velSet = false;
 
             UpdateCameraProxyPosition();
+            
+#if UDON
+            HandleUdonInput();
+#endif
         }
+     
+        // TODO do this better...
+        // Refactor all input out of the player controller and simply have it listen to these events
+#if UDON
+        private readonly (KeyCode, string, HandType)[] keyToEvent_ =
+        {
+            (KeyCode.Space, UdonManager.UDON_INPUT_JUMP, HandType.LEFT),
+            (KeyCode.Mouse0, UdonManager.UDON_INPUT_USE, HandType.RIGHT),
+            (KeyCode.Mouse0, UdonManager.UDON_INPUT_GRAB, HandType.RIGHT),
+            (KeyCode.Mouse1, UdonManager.UDON_INPUT_DROP, HandType.RIGHT),
+        };
+
+        private Vector2 prevMouseInput_ = Vector2.zero;
+        private Vector2 prevMoveInput_ = Vector2.zero;
+        private void HandleUdonInput()
+        {
+            foreach (var (keyCode, eventName, handType) in keyToEvent_)
+            {
+                HandleInputForKey(keyCode, eventName, handType);
+            }
+
+            Vector2 mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+            // Clamp value from -1 to 1
+            mouseInput = Vector2.Max(Vector2.Min(mouseInput, Vector2.one), -Vector2.one);
+
+            if (baseInput_.isMenuOpen)
+            {
+                mouseInput = Vector2.zero;
+            }
+
+            if (Mathf.Abs(mouseInput.x - prevMouseInput_.x) > 0.001f)
+            {
+                var args = new UdonInputEventArgs(mouseInput.x, HandType.RIGHT);
+                UdonManager.Instance.RunInputAction(UdonManager.UDON_LOOK_HORIZONTAL, args);
+            }
+            if (Mathf.Abs(mouseInput.y - prevMouseInput_.y) > 0.001f)
+            {
+                var args = new UdonInputEventArgs(mouseInput.y, HandType.RIGHT);
+                UdonManager.Instance.RunInputAction(UdonManager.UDON_LOOK_VERTICAL, args);
+            }
+            prevMouseInput_ = mouseInput;
+            
+            // TODO refactor all this out into its own input manager that the player controller listens to.
+            // Handle sending movement input to Udon.
+            if (Mathf.Abs(prevMoveInput_.x - prevInputResult_.x) > 1e-3)
+            {
+                var args = new UdonInputEventArgs(prevMoveInput_.x, HandType.RIGHT);
+                UdonManager.Instance.RunInputAction(UdonManager.UDON_MOVE_HORIZONTAL, args);
+            }
+            if (Mathf.Abs(prevMoveInput_.y - prevInputResult_.y) > 1e-3)
+            {
+                var args = new UdonInputEventArgs(prevMoveInput_.y, HandType.RIGHT);
+                UdonManager.Instance.RunInputAction(UdonManager.UDON_MOVE_VERTICAL, args);
+            }
+
+            prevMoveInput_ = prevInputResult_;
+        }
+        
+        private void HandleInputForKey(KeyCode key, string eventName, HandType handType)
+        {
+            if (Input.GetKeyDown(key))
+            {
+                var args = new UdonInputEventArgs(true, handType);
+                UdonManager.Instance.RunInputAction(eventName, args);
+            }
+            if (Input.GetKeyUp(key))
+            {
+                var args = new UdonInputEventArgs(false, handType);
+                UdonManager.Instance.RunInputAction(eventName, args);
+            }
+        }
+#endif
 
         private void LateUpdate()
         {
@@ -767,6 +848,7 @@ namespace VRCPrefabs.CyanEmu
             Vector2 curInput = new Vector2(horizontal, vertical);
 
             // Prevent sliding without changing the input manager >_>
+            // TODO clean this up and just modify input manager...
             horizontal = GetExpectedMovement(horizontal, prevInput_.x, prevInputResult_.x);
             vertical = GetExpectedMovement(vertical, prevInput_.y, prevInputResult_.y);
 
@@ -899,7 +981,7 @@ namespace VRCPrefabs.CyanEmu
                 yRot = 0;
                 xRot = 0;
             }
-
+            
             m_CharacterTargetRot *= Quaternion.Euler(0f, yRot, 0f);
             m_CameraTargetRot *= Quaternion.Euler(-xRot, 0f, 0f);
             

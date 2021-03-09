@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common;
 
 namespace VRCPrefabs.CyanEmu
 {
@@ -50,7 +51,7 @@ namespace VRCPrefabs.CyanEmu
             HashSet<GameObject> objs = new HashSet<GameObject>();
             foreach (var udonBehavior in allUdonBehaviours_)
             {
-                if (objs.Contains(udonBehavior.gameObject))
+                if (udonBehavior == null || objs.Contains(udonBehavior.gameObject))
                 {
                     continue;
                 }
