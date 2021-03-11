@@ -23,6 +23,8 @@ namespace VRCPrefabs.CyanEmu
         protected override void Start()
         {
             m_InputOverride = baseInput_ = GetComponent<CyanEmuBaseInput>();
+            eventSystem.sendNavigationEvents = false;
+            
             base.Start();
         }
         
