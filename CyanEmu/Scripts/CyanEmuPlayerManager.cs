@@ -25,7 +25,7 @@ namespace VRCPrefabs.CyanEmu
 
             playerIDs[player] = id;
             players[id] = player;
-            VRCPlayerApi.AllPlayers.Add(player);
+            player.AddToList();
 
             if (masterID == -1)
             {
@@ -83,8 +83,7 @@ namespace VRCPrefabs.CyanEmu
         {
             playerIDs.Remove(player);
             players.Remove(player.playerId);
-
-            VRCPlayerApi.AllPlayers.Remove(player);
+            player.RemoveFromList();
             
             if (masterID == player.playerId)
             {
