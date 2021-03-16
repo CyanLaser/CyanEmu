@@ -18,6 +18,7 @@ namespace VRCPrefabs.CyanEmu
     }
 
     [AddComponentMenu("")]
+    [SelectionBase]
     public class CyanEmuPlayer : MonoBehaviour
     {
         public VRCPlayerApi player;
