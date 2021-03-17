@@ -15,6 +15,9 @@ namespace VRCPrefabs.CyanEmu
     {
         private static CyanEmuUdonManager instance_;
 
+        private bool shouldVerifyUdonBehaviours_;
+        private readonly Queue<UdonBehaviour> toBeAddedUdon_ = new Queue<UdonBehaviour>();
+        private readonly Queue<UdonBehaviour> toBeRemovedUdon_ = new Queue<UdonBehaviour>();
         private HashSet<UdonBehaviour> allUdonBehaviours_ = new HashSet<UdonBehaviour>();
 
         private void Awake()
@@ -44,13 +47,19 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
+        private void LateUpdate()
+        {
+            ProcessAddedAndRemovedUdonBehaviours();
+
+            enabled = false;
+        }
+
         #region ICyanEmuSDKManager
 
         public void OnNetworkReady()
         {
             HashSet<GameObject> objs = new HashSet<GameObject>();
-            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
-            foreach (var udonBehavior in currentUdon)
+            foreach (var udonBehavior in allUdonBehaviours_)
             {
                 if (udonBehavior == null || objs.Contains(udonBehavior.gameObject))
                 {
@@ -77,12 +86,10 @@ namespace VRCPrefabs.CyanEmu
         {
             AddObjectAndChildrenToBlackList(player.gameObject.transform, UdonManager.Instance);
 
-            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
-            foreach (var udonBehavior in currentUdon)
+            foreach (var udonBehavior in allUdonBehaviours_)
             {
                 if (udonBehavior == null)
                 {
-                    Debug.Log("Null behaviour OnPlayerJoined");
                     continue;
                 }
                 udonBehavior.RunEvent("_onPlayerJoined", ("player", player));
@@ -91,12 +98,10 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnPlayerLeft(VRCPlayerApi player)
         {
-            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
-            foreach (var udonBehavior in currentUdon)
+            foreach (var udonBehavior in allUdonBehaviours_)
             {
                 if (udonBehavior == null)
                 {
-                    Debug.Log("Null behaviour OnPlayerLeft");
                     continue;
                 }
                 udonBehavior.RunEvent("_onPlayerLeft", ("player", player));
@@ -105,12 +110,10 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnPlayerRespawn(VRCPlayerApi player)
         {
-            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
-            foreach (var udonBehavior in currentUdon)
+            foreach (var udonBehavior in allUdonBehaviours_)
             {
                 if (udonBehavior == null)
                 {
-                    Debug.Log("Null behaviour OnPlayerRespawn");
                     continue;
                 }
                 udonBehavior.RunEvent("_onPlayerRespawn", ("player", player));
@@ -128,7 +131,7 @@ namespace VRCPrefabs.CyanEmu
         }
 
         #endregion
-
+        
         public static void AddUdonBehaviour(UdonBehaviour udonBehaviour)
         {
             if (instance_ == null)
@@ -136,7 +139,7 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            instance_.allUdonBehaviours_.Add(udonBehaviour);
+            instance_.QueueAddUdonBehaviour(udonBehaviour);
         }
 
         public static void RemoveUdonBehaviour(UdonBehaviour udonBehaviour)
@@ -146,7 +149,65 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            instance_.allUdonBehaviours_.Remove(udonBehaviour);
+            instance_.QueueRemoveUdonBehaviour(udonBehaviour);
+        }
+        
+        private void QueueAddUdonBehaviour(UdonBehaviour udonBehaviour)
+        {
+            enabled = true;
+            toBeAddedUdon_.Enqueue(udonBehaviour);
+        }
+        
+        private void QueueRemoveUdonBehaviour(UdonBehaviour udonBehaviour)
+        {
+            enabled = true;
+            shouldVerifyUdonBehaviours_ = true;
+            toBeRemovedUdon_.Enqueue(udonBehaviour);
+        }
+
+        private void ProcessAddedAndRemovedUdonBehaviours()
+        {
+            if (toBeAddedUdon_.Count > 0)
+            {
+                foreach (var udon in toBeAddedUdon_)
+                {
+                    if (udon == null)
+                    {
+                        shouldVerifyUdonBehaviours_ = true;
+                        continue;
+                    }
+                    allUdonBehaviours_.Add(udon);
+                }
+                toBeAddedUdon_.Clear();
+            }
+            if (toBeRemovedUdon_.Count > 0)
+            {
+                foreach (var udon in toBeRemovedUdon_)
+                {
+                    if (udon == null)
+                    {
+                        shouldVerifyUdonBehaviours_ = true;
+                        continue;
+                    }
+                    allUdonBehaviours_.Remove(udon);
+                }
+                toBeRemovedUdon_.Clear();
+            }
+
+            if (shouldVerifyUdonBehaviours_)
+            {
+                HashSet<UdonBehaviour> allUdon = new HashSet<UdonBehaviour>();
+                foreach (var udon in allUdonBehaviours_)
+                {
+                    if (udon == null)
+                    {
+                        continue;
+                    }
+                    allUdon.Add(udon);
+                }
+
+                allUdonBehaviours_ = allUdon;
+            }
         }
     }
 }
