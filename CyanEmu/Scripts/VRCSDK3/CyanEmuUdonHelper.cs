@@ -20,7 +20,7 @@ namespace VRCPrefabs.CyanEmu
 
         private static FieldInfo NetworkReadyFieldInfo_ => isNetworkReady_ ?? isReady_;
         
-        private UdonBehaviour udonbehaviour_;
+        private UdonBehaviour udonBehaviour_;
 
         public static void OnInit(UdonBehaviour behaviour, IUdonProgram program)
         {
@@ -32,12 +32,12 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnNetworkReady()
         {
-            NetworkReadyFieldInfo_.SetValue(udonbehaviour_, true);
+            NetworkReadyFieldInfo_.SetValue(udonBehaviour_, true);
         }
 
         private void Start()
         {
-            if (udonbehaviour_ == null)
+            if (udonBehaviour_ == null)
             {
                 DestroyImmediate(this);
             }
@@ -56,35 +56,35 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        private void SetUdonBehaviour(UdonBehaviour udonbehaviour)
+        private void SetUdonBehaviour(UdonBehaviour udonBehaviour)
         {
-            if (udonbehaviour == null)
+            if (udonBehaviour == null)
             {
                 this.LogError("UdonBehaviour is null. Destroying helper.");
                 DestroyImmediate(this);
                 return;
             }
-            udonbehaviour_ = udonbehaviour;
-            SyncPosition = udonbehaviour_.SynchronizePosition;
+            udonBehaviour_ = udonBehaviour;
+            SyncPosition = udonBehaviour_.SynchronizePosition;
 
-            CyanEmuUdonManager.AddUdonBehaviour(udonbehaviour_);
+            CyanEmuUdonManager.AddUdonBehaviour(udonBehaviour_);
         }
 
         public UdonBehaviour GetUdonBehaviour()
         {
-            return udonbehaviour_;
+            return udonBehaviour_;
         }
 
         private void OnDestroy()
         {
-            CyanEmuUdonManager.RemoveUdonBehaviour(udonbehaviour_);
+            CyanEmuUdonManager.RemoveUdonBehaviour(udonBehaviour_);
         }
 
         #region ICyanEmuSyncableHandler
 
         public void OnOwnershipTransferred(int ownerID)
         {
-            udonbehaviour_.RunEvent("_onOwnershipTransferred", ("Player", VRCPlayerApi.GetPlayerById(ownerID)));
+            udonBehaviour_.RunEvent("_onOwnershipTransferred", ("Player", VRCPlayerApi.GetPlayerById(ownerID)));
         }
 
         #endregion
@@ -93,22 +93,22 @@ namespace VRCPrefabs.CyanEmu
 
         public float GetProximity()
         {
-            return udonbehaviour_.proximity;
+            return udonBehaviour_.proximity;
         }
 
         public bool CanInteract()
         {
-            return udonbehaviour_.IsInteractive;
+            return udonBehaviour_.IsInteractive;
         }
 
         public string GetInteractText()
         {
-            return udonbehaviour_.interactText;
+            return udonBehaviour_.interactText;
         }
 
         public void Interact()
         {
-            udonbehaviour_.Interact();
+            udonBehaviour_.Interact();
         }
 
         #endregion
@@ -117,22 +117,22 @@ namespace VRCPrefabs.CyanEmu
 
         public void OnPickup()
         {
-            udonbehaviour_.OnPickup();
+            udonBehaviour_.OnPickup();
         }
 
         public void OnDrop()
         {
-            udonbehaviour_.OnDrop();
+            udonBehaviour_.OnDrop();
         }
 
         public void OnPickupUseDown()
         {
-            udonbehaviour_.OnPickupUseDown();
+            udonBehaviour_.OnPickupUseDown();
         }
 
         public void OnPickupUseUp()
         {
-            udonbehaviour_.OnPickupUseUp();
+            udonBehaviour_.OnPickupUseUp();
         }
 
         #endregion
@@ -142,13 +142,13 @@ namespace VRCPrefabs.CyanEmu
         public void OnStationEnter(VRCStation station)
         {
             VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
-            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerEnterStation, ("Player", Networking.LocalPlayer));
+            udonBehaviour_.RunEvent(sdk3Station.OnLocalPlayerEnterStation, ("Player", Networking.LocalPlayer));
         }
 
         public void OnStationExit(VRCStation station)
         {
             VRC.SDK3.Components.VRCStation sdk3Station = station as VRC.SDK3.Components.VRCStation;
-            udonbehaviour_.RunEvent(sdk3Station.OnLocalPlayerExitStation, ("Player", Networking.LocalPlayer));
+            udonBehaviour_.RunEvent(sdk3Station.OnLocalPlayerExitStation, ("Player", Networking.LocalPlayer));
         }
 
         #endregion
