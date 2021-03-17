@@ -606,6 +606,10 @@ namespace VRCPrefabs.CyanEmu
             Vector2 prevInput = prevInputResult_;
             GetInput(out speed, out input);
 
+#if UDON
+            HandleUdonInput();
+#endif
+            
             if (currentStation_ != null && !currentStation_.CanPlayerMoveWhileSeated(input.magnitude))
             {
                 return;
@@ -693,10 +697,6 @@ namespace VRCPrefabs.CyanEmu
             velSet = false;
 
             UpdateCameraProxyPosition();
-            
-#if UDON
-            HandleUdonInput();
-#endif
         }
      
         // TODO do this better...
@@ -714,6 +714,11 @@ namespace VRCPrefabs.CyanEmu
         private Vector2 prevMoveInput_ = Vector2.zero;
         private void HandleUdonInput()
         {
+            if (menu_.activeInHierarchy)
+            {
+                return;
+            }
+            
             foreach (var (keyCode, eventName, handType) in keyToEvent_)
             {
                 HandleInputForKey(keyCode, eventName, handType);
