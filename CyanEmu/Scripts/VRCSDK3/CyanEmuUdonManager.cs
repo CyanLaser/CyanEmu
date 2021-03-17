@@ -49,7 +49,8 @@ namespace VRCPrefabs.CyanEmu
         public void OnNetworkReady()
         {
             HashSet<GameObject> objs = new HashSet<GameObject>();
-            foreach (var udonBehavior in allUdonBehaviours_)
+            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
+            foreach (var udonBehavior in currentUdon)
             {
                 if (udonBehavior == null || objs.Contains(udonBehavior.gameObject))
                 {
@@ -76,30 +77,49 @@ namespace VRCPrefabs.CyanEmu
         {
             AddObjectAndChildrenToBlackList(player.gameObject.transform, UdonManager.Instance);
 
-            foreach (var udonBehavior in allUdonBehaviours_)
+            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
+            foreach (var udonBehavior in currentUdon)
             {
+                if (udonBehavior == null)
+                {
+                    Debug.Log("Null behaviour OnPlayerJoined");
+                    continue;
+                }
                 udonBehavior.RunEvent("_onPlayerJoined", ("player", player));
             }
         }
 
         public void OnPlayerLeft(VRCPlayerApi player)
         {
-            foreach (var udonBehavior in allUdonBehaviours_)
+            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
+            foreach (var udonBehavior in currentUdon)
             {
+                if (udonBehavior == null)
+                {
+                    Debug.Log("Null behaviour OnPlayerLeft");
+                    continue;
+                }
                 udonBehavior.RunEvent("_onPlayerLeft", ("player", player));
             }
         }
 
         public void OnPlayerRespawn(VRCPlayerApi player)
         {
-            foreach (var udonBehavior in allUdonBehaviours_)
+            List<UdonBehaviour> currentUdon = new List<UdonBehaviour>(allUdonBehaviours_);
+            foreach (var udonBehavior in currentUdon)
             {
+                if (udonBehavior == null)
+                {
+                    Debug.Log("Null behaviour OnPlayerRespawn");
+                    continue;
+                }
                 udonBehavior.RunEvent("_onPlayerRespawn", ("player", player));
             }
         }
 
         public void OnSpawnedObject(GameObject spawnedObject)
         {
+            // TODO fix this
             UdonBehaviour[] udonBehaviours = spawnedObject.GetComponentsInChildren<UdonBehaviour>();
             foreach (var udonBehaviour in udonBehaviours)
             {

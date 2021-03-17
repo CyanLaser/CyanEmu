@@ -299,10 +299,9 @@ namespace VRCPrefabs.CyanEmu
 
                 SpawnLocalPlayer();
             }
-
-            yield return new WaitForSeconds(0.1f);
-
             networkReady_ = true;
+            
+            yield return new WaitForSeconds(0.1f);
             CyanEmuPlayerManager.OnNetworkReady();
         }
 
@@ -411,7 +410,7 @@ namespace VRCPrefabs.CyanEmu
             int masterID = CyanEmuPlayerManager.GetMasterID();
             VRCPlayerApi masterPlayer = VRCPlayerApi.GetPlayerById(masterID);
 
-            foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
+            foreach (CyanEmuSyncedObjectHelper sync in GetAllSyncedObjects())
             {
                 GameObject syncObj = sync.gameObject;
                 if (Networking.GetOwner(syncObj)?.playerId == player.playerId)
@@ -468,8 +467,16 @@ namespace VRCPrefabs.CyanEmu
                 playerController_.Teleport(descriptor_.spawns[0], false);
             }
 
+            bool containsNull = false;
+            List<GameObject> objsToDestroy = new List<GameObject>();
             foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
+                if (sync == null)
+                {
+                    containsNull = true;
+                    continue;
+                }
+                
                 if (!sync.SyncPosition)
                 {
                     continue;
@@ -483,15 +490,25 @@ namespace VRCPrefabs.CyanEmu
                     }
                     else
                     {
-                        Destroy(sync.gameObject);
+                        objsToDestroy.Add(sync.gameObject);
                     }
                 }
+            }
+
+            foreach (var obj in objsToDestroy)
+            {
+                Destroy(obj);
+            }
+
+            if (containsNull)
+            {
+                GetAllSyncedObjects();
             }
         }
 
         public static void AddSyncedObject(CyanEmuSyncedObjectHelper sync)
         {
-            if (instance_ == null)
+            if (instance_ == null || sync == null)
             {
                 return;
             }
@@ -506,7 +523,37 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            instance_.allSyncedObjects_.Remove(sync);
+            if (sync == null)
+            {
+                instance_.GetAllSyncedObjects();
+            }
+            else
+            {
+                instance_.allSyncedObjects_.Remove(sync);
+            }
+        }
+
+        // Will get all non null syncs. Will also remove null if contained in the list.
+        private List<CyanEmuSyncedObjectHelper> GetAllSyncedObjects()
+        {
+            List<CyanEmuSyncedObjectHelper> curSyncs = new List<CyanEmuSyncedObjectHelper>();
+            bool containsNull = false;
+            foreach (var sync in allSyncedObjects_)
+            {
+                if (sync == null)
+                {
+                    containsNull = true;
+                    continue;
+                }
+                curSyncs.Add(sync);
+            }
+
+            if (containsNull)
+            {
+                allSyncedObjects_ = new HashSet<CyanEmuSyncedObjectHelper>(curSyncs);
+            }
+
+            return curSyncs;
         }
     }
 }
