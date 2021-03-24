@@ -84,6 +84,8 @@ namespace VRCPrefabs.CyanEmu
 
 #if UDON
             VRC.Udon.UdonBehaviour.OnInit = CyanEmuUdonHelper.OnInit;
+            
+            // This is no longer used as of SDK 2021.03.22.18.27
             VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = CyanEmuUdonHelper.SendCustomNetworkEventHook;
 #endif
 

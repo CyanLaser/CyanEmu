@@ -8,6 +8,7 @@ using VRC.Udon;
 
 namespace CyanEmu.UdonSharp
 {
+    [AddComponentMenu("")]
     public class USharpCyanEmuTestScript : UdonSharpBehaviour
     {
         private VRCPlayerApi _localPlayer;
