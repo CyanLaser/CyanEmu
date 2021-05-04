@@ -12,6 +12,8 @@ namespace VRCPrefabs.CyanEmu
         private const string VERSION_FILE_PATH = "Assets/CyanEmu/version.txt";
         private const string GITHUB_URL = "https://github.com/CyanLaser/CyanEmu";
         private const string WIKI_URL = "https://github.com/CyanLaser/CyanEmu/wiki";
+        private const string DISCORD_URL = "https://discord.gg/TFgJKv66Zk";
+        private const string PATREON_URL = "https://www.patreon.com/CyanLaser";
 
         // General content
         private readonly GUIContent generalFoldoutGuiContent = new GUIContent("General Settings", "");
@@ -142,21 +144,40 @@ namespace VRCPrefabs.CyanEmu
 
         private void DrawLinks()
         {
+            float width = EditorGUIUtility.currentViewWidth;
+            float buttonWidth = Mathf.Max((width - 45) * 0.5f, 100);
+            
             EditorGUILayout.BeginHorizontal();
             
             GUILayout.Space(10);
-            if (GUILayout.Button("Documentation", GUILayout.ExpandWidth(true)))
+            if (GUILayout.Button("Documentation", GUILayout.Width(buttonWidth)))
             {
                 Application.OpenURL(WIKI_URL);
             }
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button("Github Repo", GUILayout.ExpandWidth(true)))
+            if (GUILayout.Button("Github Repo", GUILayout.Width(buttonWidth)))
             {
                 Application.OpenURL(GITHUB_URL);
             }
+
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            
             GUILayout.Space(10);
+            if (GUILayout.Button("Discord", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(DISCORD_URL);
+            }
+
+            GUILayout.Space(5);
+
+            if (GUILayout.Button("Patreon", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(PATREON_URL);
+            }
 
             EditorGUILayout.EndHorizontal();
         }
