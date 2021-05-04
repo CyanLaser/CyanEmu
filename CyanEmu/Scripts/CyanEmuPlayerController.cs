@@ -540,9 +540,7 @@ namespace VRCPrefabs.CyanEmu
 
                 Rigidbody rigidbody = pickup.rigidbody;
                 rigidbody.velocity = (rightArmPosition_.transform.position - prevousHandPosition_) * (0.3f / Time.fixedDeltaTime);
-                rigidbody.angularVelocity =
-                    (rightArmPosition_.transform.rotation.eulerAngles - prevousHandRotation_);
-                rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
+                rigidbody.angularVelocity = (rightArmPosition_.transform.rotation.eulerAngles - prevousHandRotation_);
             }
         }
 
