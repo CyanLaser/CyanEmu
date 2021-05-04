@@ -10,8 +10,16 @@ namespace VRCPrefabs.CyanEmu
     {
         private VRC_ObjectSync sync_;
 
+        private Rigidbody rigidbody_;
+
         public static void InitializeObjectSync(VRC_ObjectSync sync)
         {
+            var helper = sync.GetComponent<CyanEmuObjectSyncHelper>();
+            if (helper)
+            {
+                DestroyImmediate(helper);
+            }
+            
             sync.gameObject.AddComponent<CyanEmuObjectSyncHelper>();
         }
 
@@ -24,12 +32,33 @@ namespace VRCPrefabs.CyanEmu
         {
             sync.GetComponent<CyanEmuObjectSyncHelper>().Respawn();
         }
-
+        
+        public static void SetIsKinematic(VRC_ObjectSync sync, bool value)
+        {
+            sync.GetComponent<CyanEmuObjectSyncHelper>().SetIsKinematic(value);
+        }
+        
+        public static void SetUseGravity(VRC_ObjectSync sync, bool value)
+        {
+            sync.GetComponent<CyanEmuObjectSyncHelper>().SetUseGravity(value);
+        }
+        
+        public static bool GetIsKinematic(VRC_ObjectSync sync)
+        {
+            return sync.GetComponent<CyanEmuObjectSyncHelper>().GetIsKinematic();
+        }
+        
+        public static bool GetUseGravity(VRC_ObjectSync sync)
+        {
+            return sync.GetComponent<CyanEmuObjectSyncHelper>().GetUseGravity();
+        }
+        
         protected override void Awake()
         {
             base.Awake();
             SyncPosition = true;
 
+            rigidbody_ = GetComponent<Rigidbody>();
             sync_ = GetComponent<VRC_ObjectSync>();
 
             if ((GetComponent<Animator>() != null || GetComponent<Animation>() != null) && GetComponent<VRC_SyncAnimation>() == null)
@@ -48,24 +77,59 @@ namespace VRCPrefabs.CyanEmu
 
         #endregion
 
+        #region legacy RPC methods
+
         public void EnableKinematic()
         {
             this.Log("Enabling kinematic on Object " + VRC.Tools.GetGameObjectPath(gameObject));
+            SetIsKinematic(true);
         }
 
         public void DisableKinematic()
         {
             this.Log("Disabling kinematic on Object " + VRC.Tools.GetGameObjectPath(gameObject));
+            SetIsKinematic(false);
         }
 
         public void EnableGravity()
         {
             this.Log("Enabling gravity on Object " + VRC.Tools.GetGameObjectPath(gameObject));
+            SetUseGravity(true);
         }
 
         public void DisableGravity()
         {
             this.Log("Disabling gravity on Object " + VRC.Tools.GetGameObjectPath(gameObject));
+            SetUseGravity(false);
+        }
+
+        #endregion
+        
+
+        private void SetIsKinematic(bool value)
+        {
+            if (rigidbody_)
+            {
+                rigidbody_.isKinematic = value;
+            }
+        }
+        
+        private void SetUseGravity(bool value)
+        {
+            if (rigidbody_)
+            {
+                rigidbody_.useGravity = value;
+            }
+        }
+        
+        private bool GetIsKinematic()
+        {
+            return rigidbody_ && rigidbody_.isKinematic;
+        }
+        
+        private bool GetUseGravity()
+        {
+            return rigidbody_ && rigidbody_.useGravity;
         }
     }
 }

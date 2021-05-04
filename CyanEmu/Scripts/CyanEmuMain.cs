@@ -96,6 +96,10 @@ namespace VRCPrefabs.CyanEmu
             VRCSDK2.VRC_ObjectSync.Initialize += CyanEmuObjectSyncHelper.InitializeObjectSync;
             VRCSDK2.VRC_ObjectSync.TeleportHandler += CyanEmuObjectSyncHelper.TeleportTo;
             VRCSDK2.VRC_ObjectSync.RespawnHandler += CyanEmuObjectSyncHelper.RespawnObject;
+            VRCSDK2.VRC_ObjectSync.SetIsKinematic += CyanEmuObjectSyncHelper.SetIsKinematic;
+            VRCSDK2.VRC_ObjectSync.SetUseGravity += CyanEmuObjectSyncHelper.SetUseGravity;
+            VRCSDK2.VRC_ObjectSync.GetIsKinematic += CyanEmuObjectSyncHelper.GetIsKinematic;
+            VRCSDK2.VRC_ObjectSync.GetUseGravity += CyanEmuObjectSyncHelper.GetUseGravity;
             VRCSDK2.VRC_PlayerMods.Initialize = CyanEmuPlayerModsHelper.InitializePlayerMods;
             VRCSDK2.VRC_SyncAnimation.Initialize = CyanEmuSyncAnimationHelper.InitializationDelegate;
 #endif
