@@ -25,14 +25,16 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent playerControllerRunKeyGuiContent = new GUIContent("Run Key", "The button used to run. Running will make the player move faster.");
         private readonly GUIContent playerControllerCrouchKeyGuiContent = new GUIContent("Crouch Key", "The button used to crouch. Crouching will lower the camera midway to the floor and slow down the player.");
         private readonly GUIContent playerControllerProneKeyGuiContent = new GUIContent("Prone Key", "The button used to go prone. Going prone will lower the camera closer to the floor and slow down the player.");
-        private readonly GUIContent playerControllerCustomName = new GUIContent("Player Name", "Set a custom name for testing udon script name detection");
-
+        
         // Buffered Trigger content
         private readonly GUIContent bufferedTriggerFoldoutGuiContent = new GUIContent("Buffered Trigger Settings", "");
         private readonly GUIContent replayBufferedTriggerToggleGuiContent = new GUIContent("Replay Buffered Triggers", "If enabled, buffered triggers for this scene will be replayed at the start before all other triggers.");
         
-        //
-        private readonly GUIContent playerButtonsFoldoutGuiContent = new GUIContent("Add or Remove Players", "");
+        // Player settings
+        private readonly GUIContent playerButtonsFoldoutGuiContent = new GUIContent("Player Settings", "");
+        private readonly GUIContent localPlayerCustomNameGuiContent = new GUIContent("Local Player Name", "Set a custom name for the local player. Useful for testing udon script name detection");
+        private readonly GUIContent isInstanceOwnerGuiContent = new GUIContent("Is Instance Owner", "Set whether the local player is considered the instance owner");
+        private readonly GUIContent remotePlayerCustomNameGuiContent = new GUIContent("Remote Player Name", "Set a custom name for the next spawned remote player. Useful for testing udon script name detection");
 
 
 
@@ -205,9 +207,6 @@ namespace VRCPrefabs.CyanEmu
                 settings_.crouchKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerCrouchKeyGuiContent, settings_.crouchKey);
                 settings_.proneKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerProneKeyGuiContent, settings_.proneKey);
                 
-                // custom name
-                settings_.customLocalPlayerName = EditorGUILayout.TextField(playerControllerCustomName, settings_.customLocalPlayerName);
-
                 EditorGUI.EndDisabledGroup();
 
                 RemoveIndent();
@@ -259,6 +258,13 @@ namespace VRCPrefabs.CyanEmu
             if (showPlayerButtons_)
             {
                 AddIndent();
+                
+                // custom name
+                settings_.customLocalPlayerName = EditorGUILayout.TextField(localPlayerCustomNameGuiContent, settings_.customLocalPlayerName);
+                
+                settings_.isInstanceOwner = EditorGUILayout.Toggle(isInstanceOwnerGuiContent, settings_.isInstanceOwner);
+                
+                // TODO have setting for spawning players in the room before you
 
                 EditorGUI.BeginDisabledGroup(!CyanEmuMain.HasInstance() || !Application.isPlaying);
 
@@ -273,7 +279,7 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.EndDisabledGroup();
                 */
 
-                remotePlayerCustomName = EditorGUILayout.TextField(playerControllerCustomName, remotePlayerCustomName);
+                remotePlayerCustomName = EditorGUILayout.TextField(remotePlayerCustomNameGuiContent, remotePlayerCustomName);
 
                 if (GUILayout.Button("Spawn Remote Player"))
                 {

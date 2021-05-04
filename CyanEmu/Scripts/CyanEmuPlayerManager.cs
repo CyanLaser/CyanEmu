@@ -31,14 +31,14 @@ namespace VRCPrefabs.CyanEmu
             {
                 player.Log("Player is now master");
                 masterID = id;
-                Debug.Assert(player.isMaster, "VRCP_PlayerManager:InitializePlayer Player should be considered master!");
+                Debug.Assert(player.isMaster, "CyanEmuPlayerManager:InitializePlayer Player should be considered master!");
             }
             else
             {
-                Debug.Assert(!player.isMaster, "VRCP_PlayerManager:InitializePlayer Player should not be considered master!");
+                Debug.Assert(!player.isMaster, "CyanEmuPlayerManager:InitializePlayer Player should not be considered master!");
             }
 
-            Debug.Assert(player.playerId == id, "VRCP_PlayerManager:InitializePlayer Player's id does not match assigned id!");
+            Debug.Assert(player.playerId == id, "CyanEmuPlayerManager:InitializePlayer Player's id does not match assigned id!");
 
             if (networkReady)
             {
@@ -74,7 +74,7 @@ namespace VRCPrefabs.CyanEmu
             {
                 localPlayerID = player.playerId;
             }
-            Debug.Assert(player.isLocal == local, "VRCP_PlayerManager:CreateNewPlayer New player does not match local settings!");
+            Debug.Assert(player.isLocal == local, "CyanEmuPlayerManager:CreateNewPlayer New player does not match local settings!");
 
             return player;
         }
@@ -129,6 +129,11 @@ namespace VRCPrefabs.CyanEmu
             return GetPlayerID(player) == masterID;
         }
 
+        public static bool IsInstanceOwner(VRCPlayerApi player)
+        {
+            return CyanEmuSettings.Instance.isInstanceOwner;
+        }
+        
         public static bool IsLocalPlayerMaster()
         {
             return localPlayerID == masterID;

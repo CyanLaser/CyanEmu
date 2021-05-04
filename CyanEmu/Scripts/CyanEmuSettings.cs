@@ -42,6 +42,8 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public bool deleteEditorOnly = true;
         [SerializeField] public bool spawnPlayer = true;
         [SerializeField] public bool replayBufferedTriggers = false;
+        
+        [SerializeField] public bool isInstanceOwner = true;
 
 #if UNITY_EDITOR
         private static CyanEmuSettings LoadSettings()
