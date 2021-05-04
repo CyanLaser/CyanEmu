@@ -398,12 +398,12 @@ namespace VRCPrefabs.CyanEmu
 
         public static Quaternion GetBoneRotation(VRCPlayerApi player, HumanBodyBones bone)
         {
-            return player.gameObject.transform.rotation;
+            return Quaternion.identity;
         }
 
         public static Vector3 GetBonePosition(VRCPlayerApi player, HumanBodyBones bone)
         {
-            return player.gameObject.transform.position;
+            return Vector3.zero;
         }
 
         public static Transform GetBoneTransform(VRCPlayerApi player, HumanBodyBones bone)
