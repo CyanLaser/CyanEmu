@@ -21,10 +21,11 @@ namespace VRCPrefabs.CyanEmu
 
         public static void InitializePickup(VRC_Pickup pickup)
         {
-            if (pickup.gameObject.GetComponent<CyanEmuPickupHelper>() != null)
+            CyanEmuPickupHelper previousHelper = pickup.gameObject.GetComponent<CyanEmuPickupHelper>();
+            if (previousHelper != null)
             {
-                pickup.LogWarning("Multiple VRC_Pickup components on the same gameobject! " + VRC.Tools.GetGameObjectPath(pickup.gameObject));
-                return;
+                DestroyImmediate(previousHelper);
+                pickup.LogWarning("Destroying old pickup helper on object: " + VRC.Tools.GetGameObjectPath(pickup.gameObject));
             }
 
             CyanEmuPickupHelper helper = pickup.gameObject.AddComponent<CyanEmuPickupHelper>();
@@ -135,6 +136,9 @@ namespace VRCPrefabs.CyanEmu
 
             gameObject.OnPickup();
 
+            wasKinematic_ = rigidbody_.isKinematic;
+            rigidbody_.isKinematic = true;
+            
             CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
             {
@@ -148,8 +152,6 @@ namespace VRCPrefabs.CyanEmu
 
             Networking.SetOwner(Networking.LocalPlayer, gameObject);
 
-            wasKinematic_ = rigidbody_.isKinematic;
-            rigidbody_.isKinematic = true;
 
             // Calculate offest
             Transform pickupHoldPoint = null;
@@ -197,6 +199,7 @@ namespace VRCPrefabs.CyanEmu
             this.Log("Dropping object " + name);
             isHeld_ = false;
 
+            rigidbody_.isKinematic = wasKinematic_;
             gameObject.OnDrop();
 
             if (CyanEmuPlayerController.instance == null)
@@ -205,7 +208,6 @@ namespace VRCPrefabs.CyanEmu
             }
 
             CyanEmuPlayerController.instance.DropObject(this);
-            rigidbody_.isKinematic = wasKinematic_;
         }
 
         public void SetKinematic(bool isKinematic)
