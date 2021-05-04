@@ -49,6 +49,8 @@ namespace VRCPrefabs.CyanEmu
         private GameObject playerCamera_;
         private GameObject rightArmPosition_;
         private GameObject leftArmPosition_;
+        private Rigidbody rightArmRigidbody_;
+        private Rigidbody leftArmRigidbody_;
         private GameObject menu_;
         private Transform cameraProxyObject_;
         private Rigidbody rigidbody_;
@@ -86,6 +88,10 @@ namespace VRCPrefabs.CyanEmu
         private bool legacyLocomotion_;
 
         private Texture2D reticleTexture_;
+
+        // Used for determining pickup throw
+        private Vector3 prevousHandPosition_;
+        private Vector3 prevousHandRotation_;
 
         public static Camera GetPlayerCamera()
         {
@@ -157,10 +163,14 @@ namespace VRCPrefabs.CyanEmu
             rightArmPosition_ = new GameObject("Right Arm Position");
             rightArmPosition_.transform.SetParent(playerCamera_.transform, false);
             rightArmPosition_.transform.localPosition = new Vector3(0.2f, -0.2f, 0.75f);
+            rightArmRigidbody_ = rightArmPosition_.AddComponent<Rigidbody>();
+            rightArmRigidbody_.isKinematic = true;
             
             leftArmPosition_ = new GameObject("Left Arm Position");
             leftArmPosition_.transform.SetParent(playerCamera_.transform, false);
             leftArmPosition_.transform.localPosition = new Vector3(-0.2f, -0.2f, 0.75f);
+            leftArmRigidbody_ = leftArmPosition_.AddComponent<Rigidbody>();
+            leftArmRigidbody_.isKinematic = true;
             
             mouseLook_ = new MouseLook();
             mouseLook_.Init(transform, playerCamera_.transform);
@@ -510,6 +520,10 @@ namespace VRCPrefabs.CyanEmu
                 currentPickup_.Drop();
             }
             currentPickup_ = pickup;
+            
+            pickup.UpdatePosition(rightArmPosition_.transform, true);
+            FixedJoint fixedJoint = rightArmPosition_.AddComponent<FixedJoint>();
+            fixedJoint.connectedBody = pickup.rigidbody;
         }
 
         public void DropObject(CyanEmuPickupHelper pickup)
@@ -517,6 +531,17 @@ namespace VRCPrefabs.CyanEmu
             if (currentPickup_ == pickup)
             {
                 currentPickup_ = null;
+                FixedJoint fixedJoint = rightArmPosition_.GetComponent<FixedJoint>();
+                if (fixedJoint)
+                {
+                    DestroyImmediate(fixedJoint);
+                }
+
+                Rigidbody rigidbody = pickup.rigidbody;
+                rigidbody.velocity = (rightArmPosition_.transform.position - prevousHandPosition_) * (0.3f / Time.fixedDeltaTime);
+                rigidbody.angularVelocity =
+                    (rightArmPosition_.transform.rotation.eulerAngles - prevousHandRotation_);
+                rigidbody.maxAngularVelocity = rigidbody.angularVelocity.magnitude;
             }
         }
 
@@ -586,15 +611,13 @@ namespace VRCPrefabs.CyanEmu
                 jump_ = Input.GetButton("Jump");
             }
 
-            UpdateStance();
-            UpdateMenu();
-
             if (currentPickup_ != null)
             {
                 currentPickup_.UpdatePosition(rightArmPosition_.transform);
-                currentPickup_.UpdateUse();
             }
-
+            
+            UpdateStance();
+            UpdateMenu();
             UpdateCameraProxyPosition();
         }
    
@@ -610,6 +633,14 @@ namespace VRCPrefabs.CyanEmu
             HandleUdonInput();
 #endif
             
+            if (currentPickup_ != null)
+            {
+                currentPickup_.UpdateUse();
+            }
+            
+            prevousHandPosition_ = rightArmPosition_.transform.position;
+            prevousHandRotation_ = rightArmPosition_.transform.rotation.eulerAngles;
+
             if (currentStation_ != null && !currentStation_.CanPlayerMoveWhileSeated(input.magnitude))
             {
                 return;

@@ -9,8 +9,6 @@ namespace VRCPrefabs.CyanEmu
     public class CyanEmuObjectSyncHelper : CyanEmuSyncedObjectHelper, ICyanEmuSyncableHandler
     {
         private VRC_ObjectSync sync_;
-        private CyanEmuPickupHelper pickupHelper_;
-
 
         public static void InitializeObjectSync(VRC_ObjectSync sync)
         {
@@ -33,7 +31,6 @@ namespace VRCPrefabs.CyanEmu
             SyncPosition = true;
 
             sync_ = GetComponent<VRC_ObjectSync>();
-            pickupHelper_ = GetComponent<CyanEmuPickupHelper>();
 
             if ((GetComponent<Animator>() != null || GetComponent<Animation>() != null) && GetComponent<VRC_SyncAnimation>() == null)
             {
@@ -54,37 +51,21 @@ namespace VRCPrefabs.CyanEmu
         public void EnableKinematic()
         {
             this.Log("Enabling kinematic on Object " + VRC.Tools.GetGameObjectPath(gameObject));
-            if (pickupHelper_)
-            {
-                pickupHelper_.SetKinematic(true);
-            }
         }
 
         public void DisableKinematic()
         {
             this.Log("Disabling kinematic on Object " + VRC.Tools.GetGameObjectPath(gameObject));
-            if (pickupHelper_)
-            {
-                pickupHelper_.SetKinematic(false);
-            }
         }
 
         public void EnableGravity()
         {
             this.Log("Enabling gravity on Object " + VRC.Tools.GetGameObjectPath(gameObject));
-            if (pickupHelper_)
-            {
-                pickupHelper_.SetGravity(true);
-            }
         }
 
         public void DisableGravity()
         {
             this.Log("Disabling gravity on Object " + VRC.Tools.GetGameObjectPath(gameObject));
-            if (pickupHelper_)
-            {
-                pickupHelper_.SetGravity(false);
-            }
         }
     }
 }

@@ -10,14 +10,17 @@ namespace VRCPrefabs.CyanEmu
         private static Quaternion GRIP_OFFSET_ROTATION_ = Quaternion.Euler(0, 0, -90);
         private static Quaternion GUN_OFFSET_ROTATION_ = Quaternion.Euler(-90, 0, -90);
 
+        [HideInInspector]
+        public Rigidbody rigidbody;
+        
         private VRC_Pickup pickup_;
-        private Rigidbody rigidbody_;
 
-        private bool wasKinematic_;
         private bool isHeld_;
 
         private Vector3 positionOffset_;
         private Quaternion rotationOffset_ = Quaternion.identity;
+
+        private float dropActionStartTime_;
 
         public static void InitializePickup(VRC_Pickup pickup)
         {
@@ -61,7 +64,7 @@ namespace VRCPrefabs.CyanEmu
         private void SetPickup(VRC_Pickup pickup)
         {
             pickup_ = pickup;
-            rigidbody_ = GetComponent<Rigidbody>();
+            rigidbody = GetComponent<Rigidbody>();
         }
 
         public float GetProximity()
@@ -89,22 +92,26 @@ namespace VRCPrefabs.CyanEmu
             Pickup();
         }
 
-        public void UpdatePosition(Transform root)
+        public void UpdatePosition(Transform root, bool force = false)
         {
-            transform.position = root.transform.position + root.TransformDirection(positionOffset_);
-            transform.rotation = root.transform.rotation * rotationOffset_;
+            if (rigidbody.isKinematic || force)
+            {
+                transform.position = root.transform.position + root.TransformDirection(positionOffset_);
+                transform.rotation = root.transform.rotation * rotationOffset_;
+            }
         }
 
         public void UpdateUse()
         {
+            int dropIndex = 0;
             if (pickup_.AutoHold == VRC_Pickup.AutoHoldMode.Yes)
             {
-                if (Input.GetMouseButtonDown(1))
+                dropIndex = 1;
+                if (Input.GetMouseButtonDown(dropIndex))
                 {
-                    Drop();
-                    return;
+                    dropActionStartTime_ = Time.time;
                 }
-
+                
                 if (Input.GetMouseButtonDown(0))
                 {
                     this.Log("Pickup Use Down");
@@ -116,12 +123,10 @@ namespace VRCPrefabs.CyanEmu
                     gameObject.OnPickupUseUp();
                 }
             }
-            else
+            
+            if (Input.GetMouseButtonUp(dropIndex))
             {
-                if (Input.GetMouseButtonUp(0))
-                {
-                    Drop();
-                }
+                Drop();
             }
         }
 
@@ -136,17 +141,12 @@ namespace VRCPrefabs.CyanEmu
 
             gameObject.OnPickup();
 
-            wasKinematic_ = rigidbody_.isKinematic;
-            rigidbody_.isKinematic = true;
-            
             CyanEmuPlayerController player = CyanEmuPlayerController.instance;
             if (player == null)
             {
                 this.LogWarning("Unable to pickup object when there is no player!");
                 return;
             }
-
-            player.PickupObject(this);
 
             this.Log("Picking up object " + name);
 
@@ -187,6 +187,8 @@ namespace VRCPrefabs.CyanEmu
                 rotationOffset_ = offsetRotation * Quaternion.Inverse(Quaternion.Inverse(transform.rotation) * pickupHoldPoint.rotation);
                 positionOffset_ = rotationOffset_ * transform.InverseTransformDirection(transform.position - pickupHoldPoint.position);
             }
+            
+            player.PickupObject(this);
         }
 
         public void Drop()
@@ -199,32 +201,28 @@ namespace VRCPrefabs.CyanEmu
             this.Log("Dropping object " + name);
             isHeld_ = false;
 
-            rigidbody_.isKinematic = wasKinematic_;
             gameObject.OnDrop();
 
-            if (CyanEmuPlayerController.instance == null)
+            CyanEmuPlayerController player = CyanEmuPlayerController.instance;
+            if (player == null)
             {
                 return;
             }
 
-            CyanEmuPlayerController.instance.DropObject(this);
-        }
-
-        public void SetKinematic(bool isKinematic)
-        {
-            if (isHeld_)
+            player.DropObject(this);
+            
+            // Calculate throw velocity
+            if (!rigidbody.isKinematic)
             {
-                wasKinematic_ = isKinematic;
+                float holdDuration = Mathf.Clamp(Time.time - dropActionStartTime_, 0, 3);
+                if (holdDuration > 0.2f)
+                {
+                    Transform rightArm = player.GetArmTransform();
+                    Vector3 throwForce = rightArm.forward * (holdDuration * 500 * pickup_.ThrowVelocityBoostScale);
+                    rigidbody.AddForce(throwForce);
+                    Debug.Log("Adding throw force: "+ throwForce);
+                }
             }
-            else
-            {
-                rigidbody_.isKinematic = isKinematic;
-            }
-        }
-
-        public void SetGravity(bool hasGravity)
-        {
-            rigidbody_.useGravity = hasGravity;
         }
 
         public string PickupText()
