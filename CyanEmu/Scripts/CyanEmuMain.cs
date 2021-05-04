@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRC.SDKBase;
+using Random = UnityEngine.Random;
 
 
 namespace VRCPrefabs.CyanEmu
@@ -30,6 +31,7 @@ namespace VRCPrefabs.CyanEmu
 
         private int spawnedObjectCount_;
         private bool networkReady_;
+        private int spawnOrder_ = 0;
 
         // TODO save syncables
         //private CyanEmuBufferManager bufferManager_;
@@ -346,7 +348,7 @@ namespace VRCPrefabs.CyanEmu
             player.transform.parent = transform;
             player.layer = LayerMask.NameToLayer("Player");
             // TODO do this better
-            Transform spawn = GetSpawnPoint();
+            Transform spawn = GetSpawnPoint(true);
             player.transform.position = spawn.position;
             player.transform.rotation = Quaternion.Euler(0, spawn.rotation.eulerAngles.y, 0);
 
@@ -360,13 +362,42 @@ namespace VRCPrefabs.CyanEmu
             player.name = $"[{playerAPI.playerId}] {player.name}";
         }
 
-        private Transform GetSpawnPoint()
+        public static Transform GetNextSpawnPoint()
+        {
+            if (instance_ != null)
+            {
+                return instance_.GetSpawnPoint();
+            }
+            return null;
+        }
+        
+        private Transform GetSpawnPoint(bool remote = false)
         {
             if (descriptor_.spawns.Length == 0 || descriptor_.spawns[0] == null)
             {
                 throw new Exception("[CyanEmuMain] Cannot spawn player when descriptor does not have a spawn set!");
             }
 
+            // Remote players always restart the list, so for now, only first spawn
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.First || 
+                descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Demo || 
+                remote)
+            {
+                return descriptor_.spawns[0];
+            }
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Random)
+            {
+                int spawn = Random.Range(0, descriptor_.spawns.Length);
+                return descriptor_.spawns[spawn];
+            }
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Sequential)
+            {
+                Transform spawn = descriptor_.spawns[spawnOrder_];
+                spawnOrder_ = (spawnOrder_ + 1) % descriptor_.spawns.Length;
+                return spawn;
+            }
+            
+            // Fallback to first spawn point
             return descriptor_.spawns[0];
         }
 

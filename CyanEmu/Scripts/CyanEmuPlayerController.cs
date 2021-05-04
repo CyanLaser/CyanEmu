@@ -454,8 +454,9 @@ namespace VRCPrefabs.CyanEmu
             {
                 currentStation_.ExitStation();
             }
+            
             CloseMenu();
-            Teleport(descriptor_.spawns[0], false);
+            Teleport(CyanEmuMain.GetNextSpawnPoint(), false);
             CyanEmuMain.PlayerRespawned(player_.player);
         }
 
