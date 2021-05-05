@@ -524,7 +524,7 @@ namespace VRCPrefabs.CyanEmu
             
             pickup.UpdatePosition(rightArmPosition_.transform, true);
             FixedJoint fixedJoint = rightArmPosition_.AddComponent<FixedJoint>();
-            fixedJoint.connectedBody = pickup.rigidbody;
+            fixedJoint.connectedBody = pickup.GetRigidbody();
         }
 
         public void DropObject(CyanEmuPickupHelper pickup)
@@ -538,8 +538,8 @@ namespace VRCPrefabs.CyanEmu
                     DestroyImmediate(fixedJoint);
                 }
 
-                Rigidbody rigidbody = pickup.rigidbody;
-                rigidbody.velocity = (rightArmPosition_.transform.position - prevousHandPosition_) * (0.3f / Time.fixedDeltaTime);
+                Rigidbody rigidbody = pickup.GetRigidbody();
+                rigidbody.velocity = (rightArmPosition_.transform.position - prevousHandPosition_) * (0.5f / Time.deltaTime);
                 rigidbody.angularVelocity = (rightArmPosition_.transform.rotation.eulerAngles - prevousHandRotation_);
             }
         }
@@ -613,11 +613,15 @@ namespace VRCPrefabs.CyanEmu
             if (currentPickup_ != null)
             {
                 currentPickup_.UpdatePosition(rightArmPosition_.transform);
+                currentPickup_.UpdateUse();
             }
             
             UpdateStance();
             UpdateMenu();
             UpdateCameraProxyPosition();
+            
+            prevousHandPosition_ = rightArmPosition_.transform.position;
+            prevousHandRotation_ = rightArmPosition_.transform.rotation.eulerAngles;
         }
    
         private void FixedUpdate()
@@ -631,14 +635,6 @@ namespace VRCPrefabs.CyanEmu
 #if UDON
             HandleUdonInput();
 #endif
-            
-            if (currentPickup_ != null)
-            {
-                currentPickup_.UpdateUse();
-            }
-            
-            prevousHandPosition_ = rightArmPosition_.transform.position;
-            prevousHandRotation_ = rightArmPosition_.transform.rotation.eulerAngles;
 
             if (currentStation_ != null && !currentStation_.CanPlayerMoveWhileSeated(input.magnitude))
             {

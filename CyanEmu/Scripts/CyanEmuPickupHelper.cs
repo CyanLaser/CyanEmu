@@ -6,13 +6,13 @@ namespace VRCPrefabs.CyanEmu
     [AddComponentMenu("")]
     public class CyanEmuPickupHelper : MonoBehaviour, ICyanEmuInteractable
     {
+        // If the user releases the mouse button before this time, it will not fire on use up. 
+        private const float INITIAL_PICKUP_DURATION_ = 0.5f;
         private const float MAX_PICKUP_DISTANCE_ = 0.25f;
         private static Quaternion GRIP_OFFSET_ROTATION_ = Quaternion.Euler(0, 0, -90);
         private static Quaternion GUN_OFFSET_ROTATION_ = Quaternion.Euler(-90, 0, -90);
-
-        [HideInInspector]
-        public Rigidbody rigidbody;
         
+        private Rigidbody rigidbody_;
         private VRC_Pickup pickup_;
 
         private bool isHeld_;
@@ -20,6 +20,8 @@ namespace VRCPrefabs.CyanEmu
         private Vector3 positionOffset_;
         private Quaternion rotationOffset_ = Quaternion.identity;
 
+        private bool initialGrab_;
+        private float grabActionStartTime_;
         private float dropActionStartTime_;
 
         public static void InitializePickup(VRC_Pickup pickup)
@@ -64,8 +66,13 @@ namespace VRCPrefabs.CyanEmu
         private void SetPickup(VRC_Pickup pickup)
         {
             pickup_ = pickup;
-            rigidbody = GetComponent<Rigidbody>();
+            rigidbody_ = GetComponent<Rigidbody>();
         }
+
+        public Rigidbody GetRigidbody()
+        {
+            return rigidbody_;
+        } 
 
         public float GetProximity()
         {
@@ -94,7 +101,7 @@ namespace VRCPrefabs.CyanEmu
 
         public void UpdatePosition(Transform root, bool force = false)
         {
-            if (rigidbody.isKinematic || force)
+            if (rigidbody_.isKinematic || force)
             {
                 transform.position = root.transform.position + root.TransformDirection(positionOffset_);
                 transform.rotation = root.transform.rotation * rotationOffset_;
@@ -111,16 +118,21 @@ namespace VRCPrefabs.CyanEmu
                 {
                     dropActionStartTime_ = Time.time;
                 }
-                
-                if (Input.GetMouseButtonDown(0))
+
+                float grabDuration = Time.time - grabActionStartTime_;
+                if (grabDuration > INITIAL_PICKUP_DURATION_)
                 {
-                    this.Log("Pickup Use Down");
-                    gameObject.OnPickupUseDown();
-                }
-                if (Input.GetMouseButtonUp(0))
-                {
-                    this.Log("Pickup Use Up");
-                    gameObject.OnPickupUseUp();
+                    if (Input.GetMouseButtonDown(0) || (initialGrab_ && Input.GetMouseButton(0)))
+                    {
+                        this.Log("Pickup Use Down");
+                        gameObject.OnPickupUseDown();
+                        initialGrab_ = false;
+                    }
+                    if (Input.GetMouseButtonUp(0))
+                    {
+                        this.Log("Pickup Use Up");
+                        gameObject.OnPickupUseUp();
+                    }
                 }
             }
             
@@ -138,6 +150,8 @@ namespace VRCPrefabs.CyanEmu
             }
             
             isHeld_ = true;
+            grabActionStartTime_ = Time.time;
+            initialGrab_ = true;
 
             gameObject.OnPickup();
 
@@ -200,6 +214,7 @@ namespace VRCPrefabs.CyanEmu
             
             this.Log("Dropping object " + name);
             isHeld_ = false;
+            initialGrab_ = false;
 
             gameObject.OnDrop();
 
@@ -212,14 +227,14 @@ namespace VRCPrefabs.CyanEmu
             player.DropObject(this);
             
             // Calculate throw velocity
-            if (!rigidbody.isKinematic)
+            if (!rigidbody_.isKinematic)
             {
                 float holdDuration = Mathf.Clamp(Time.time - dropActionStartTime_, 0, 3);
                 if (holdDuration > 0.2f)
                 {
                     Transform rightArm = player.GetArmTransform();
                     Vector3 throwForce = rightArm.forward * (holdDuration * 500 * pickup_.ThrowVelocityBoostScale);
-                    rigidbody.AddForce(throwForce);
+                    rigidbody_.AddForce(throwForce);
                     Debug.Log("Adding throw force: "+ throwForce);
                 }
             }
