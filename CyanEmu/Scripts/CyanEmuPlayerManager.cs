@@ -134,6 +134,11 @@ namespace VRCPrefabs.CyanEmu
             return CyanEmuSettings.Instance.isInstanceOwner;
         }
         
+        public static bool IsInstanceOwner()
+        {
+            return CyanEmuSettings.Instance.isInstanceOwner;
+        }
+        
         public static bool IsLocalPlayerMaster()
         {
             return localPlayerID == masterID;

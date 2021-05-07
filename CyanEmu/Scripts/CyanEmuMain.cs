@@ -186,6 +186,9 @@ namespace VRCPrefabs.CyanEmu
             // 2021-05-03
             var isInstanceOwner = typeof(VRCPlayerApi).GetField("_isInstanceOwnerDelegate", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
             if (isInstanceOwner != null) isInstanceOwner.SetValue(null, (Func<VRCPlayerApi, bool>)CyanEmuPlayerManager.IsInstanceOwner);
+            
+            var isInstanceOwnerNetworking = typeof(Networking).GetField("_IsInstanceOwner", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (isInstanceOwnerNetworking != null) isInstanceOwnerNetworking.SetValue(null, (Func<bool>)CyanEmuPlayerManager.IsInstanceOwner);
         }
 
         private static void CreateInstance()
