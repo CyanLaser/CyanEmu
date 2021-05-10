@@ -227,7 +227,7 @@ namespace VRCPrefabs.CyanEmu
             player.DropObject(this);
             
             // Calculate throw velocity
-            if (!rigidbody_.isKinematic)
+            if (!rigidbody_.isKinematic && pickup_.AutoHold == VRC_Pickup.AutoHoldMode.Yes)
             {
                 float holdDuration = Mathf.Clamp(Time.time - dropActionStartTime_, 0, 3);
                 if (holdDuration > 0.2f)
