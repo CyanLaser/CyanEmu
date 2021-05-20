@@ -235,7 +235,7 @@ namespace VRCPrefabs.CyanEmu
                     Transform rightArm = player.GetArmTransform();
                     Vector3 throwForce = rightArm.forward * (holdDuration * 500 * pickup_.ThrowVelocityBoostScale);
                     rigidbody_.AddForce(throwForce);
-                    Debug.Log("Adding throw force: "+ throwForce);
+                    this.Log("Adding throw force: "+ throwForce);
                 }
             }
         }
