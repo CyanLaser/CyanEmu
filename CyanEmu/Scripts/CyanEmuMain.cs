@@ -89,6 +89,19 @@ namespace VRCPrefabs.CyanEmu
             
             // This is no longer used as of SDK 2021.03.22.18.27
             VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = CyanEmuUdonHelper.SendCustomNetworkEventHook;
+            
+            // TODO 
+            //VRC.Udon.UdonBehaviour.CheckValid
+            VRC.SDK3.Components.VRCObjectPool.OnInit = CyanEmuObjectPoolHelper.OnInit;
+            VRC.SDK3.Components.VRCObjectPool.OnReturn = CyanEmuObjectPoolHelper.OnReturn;
+            VRC.SDK3.Components.VRCObjectPool.OnSpawn = CyanEmuObjectPoolHelper.OnSpawn;
+            
+            VRC.SDK3.Components.VRCObjectSync.FlagDiscontinuityHook = CyanEmuObjectSyncHelper.FlagDiscontinuityHook;
+            VRC.SDK3.Components.VRCObjectSync.OnAwake = CyanEmuObjectSyncHelper.InitializeObjectSync;
+            VRC.SDK3.Components.VRCObjectSync.RespawnHandler = CyanEmuObjectSyncHelper.RespawnObject;
+            VRC.SDK3.Components.VRCObjectSync.TeleportHandler = CyanEmuObjectSyncHelper.TeleportTo;
+            VRC.SDK3.Components.VRCObjectSync.SetGravityHook = CyanEmuObjectSyncHelper.SetUseGravity;
+            VRC.SDK3.Components.VRCObjectSync.SetKinematicHook = CyanEmuObjectSyncHelper.SetIsKinematic;
 #endif
 
 #if VRC_SDK_VRCSDK2

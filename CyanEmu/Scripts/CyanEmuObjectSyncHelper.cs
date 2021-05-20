@@ -1,7 +1,12 @@
-﻿#if VRC_SDK_VRCSDK2
+﻿using UnityEngine;
 
-using UnityEngine;
+#if VRC_SDK_VRCSDK2
 using VRCSDK2;
+#endif
+
+#if UDON
+using VRC_ObjectSync = VRC.SDK3.Components.VRCObjectSync;
+#endif
 
 namespace VRCPrefabs.CyanEmu
 {
@@ -53,6 +58,11 @@ namespace VRCPrefabs.CyanEmu
             return sync.GetComponent<CyanEmuObjectSyncHelper>().GetUseGravity();
         }
         
+        public static void FlagDiscontinuityHook(VRC_ObjectSync sync)
+        {
+            sync.GetComponent<CyanEmuObjectSyncHelper>().FlagDiscontinuity();
+        }
+
         protected override void Awake()
         {
             base.Awake();
@@ -60,19 +70,23 @@ namespace VRCPrefabs.CyanEmu
 
             rigidbody_ = GetComponent<Rigidbody>();
             sync_ = GetComponent<VRC_ObjectSync>();
-
+            
+#if VRC_SDK_VRCSDK2 
             if ((GetComponent<Animator>() != null || GetComponent<Animation>() != null) && GetComponent<VRC_SyncAnimation>() == null)
             {
                 gameObject.AddComponent<VRC_SyncAnimation>();
                 this.LogWarning("Object sync has animtor or animation component but no Sync Animation component. This will be forced synced!");
             }
+#endif
         }
 
         #region ICyanEmuSyncableHandler
 
         public void OnOwnershipTransferred(int ownerID)
         {
-            VRC_Trigger.Trigger(gameObject, VRC.SDKBase.VRC_Trigger.TriggerType.OnOwnershipTransfer); 
+#if VRC_SDK_VRCSDK2
+            VRC_Trigger.Trigger(gameObject, VRC.SDKBase.VRC_Trigger.TriggerType.OnOwnershipTransfer);
+#endif
         }
 
         #endregion
@@ -133,5 +147,3 @@ namespace VRCPrefabs.CyanEmu
         }
     }
 }
-
-#endif

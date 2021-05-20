@@ -28,7 +28,13 @@ namespace VRCPrefabs.CyanEmu
         public void TeleportTo(Vector3 position, Quaternion rotation)
         {
             this.Log("Teleporting Object " + VRC.Tools.GetGameObjectPath(gameObject) + " to " + position + " and rotation " + rotation);
+            FlagDiscontinuity();
             transform.SetPositionAndRotation(position, rotation);
+        }
+
+        public void FlagDiscontinuity()
+        {
+            // TODO As of right now, CyanEmu doesn't handle any actual sync.
         }
 
         private void OnDestroy()

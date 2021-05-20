@@ -1,6 +1,4 @@
-﻿#if VRC_SDK_VRCSDK2
-
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace VRCPrefabs.CyanEmu
 {
@@ -15,5 +13,3 @@ namespace VRCPrefabs.CyanEmu
         }
     }
 }
-
-#endif
