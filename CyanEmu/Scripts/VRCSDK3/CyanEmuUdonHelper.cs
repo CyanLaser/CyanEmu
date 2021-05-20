@@ -65,7 +65,9 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
             udonBehaviour_ = udonBehaviour;
+#pragma warning disable 618
             SyncPosition = udonBehaviour_.SynchronizePosition;
+#pragma warning restore 618
 
             CyanEmuUdonManager.AddUdonBehaviour(udonBehaviour_);
         }
