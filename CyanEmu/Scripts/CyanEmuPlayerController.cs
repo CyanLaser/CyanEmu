@@ -535,7 +535,7 @@ namespace VRCPrefabs.CyanEmu
                 FixedJoint fixedJoint = rightArmPosition_.GetComponent<FixedJoint>();
                 if (fixedJoint)
                 {
-                    DestroyImmediate(fixedJoint);
+                    Destroy(fixedJoint);
                 }
 
                 Rigidbody rigidbody = pickup.GetRigidbody();
