@@ -1,11 +1,19 @@
 ﻿using UnityEngine;
 
+// Reusing code for ObjectSync, but VRC does not have them related at all.
 #if VRC_SDK_VRCSDK2
 using VRCSDK2;
-#endif
-
-#if UDON
+#elif UDON && VRC_SDK_VRCSDK3
 using VRC_ObjectSync = VRC.SDK3.Components.VRCObjectSync;
+#else
+// In some cases, it is possible for the sdk items to cause this to fail to compile.
+// Add a proxy here to not have code break.
+// This is a potential fix for the issue that causes CyanEmu to break on switching to android
+using VRC_ObjectSync = VRCPrefabs.CyanEmu.CyanEmuObjectSync;
+namespace VRCPrefabs.CyanEmu
+{
+    public class CyanEmuObjectSync : MonoBehaviour {}
+}
 #endif
 
 namespace VRCPrefabs.CyanEmu

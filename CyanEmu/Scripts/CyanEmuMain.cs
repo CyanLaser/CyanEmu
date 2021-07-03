@@ -84,7 +84,7 @@ namespace VRCPrefabs.CyanEmu
             VRC_Pickup._GetPickupHand = CyanEmuPickupHelper.GetPickupHand;
             VRC_ObjectSpawn.Initialize = CyanEmuObjectSpawnHelper.InitializeSpawner;
 
-#if UDON
+#if UDON && VRC_SDK_VRCSDK3
             VRC.Udon.UdonBehaviour.OnInit = CyanEmuUdonHelper.OnInit;
             
             // This is no longer used as of SDK 2021.03.22.18.27
