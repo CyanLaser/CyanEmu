@@ -260,6 +260,11 @@ namespace VRCPrefabs.CyanEmu
 
         public static void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
         {
+            if (instance_ == null)
+            {
+                return;
+            }
+            
             if (!instance_.networkReady_)
             {
                 instance_.deferredTriggers_.Add(trigger);
