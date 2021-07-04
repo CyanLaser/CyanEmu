@@ -473,6 +473,14 @@ namespace VRCPrefabs.CyanEmu
 
         public void Teleport(Vector3 position, Quaternion floorRotation, bool fromPlaySpace)
         {
+#if UDON
+            // Udon auto exits players from stations when they are teleported. 
+            if (currentStation_ != null)
+            {
+                currentStation_.ExitStation();
+            }
+#endif
+            
             floorRotation = Quaternion.Euler(0, floorRotation.eulerAngles.y, 0);
             if (fromPlaySpace)
             {
