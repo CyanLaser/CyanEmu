@@ -81,10 +81,6 @@ namespace VRCPrefabs.CyanEmu
 
         public static void RemovePlayer(VRCPlayerApi player)
         {
-            playerIDs.Remove(player);
-            players.Remove(player.playerId);
-            player.RemoveFromList();
-            
             if (masterID == player.playerId)
             {
                 masterID = -1;
@@ -95,6 +91,10 @@ namespace VRCPrefabs.CyanEmu
             }
 
             CyanEmuMain.PlayerLeft(player);
+            
+            playerIDs.Remove(player);
+            players.Remove(player.playerId);
+            player.RemoveFromList();
         }
 
         public static int GetMasterID()
