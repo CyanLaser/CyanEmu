@@ -4,6 +4,10 @@ using UnityEngine.UI;
 using VRC.SDKBase;
 using System.Reflection;
 
+// Noodle bowl defines its own button class, which would break CyanEmu.
+// Ensuring button is properly defined with this using statement.
+using UIButton = UnityEngine.UI.Button; 
+
 #if UDON
 using VRC.Udon;
 using VRC.Udon.Common;
@@ -297,7 +301,7 @@ namespace VRCPrefabs.CyanEmu
             respawnButton.transform.SetParent(menu_.transform, false);
             respawnButton.transform.localPosition = new Vector3(60, 0, 0);
             respawnButton.AddComponent<Image>();
-            Button button = respawnButton.AddComponent<Button>();
+            UIButton button = respawnButton.AddComponent<UIButton>();
             button.onClick.AddListener(Respawn);
 
             GameObject respawnText = new GameObject("RespawnText");
@@ -319,7 +323,7 @@ namespace VRCPrefabs.CyanEmu
             exitMenuButton.transform.SetParent(menu_.transform, false);
             exitMenuButton.transform.localPosition = new Vector3(-60, 0, 0);
             exitMenuButton.AddComponent<Image>();
-            button = exitMenuButton.AddComponent<Button>();
+            button = exitMenuButton.AddComponent<UIButton>();
             button.onClick.AddListener(CloseMenu);
 
             GameObject exitMenuText = new GameObject("ExitMenuText");
