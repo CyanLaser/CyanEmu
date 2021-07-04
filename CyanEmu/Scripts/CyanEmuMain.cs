@@ -380,6 +380,9 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player, name);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
+
+            Rigidbody rigidbody = player.AddComponent<Rigidbody>();
+            rigidbody.isKinematic = true;
         }
 
         public static Transform GetNextSpawnPoint()
