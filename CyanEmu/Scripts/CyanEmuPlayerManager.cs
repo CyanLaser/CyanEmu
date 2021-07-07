@@ -434,6 +434,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static void ClearPlayerTag(VRCPlayerApi player)
         {
+            player.LogError("Clearing player tags. This is a dangerous call as some prefabs depend on player tags and will break when cleared!");
             player.GetCyanEmuPlayer().ClearTags();
         }
 
