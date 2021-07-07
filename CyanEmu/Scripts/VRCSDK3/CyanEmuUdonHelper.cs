@@ -45,14 +45,30 @@ namespace VRCPrefabs.CyanEmu
 
         public static void SendCustomNetworkEventHook(UdonBehaviour behaviour, NetworkEventTarget target, string eventName)
         {
-            if (target == NetworkEventTarget.All || (target == NetworkEventTarget.Owner && Networking.IsOwner(behaviour.gameObject)))
+            if (string.IsNullOrEmpty(eventName))
             {
-                behaviour.Log("Sending Network Event! eventName:" + eventName +", obj:" +VRC.Tools.GetGameObjectPath(behaviour.gameObject));
+                return;
+            }
+
+            if (eventName[0] == '_')
+            {
+                behaviour.LogError("Did not send custom network event \"" +eventName +"\". Events starting " +
+                                   "with an underscore may not be run remotely. "
+                                   + VRC.Tools.GetGameObjectPath(behaviour.gameObject));
+                return;
+            }
+
+            if (target == NetworkEventTarget.All || 
+                (target == NetworkEventTarget.Owner && Networking.IsOwner(behaviour.gameObject)))
+            {
+                behaviour.Log("Sending Network Event! eventName:" + eventName +", obj:" 
+                              +VRC.Tools.GetGameObjectPath(behaviour.gameObject));
                 behaviour.SendCustomEvent(eventName);
             }
             else
             {
-                behaviour.Log("Did not send custom network event " +eventName +" for object at "+ VRC.Tools.GetGameObjectPath(behaviour.gameObject));
+                behaviour.LogWarning("Did not send custom network event " +eventName +" for object at "
+                                     + VRC.Tools.GetGameObjectPath(behaviour.gameObject));
             }
         }
 
