@@ -39,6 +39,7 @@ namespace VRCPrefabs.CyanEmu
         private const float STANDING_HEIGHT_ = 1.6f;
         private const float CROUCHING_HEIGHT_ = 1.0f;
         private const float PRONE_HEIGHT_ = 0.5f;
+        private const float SITTING_HEIGHT_ADJUSTMENT_ = STANDING_HEIGHT_ - (STANDING_HEIGHT_ * 0.55f);
 
         private const float STICK_TO_GROUND_FORCE_ = 2f;
         private const float RATE_OF_AIR_ACCELERATION_ = 5f;
@@ -290,7 +291,7 @@ namespace VRCPrefabs.CyanEmu
             menu_.layer = menuLayer;
             menu_.transform.parent = transform.parent;
             Canvas canvas = menu_.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceCamera;
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.worldCamera = camera_;
             canvas.planeDistance = camera_.nearClipPlane + 0.1f;
             canvas.sortingOrder = 1000;
@@ -504,21 +505,23 @@ namespace VRCPrefabs.CyanEmu
                 currentStation_.ExitStation();
             }
 
-            currentStation_ = station;
-
             if (!station.IsMobile)
             {
                 characterController_.enabled = false;
+                station.EnterLocation.Translate(0f, -SITTING_HEIGHT_ADJUSTMENT_, 0f);
                 Teleport(station.EnterLocation, false);
                 mouseLook_.SetBaseRotation(station.EnterLocation);
                 mouseLook_.SetRotation(Quaternion.identity);
             }
+
+            currentStation_ = station;
         }
 
         public void ExitStation(CyanEmuStationHelper station)
         {
             currentStation_ = null;
             characterController_.enabled = true;
+            station.EnterLocation.Translate(0f, SITTING_HEIGHT_ADJUSTMENT_, 0f);
 
             if (!station.IsMobile)
             {
