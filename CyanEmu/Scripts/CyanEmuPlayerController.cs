@@ -789,12 +789,12 @@ namespace VRCPrefabs.CyanEmu
             // Handle sending movement input to Udon.
             if (Mathf.Abs(prevMoveInput_.x - prevInputResult_.x) > 1e-3)
             {
-                var args = new UdonInputEventArgs(prevMoveInput_.x, HandType.RIGHT);
+                var args = new UdonInputEventArgs(prevInputResult_.x, HandType.RIGHT);
                 UdonManager.Instance.RunInputAction(UdonManager.UDON_MOVE_HORIZONTAL, args);
             }
             if (Mathf.Abs(prevMoveInput_.y - prevInputResult_.y) > 1e-3)
             {
-                var args = new UdonInputEventArgs(prevMoveInput_.y, HandType.RIGHT);
+                var args = new UdonInputEventArgs(prevInputResult_.y, HandType.RIGHT);
                 UdonManager.Instance.RunInputAction(UdonManager.UDON_MOVE_VERTICAL, args);
             }
 
