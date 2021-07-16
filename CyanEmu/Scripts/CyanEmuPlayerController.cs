@@ -27,7 +27,8 @@ namespace VRCPrefabs.CyanEmu
         private enum Stance {
             STANDING,
             CROUCHING,
-            PRONE
+            PRONE,
+            SITTING
         }
 
         public const float DEFAULT_RUN_SPEED_ = 4;
@@ -39,7 +40,7 @@ namespace VRCPrefabs.CyanEmu
         private const float STANDING_HEIGHT_ = 1.6f;
         private const float CROUCHING_HEIGHT_ = 1.0f;
         private const float PRONE_HEIGHT_ = 0.5f;
-        private const float SITTING_HEIGHT_ADJUSTMENT_ = STANDING_HEIGHT_ - (STANDING_HEIGHT_ * 0.55f);
+        private const float SITTING_HEIGHT_ = 0.88f;
 
         private const float STICK_TO_GROUND_FORCE_ = 2f;
         private const float RATE_OF_AIR_ACCELERATION_ = 5f;
@@ -91,6 +92,7 @@ namespace VRCPrefabs.CyanEmu
         private CollisionFlags collisionFlags_;
         private bool peviouslyGrounded_;
         private bool legacyLocomotion_;
+        private bool updatePosition_;
 
         private Texture2D reticleTexture_;
 
@@ -151,6 +153,7 @@ namespace VRCPrefabs.CyanEmu
             cameraHolder.transform.SetParent(playerCamera_.transform, false);
             camera_ = cameraHolder.AddComponent<Camera>();
             camera_.cullingMask &= ~(1 << 18); // remove mirror reflection
+            updatePosition_ = false;
 
             // TODO, make based on avatar armspan/settings
             cameraHolder.transform.localScale = Vector3.one * AVATAR_SCALE_;
@@ -508,20 +511,20 @@ namespace VRCPrefabs.CyanEmu
             if (!station.IsMobile)
             {
                 characterController_.enabled = false;
-                station.EnterLocation.Translate(0f, -SITTING_HEIGHT_ADJUSTMENT_, 0f);
                 Teleport(station.EnterLocation, false);
                 mouseLook_.SetBaseRotation(station.EnterLocation);
                 mouseLook_.SetRotation(Quaternion.identity);
             }
 
             currentStation_ = station;
+            stance_ = Stance.SITTING;
+            updatePosition_ = true;
         }
 
         public void ExitStation(CyanEmuStationHelper station)
         {
             currentStation_ = null;
             characterController_.enabled = true;
-            station.EnterLocation.Translate(0f, SITTING_HEIGHT_ADJUSTMENT_, 0f);
 
             if (!station.IsMobile)
             {
@@ -529,6 +532,8 @@ namespace VRCPrefabs.CyanEmu
             }
             mouseLook_.SetBaseRotation(null);
             jump_ = false;
+            stance_ = Stance.STANDING;
+            updatePosition_ = true;
         }
 
         public void PickupObject(CyanEmuPickupHelper pickup)
@@ -884,9 +889,11 @@ namespace VRCPrefabs.CyanEmu
             if (updatePosition)
             {
                 Vector3 cameraPosition = playerCamera_.transform.localPosition;
-                cameraPosition.y = (stance_ == Stance.STANDING ? STANDING_HEIGHT_ : stance_ == Stance.CROUCHING ? CROUCHING_HEIGHT_ : PRONE_HEIGHT_);
+                cameraPosition.y = (stance_ == Stance.STANDING ? STANDING_HEIGHT_ : stance_ == Stance.CROUCHING ? CROUCHING_HEIGHT_ : stance_ == Stance.PRONE ? PRONE_HEIGHT_ : SITTING_HEIGHT_);
                 playerCamera_.transform.localPosition = cameraPosition;
             }
+
+            updatePosition_ = false;
         }
 
         private void GetInput(out Vector2 speed, out Vector2 input)
