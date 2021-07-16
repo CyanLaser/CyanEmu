@@ -860,7 +860,7 @@ namespace VRCPrefabs.CyanEmu
         {
             bool updatePosition = false;
 
-            if (Input.GetKeyDown(CyanEmuSettings.Instance.crouchKey))
+            if (Input.GetKeyDown(CyanEmuSettings.Instance.crouchKey) && currentStation_ == null)
             {
                 updatePosition = true;
                 if (stance_ == Stance.CROUCHING)
@@ -872,7 +872,7 @@ namespace VRCPrefabs.CyanEmu
                     stance_ = Stance.CROUCHING;
                 }
             }
-            if (Input.GetKeyDown(CyanEmuSettings.Instance.proneKey))
+            if (Input.GetKeyDown(CyanEmuSettings.Instance.proneKey) && currentStation_ == null)
             {
                 updatePosition = true;
                 if (stance_ == Stance.PRONE)
