@@ -92,7 +92,7 @@ namespace VRCPrefabs.CyanEmu
         private CollisionFlags collisionFlags_;
         private bool peviouslyGrounded_;
         private bool legacyLocomotion_;
-        private bool updatePosition_;
+        private bool updateStancePosition_;
 
         private Texture2D reticleTexture_;
 
@@ -153,7 +153,7 @@ namespace VRCPrefabs.CyanEmu
             cameraHolder.transform.SetParent(playerCamera_.transform, false);
             camera_ = cameraHolder.AddComponent<Camera>();
             camera_.cullingMask &= ~(1 << 18); // remove mirror reflection
-            updatePosition_ = false;
+            updateStancePosition_ = false;
 
             // TODO, make based on avatar armspan/settings
             cameraHolder.transform.localScale = Vector3.one * AVATAR_SCALE_;
@@ -518,7 +518,7 @@ namespace VRCPrefabs.CyanEmu
 
             currentStation_ = station;
             stance_ = Stance.SITTING;
-            updatePosition_ = true;
+            updateStancePosition_ = true;
         }
 
         public void ExitStation(CyanEmuStationHelper station)
@@ -533,7 +533,7 @@ namespace VRCPrefabs.CyanEmu
             mouseLook_.SetBaseRotation(null);
             jump_ = false;
             stance_ = Stance.STANDING;
-            updatePosition_ = true;
+            updateStancePosition_ = true;
         }
 
         public void PickupObject(CyanEmuPickupHelper pickup)
@@ -858,11 +858,9 @@ namespace VRCPrefabs.CyanEmu
 
         private void UpdateStance()
         {
-            bool updatePosition = false;
-
             if (Input.GetKeyDown(CyanEmuSettings.Instance.crouchKey) && currentStation_ == null)
             {
-                updatePosition = true;
+                updateStancePosition_ = true;
                 if (stance_ == Stance.CROUCHING)
                 {
                     stance_ = Stance.STANDING;
@@ -874,7 +872,7 @@ namespace VRCPrefabs.CyanEmu
             }
             if (Input.GetKeyDown(CyanEmuSettings.Instance.proneKey) && currentStation_ == null)
             {
-                updatePosition = true;
+                updateStancePosition_ = true;
                 if (stance_ == Stance.PRONE)
                 {
                     stance_ = Stance.STANDING;
@@ -886,14 +884,14 @@ namespace VRCPrefabs.CyanEmu
             }
             
 
-            if (updatePosition)
+            if (updateStancePosition_)
             {
                 Vector3 cameraPosition = playerCamera_.transform.localPosition;
                 cameraPosition.y = (stance_ == Stance.STANDING ? STANDING_HEIGHT_ : stance_ == Stance.CROUCHING ? CROUCHING_HEIGHT_ : stance_ == Stance.PRONE ? PRONE_HEIGHT_ : SITTING_HEIGHT_);
                 playerCamera_.transform.localPosition = cameraPosition;
             }
 
-            updatePosition_ = false;
+            updateStancePosition_ = false;
         }
 
         private void GetInput(out Vector2 speed, out Vector2 input)
