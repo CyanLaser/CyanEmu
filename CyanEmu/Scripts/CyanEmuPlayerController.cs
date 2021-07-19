@@ -629,7 +629,7 @@ namespace VRCPrefabs.CyanEmu
             RotateView();
             if (!jump_ && characterController_.isGrounded && jumpSpeed_ > 0)
             {
-                jump_ = Input.GetButton("Jump");
+                jump_ = Input.GetButtonDown("Jump");
             }
 
             if (currentPickup_ != null)
