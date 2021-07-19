@@ -58,9 +58,8 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-VRCPrefabs/CyanEmu/TODO.txt.meta
-VRCPrefabs/CyanEmu/TODO.txt
-VRCPrefabs/CyanEmu/Refactor.txt.meta
-VRCPrefabs/CyanEmu/Refactor.txt
+
 CyanEmu/license.txt
 CyanEmu/license.txt.meta
+CyanEmu/_Intern/
+CyanEmu/_Intern.meta
