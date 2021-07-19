@@ -44,6 +44,8 @@ namespace VRCPrefabs.CyanEmu
         [SerializeField] public bool replayBufferedTriggers = false;
         
         [SerializeField] public bool isInstanceOwner = true;
+        
+        [SerializeField] public bool showDesktopReticle = true;
 
 #if UNITY_EDITOR
         private static CyanEmuSettings LoadSettings()

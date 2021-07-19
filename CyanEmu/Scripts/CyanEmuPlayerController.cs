@@ -986,6 +986,11 @@ namespace VRCPrefabs.CyanEmu
 
         private void OnGUI()
         {
+            // TODO if VR also return
+            if (!CyanEmuSettings.Instance.showDesktopReticle)
+            {
+                return;
+            }
             Vector2 center = CyanEmuBaseInput.GetScreenCenter();
             Vector2 size = new Vector2(reticleTexture_.width, reticleTexture_.height);
             Rect position = new Rect(center - size * 0.5f, size);
