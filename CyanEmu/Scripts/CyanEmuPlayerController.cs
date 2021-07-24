@@ -342,6 +342,36 @@ namespace VRCPrefabs.CyanEmu
             text.rectTransform.anchorMin = Vector2.zero;
             text.rectTransform.anchorMax = Vector2.one;
             text.font = font;
+            
+#if UNITY_EDITOR           
+            GameObject settingsButton = new GameObject("SettingsButton");
+            settingsButton.layer = menuLayer;
+            settingsButton.transform.SetParent(menu_.transform, false);
+            settingsButton.transform.localPosition = new Vector3(-60, -100, 0);
+            settingsButton.AddComponent<Image>();
+            button = settingsButton.AddComponent<UIButton>();
+            
+            // TODO handle this better
+            Type settingsWindow = Type.GetType("VRCPrefabs.CyanEmu.CyanEmuSettingsWindow, Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null");
+            button.onClick.AddListener(() => UnityEditor.EditorWindow.GetWindow(settingsWindow, false, "CyanEmu Settings"));
+            
+            RectTransform rect = settingsButton.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(100, 50);
+
+            GameObject settingsText = new GameObject("SettingsText");
+            settingsText.layer = menuLayer;
+            settingsText.transform.SetParent(settingsButton.transform, false);
+            text = settingsText.AddComponent<Text>();
+            settingsText.GetComponent<RectTransform>().sizeDelta = Vector2.zero;
+            text.text = "Settings";
+            text.fontSize = 20;
+            text.color = Color.black;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.rectTransform.anchorMin = Vector2.zero;
+            text.rectTransform.anchorMax = Vector2.one;
+            text.font = font;
+#endif
+            
 
             ToggleMenu(true);
         }

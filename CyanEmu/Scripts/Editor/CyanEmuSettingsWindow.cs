@@ -85,6 +85,9 @@ namespace VRCPrefabs.CyanEmu
 
         void OnGUI()
         {
+            float tempLabelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 175;
+            
             boxStyle_ = new GUIStyle(EditorStyles.helpBox);
             scrollPosition_ = EditorGUILayout.BeginScrollView(scrollPosition_);
 
@@ -111,6 +114,7 @@ namespace VRCPrefabs.CyanEmu
             {
                 CyanEmuSettings.SaveSettings(settings_);
             }
+            EditorGUIUtility.labelWidth = tempLabelWidth;
         }
 
         private void DrawHeader()
