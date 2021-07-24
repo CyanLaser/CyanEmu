@@ -14,6 +14,7 @@ namespace VRCPrefabs.CyanEmu
         private const string WIKI_URL = "https://github.com/CyanLaser/CyanEmu/wiki";
         private const string DISCORD_URL = "https://discord.gg/TFgJKv66Zk";
         private const string PATREON_URL = "https://www.patreon.com/CyanLaser";
+        private const string GITHUB_ISSUE_URL = "https://github.com/CyanLaser/CyanEmu/issues";
 
         // General content
         private readonly GUIContent generalFoldoutGuiContent = new GUIContent("General Settings", "");
@@ -183,6 +184,19 @@ namespace VRCPrefabs.CyanEmu
             }
 
             EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            
+            GUILayout.Space(10);
+            if (GUILayout.Button("Report Bug", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(GITHUB_ISSUE_URL);
+            }
+
+            GUILayout.Space(5 + buttonWidth);
+
+            EditorGUILayout.EndHorizontal();
+            
         }
 
         private void DrawGeneralSettings()
