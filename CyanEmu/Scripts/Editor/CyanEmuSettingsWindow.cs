@@ -28,10 +28,12 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent playerControllerRunKeyGuiContent = new GUIContent("Run Key", "The button used to run. Running will make the player move faster.");
         private readonly GUIContent playerControllerCrouchKeyGuiContent = new GUIContent("Crouch Key", "The button used to crouch. Crouching will lower the camera midway to the floor and slow down the player.");
         private readonly GUIContent playerControllerProneKeyGuiContent = new GUIContent("Prone Key", "The button used to go prone. Going prone will lower the camera closer to the floor and slow down the player.");
-        
+
+#if VRC_SDK_VRCSDK2
         // Buffered Trigger content
         private readonly GUIContent bufferedTriggerFoldoutGuiContent = new GUIContent("Buffered Trigger Settings", "");
         private readonly GUIContent replayBufferedTriggerToggleGuiContent = new GUIContent("Replay Buffered Triggers", "If enabled, buffered triggers for this scene will be replayed at the start before all other triggers.");
+#endif
         
         // Player settings
         private readonly GUIContent playerButtonsFoldoutGuiContent = new GUIContent("Player Settings", "");
@@ -46,7 +48,9 @@ namespace VRCPrefabs.CyanEmu
         private GUIStyle boxStyle_;
         private bool showGeneralSettings_ = true;
         private bool showPlayerControllerSettings_ = true;
+#if VRC_SDK_VRCSDK2
         private bool showBufferedTriggerSettings_ = true;
+#endif
         private bool showPlayerButtons_ = true;
 
         private string version_;
