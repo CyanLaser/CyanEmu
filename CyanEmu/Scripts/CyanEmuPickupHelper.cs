@@ -10,7 +10,7 @@ namespace VRCPrefabs.CyanEmu
         private const float INITIAL_PICKUP_DURATION_ = 0.5f;
         private const float MAX_PICKUP_DISTANCE_ = 0.25f;
         private static Quaternion GRIP_OFFSET_ROTATION_ = Quaternion.Euler(0, 45, 0);
-        private static Quaternion GUN_OFFSET_ROTATION_ = Quaternion.Euler(0, -45, 0);
+        private static Quaternion GUN_OFFSET_ROTATION_ = Quaternion.Euler(0, 305, 0);
         
         private Rigidbody rigidbody_;
         private VRC_Pickup pickup_;
