@@ -170,14 +170,14 @@ namespace VRCPrefabs.CyanEmu
 
             rightArmPosition_ = new GameObject("Right Arm Position");
             rightArmPosition_.transform.SetParent(playerCamera_.transform, false);
-            rightArmPosition_.transform.localPosition = new Vector3(0.1527f, -0.0091f, 0.4180f);
+            rightArmPosition_.transform.localPosition = new Vector3(0.15f, -0.13f, 0.4f);
             rightArmPosition_.transform.localRotation = Quaternion.Euler(-35, 0, -90);
             rightArmRigidbody_ = rightArmPosition_.AddComponent<Rigidbody>();
             rightArmRigidbody_.isKinematic = true;
             
             leftArmPosition_ = new GameObject("Left Arm Position");
             leftArmPosition_.transform.SetParent(playerCamera_.transform, false);
-            leftArmPosition_.transform.localPosition = new Vector3(-0.1473f, -0.0091f, 0.4180f);
+            leftArmPosition_.transform.localPosition = new Vector3(-0.15f, -0.13f, 0.4f);
             leftArmPosition_.transform.localRotation = Quaternion.Euler(-35, 0, -90);
             leftArmRigidbody_ = leftArmPosition_.AddComponent<Rigidbody>();
             leftArmRigidbody_.isKinematic = true;
