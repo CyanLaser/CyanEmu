@@ -1,4 +1,4 @@
-4
+5
 VRC_TriggerEditor.cs
 1
 AddAfter 3 4
@@ -49,3 +49,15 @@ Delete 1
             showAdvancedOptions = EditorGUILayout.Foldout(showAdvancedOptions, "Advanced Options");
 Delete 1
             if (showAdvancedOptions)
+UdonBehaviour.cs
+2
+Delete 5
+#if UNITY_EDITOR
+            SendCustomEvent(eventName);
+#else
+            SendCustomNetworkEventHook?.Invoke(this, target, eventName);
+#endif
+AddAfter 2 1
+        public override void SendCustomNetworkEvent(NetworkEventTarget target, string eventName)
+        {
+            SendCustomNetworkEventHook?.Invoke(this, target, eventName);       

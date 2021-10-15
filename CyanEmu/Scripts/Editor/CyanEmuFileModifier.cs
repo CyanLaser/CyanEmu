@@ -9,6 +9,7 @@ namespace VRCPrefabs.CyanEmu
     {
         const string MODIFICATIONS_FILE_PATH = "Assets/CyanEmu/Resources/FileModifications/modifications.txt";
         const string VRCSDK_PATH = "Assets/VRCSDK";
+        const string UDONSDK_PATH = "Assets/Udon";
 
         const string ADD_AFTER_OPERATION = "AddAfter";
         const string DELETE_OPERATION = "Delete";
@@ -165,11 +166,18 @@ namespace VRCPrefabs.CyanEmu
         private static FileInfo GetFile(string filename)
         {
             DirectoryInfo sdkDir = new DirectoryInfo(VRCSDK_PATH);
+            DirectoryInfo udonDir = new DirectoryInfo(UDONSDK_PATH);
             FileInfo[] fileInfos = sdkDir.GetFiles(filename, SearchOption.AllDirectories);
+            FileInfo[] udonFileInfos = udonDir.GetFiles(filename, SearchOption.AllDirectories);
 
             if (fileInfos.Length > 0)
             {
                 return fileInfos[0];
+            }
+
+            if (udonFileInfos.Length > 0)
+            {
+                return udonFileInfos[0];
             }
             return null;
         }
