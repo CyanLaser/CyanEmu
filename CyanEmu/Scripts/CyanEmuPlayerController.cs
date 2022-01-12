@@ -674,6 +674,10 @@ namespace VRCPrefabs.CyanEmu
             
             prevousHandPosition_ = rightArmPosition_.transform.position;
             prevousHandRotation_ = rightArmPosition_.transform.rotation.eulerAngles;
+
+#if UDON
+            HandleUdonInput();
+#endif
         }
    
         private void FixedUpdate()
@@ -683,10 +687,6 @@ namespace VRCPrefabs.CyanEmu
             Vector2 input;
             Vector2 prevInput = prevInputResult_;
             GetInput(out speed, out input);
-
-#if UDON
-            HandleUdonInput();
-#endif
 
             if (currentStation_ != null && !currentStation_.CanPlayerMoveWhileSeated(input.magnitude))
             {
