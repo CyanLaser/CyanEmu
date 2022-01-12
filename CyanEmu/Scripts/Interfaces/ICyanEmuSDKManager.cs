@@ -8,6 +8,7 @@ namespace VRCPrefabs.CyanEmu
         void OnNetworkReady();
         void OnPlayerJoined(VRCPlayerApi player);
         void OnPlayerLeft(VRCPlayerApi player);
+        void OnPlayerRespawn(VRCPlayerApi player);
         void OnSpawnedObject(GameObject spawnedObject);
     }
 }

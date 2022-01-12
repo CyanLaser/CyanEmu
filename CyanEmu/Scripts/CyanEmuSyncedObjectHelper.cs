@@ -12,26 +12,29 @@ namespace VRCPrefabs.CyanEmu
         private Vector3 originalPosition_;
         private Quaternion originalRotation_;
 
+        private Rigidbody rigidbody_;
+
+        public bool SyncPosition { get; protected set; }
+
         protected virtual void Awake()
         {
             originalPosition_ = transform.position;
             originalRotation_ = transform.rotation;
+            rigidbody_ = GetComponent<Rigidbody>();
+            
+            CyanEmuMain.AddSyncedObject(this);
         }
 
         public void TeleportTo(Vector3 position, Quaternion rotation)
         {
             this.Log("Teleporting Object " + VRC.Tools.GetGameObjectPath(gameObject) + " to " + position + " and rotation " + rotation);
+            FlagDiscontinuity();
             transform.SetPositionAndRotation(position, rotation);
         }
 
-        protected virtual void OnEnable()
+        public void FlagDiscontinuity()
         {
-            CyanEmuMain.AddSyncedObject(this);
-        }
-
-        protected virtual void OnDisable()
-        {
-            CyanEmuMain.RemoveSyncedObject(this);
+            // TODO As of right now, CyanEmu doesn't handle any actual sync.
         }
 
         private void OnDestroy()
@@ -59,6 +62,11 @@ namespace VRCPrefabs.CyanEmu
         {
             this.Log("Respawning Object " + VRC.Tools.GetGameObjectPath(gameObject));
             TeleportTo(originalPosition_, originalRotation_);
+            
+            if (rigidbody_ != null)
+            {
+                rigidbody_.velocity = Vector3.zero;
+            }
         }
 
         #endregion

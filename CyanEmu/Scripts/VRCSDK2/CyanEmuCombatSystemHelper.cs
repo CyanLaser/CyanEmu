@@ -83,16 +83,16 @@ namespace VRCPrefabs.CyanEmu {
 
         public static void CombatSetCurrentHitpoints(VRCPlayerApi player, float health)
         {
-            bool less = health < instance.currentHealth_;
-            instance.currentHealth_ = health;
-            if (less)
+            float delta = health - instance.currentHealth_;
+            if (delta <= 0)
             {
-                instance.ApplyDamage(0);
+                instance.ApplyDamage(-delta);
             }
             else
             {
-                instance.ApplyHealing(0);
+                instance.ApplyHealing(delta);
             }
+            instance.currentHealth_ = health;
         }
 
         private void Awake()
@@ -151,7 +151,14 @@ namespace VRCPrefabs.CyanEmu {
         {
             if (visualDamage_ != null)
             {
-                visualDamage_.SetDamagePercent(1 - (currentHealth_ / maxPlayerHealth_));
+                try
+                {
+                    visualDamage_.SetDamagePercent(1 - (currentHealth_ / maxPlayerHealth_));
+                }
+                catch (Exception e)
+                {
+                    this.LogWarning("Error applying damage: "+ e);
+                }
             }
         }
 

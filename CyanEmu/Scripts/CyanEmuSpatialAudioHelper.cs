@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using VRC.SDKBase;
 
 namespace VRCPrefabs.CyanEmu
 {
     [AddComponentMenu("")]
+    [DisallowMultipleComponent]
     public class CyanEmuSpatialAudioHelper : ONSPAudioSource
     {
         private const float EPS_ = 1e-3f;
@@ -12,26 +12,43 @@ namespace VRCPrefabs.CyanEmu
         private VRC_SpatialAudioSource spatialAudioSource_;
         private AudioSource audioSource_;
         private bool useAudioSourceCurve;
+        private ONSPAudioSource onsp_;
+        private bool forceUpdate_ = true;
 
         public static void InitializeAudio(VRC_SpatialAudioSource obj)
         {
             // Why?
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || string.IsNullOrEmpty(obj.gameObject.scene.path))
             {
                 return;
             }
 
-            obj.gameObject.AddComponent<CyanEmuSpatialAudioHelper>().SetSpatializer(obj);
+            CyanEmuSpatialAudioHelper spatialAudio = obj.GetComponent<CyanEmuSpatialAudioHelper>();
+            if (spatialAudio != null)
+            {
+                DestroyImmediate(spatialAudio);
+            }
+            
+            spatialAudio = obj.gameObject.AddComponent<CyanEmuSpatialAudioHelper>();
+            spatialAudio.SetSpatializer(obj);
         }
 
-        public void SetSpatializer(VRC_SpatialAudioSource obj)
+        private void SetSpatializer(VRC_SpatialAudioSource obj)
         {
             spatialAudioSource_ = obj;
             audioSource_ = GetComponent<AudioSource>();
+            onsp_ = this;
+            forceUpdate_ = true;
 
             UpdateSettings();
         }
-        
+
+        private void OnEnable()
+        {
+            // ONSP needs to reapply audio settings everytime the object is enabled.
+            forceUpdate_ = true;
+        }
+
         // Late update to help with testing
         private void LateUpdate()
         {
@@ -40,56 +57,59 @@ namespace VRCPrefabs.CyanEmu
 
         private void UpdateSettings()
         {
-            if (audioSource_ == null)
+            if (spatialAudioSource_ == null)
             {
-                Destroy(this);
+                spatialAudioSource_ = GetComponent<VRC_SpatialAudioSource>();
+                if (spatialAudioSource_ == null)
+                {
+                    Destroy(this);
+                }
+                SetSpatializer(spatialAudioSource_);  
                 return;
             }
 
             // Check if we need to make changes.
             if (
-                EnableSpatialization == spatialAudioSource_.EnableSpatialization &&
-                Gain == spatialAudioSource_.Gain &&
-                Near == spatialAudioSource_.Near &&
-                Far == spatialAudioSource_.Far &&
-                useAudioSourceCurve == spatialAudioSource_.UseAudioSourceVolumeCurve
-            )
-            {
-                return;
+                onsp_.EnableSpatialization != spatialAudioSource_.EnableSpatialization ||
+                onsp_.Gain != spatialAudioSource_.Gain ||
+                onsp_.Near != spatialAudioSource_.Near ||
+                onsp_.Far != spatialAudioSource_.Far ||
+                useAudioSourceCurve != spatialAudioSource_.UseAudioSourceVolumeCurve
+            ) {
+                forceUpdate_ = true;
             }
-
-            EnableSpatialization = spatialAudioSource_.EnableSpatialization;
-            Gain = spatialAudioSource_.Gain;
+            
+            onsp_.EnableSpatialization = spatialAudioSource_.EnableSpatialization;
+            onsp_.Gain = spatialAudioSource_.Gain;
             useAudioSourceCurve = spatialAudioSource_.UseAudioSourceVolumeCurve;
-
-            if (!EnableSpatialization)
+            onsp_.Near = spatialAudioSource_.Near;
+            onsp_.Far = spatialAudioSource_.Far;
+            onsp_.VolumetricRadius = spatialAudioSource_.VolumetricRadius;
+            
+            onsp_.SetParameters(ref audioSource_);
+            
+            if (!onsp_.EnableSpatialization)
             {
-                Reset();
                 return;
             }
 
-            if (spatialAudioSource_.UseAudioSourceVolumeCurve)
+            if (!forceUpdate_)
             {
-                // Sure why not. This looks good enough.
-                Near = audioSource_.minDistance;
-                Far = audioSource_.maxDistance;
+                return;
             }
-            else 
-            {
-                VolumetricRadius = spatialAudioSource_.VolumetricRadius;
-                Near = spatialAudioSource_.Near;
-                Far = spatialAudioSource_.Far;
+            
+            forceUpdate_ = false;
 
-                float near = VolumetricRadius + Near;
-                float far = VolumetricRadius + Mathf.Max(near, Far + EPS_);
+            if (!spatialAudioSource_.UseAudioSourceVolumeCurve)
+            {
+                float near = onsp_.VolumetricRadius + onsp_.Near;
+                float far = onsp_.VolumetricRadius + Mathf.Max(near, onsp_.Far + EPS_);
 
                 audioSource_.maxDistance = far;
                 
                 CreateRolloffCurve(near, far);
                 CreateSpatialCurve(near, far);
             }
-
-            Reset();
         }
 
         // Create volume rolloff curve where Volumetric + near is volume 1, then 2^-x fall off to far.
@@ -121,7 +141,7 @@ namespace VRCPrefabs.CyanEmu
         {
             AnimationCurve spatialCurve = new AnimationCurve();
             spatialCurve.AddKey(0, audioSource_.spatialBlend);
-            spatialCurve.AddKey(VolumetricRadius, audioSource_.spatialBlend);
+            spatialCurve.AddKey(onsp_.VolumetricRadius, audioSource_.spatialBlend);
 
             Keyframe nearFrame = new Keyframe(near + EPS_, 1);
             nearFrame.outTangent = 0;

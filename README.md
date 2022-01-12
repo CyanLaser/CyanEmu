@@ -1,7 +1,7 @@
 # CyanEmu
 ## A VRChat client emulator in Unity for SDK2 and SDK3.
 
-CyanEmu is a VRChat client emulator that enables you to test your VRChat worlds directly in Unity! One of the biggest problems with debugging VRChat worlds is not knowing exactly what the issue is. With CyanEmu, you can look at the state of all objects to verify things directly. CyanEmu comes with a basic player controller, allowing you to explore your worlds and use pickups and interacts. While originally designed for SDK2, it also works with SDK3 and most of Udon.
+CyanEmu is a VRChat client emulator that enables you to test your VRChat worlds directly in Unity! One of the biggest problems with debugging VRChat worlds is not knowing exactly what the issue is. With CyanEmu, you can look at the state of all objects to verify things directly. CyanEmu comes with a basic player controller, allowing you to explore your worlds and use pickups and interacts. Works with both SDK2/Triggers and SDK3/Udon.
 
 ## Features
 
@@ -11,7 +11,8 @@ CyanEmu is a VRChat client emulator that enables you to test your VRChat worlds 
 - Execute VRC_Triggers directly
 - Oversync detection for VRC_Trigger broadcasts
 - Save and replay buffered events to test late joining
-- Partial integration with Udon
+- Works with Udon
+- Delete EditorOnly objects on Play
 
 ## Setup
 
@@ -28,7 +29,7 @@ CyanEmu is a VRChat client emulator that enables you to test your VRChat worlds 
 - Press play in Unity
 - Test your world
 
-Check out the wiki for how to use additional features of CyanEmu. (TODO)
+Check out the wiki for how to use additional features of CyanEmu.
 
 ## Links
 

@@ -2,8 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using VRC.SDKBase;
+using Random = UnityEngine.Random;
 
 
 namespace VRCPrefabs.CyanEmu
@@ -12,6 +13,7 @@ namespace VRCPrefabs.CyanEmu
     public class CyanEmuMain : MonoBehaviour
     {
         private const string CYAN_EMU_GAMEOBJECT_NAME_ = "__CyanEmu";
+        private const string EDITOR_ONLY_TAG_ = "EditorOnly";
 
         private static CyanEmuMain instance_;
 
@@ -20,11 +22,16 @@ namespace VRCPrefabs.CyanEmu
         private CyanEmuSettings settings_;
         private CyanEmuPlayerController playerController_;
         private VRC_SceneDescriptor descriptor_;
-        private HashSet<CyanEmuSyncedObjectHelper> allSyncedObjects_ = new HashSet<CyanEmuSyncedObjectHelper>();
         private Transform proxyObjectParents_;
+
+        private bool shouldVerifySyncedObjectList_;
+        private readonly Queue<CyanEmuSyncedObjectHelper> toBeAddedSync_ = new Queue<CyanEmuSyncedObjectHelper>();
+        private readonly Queue<CyanEmuSyncedObjectHelper> toBeRemovedSync_ = new Queue<CyanEmuSyncedObjectHelper>();
+        private HashSet<CyanEmuSyncedObjectHelper> allSyncedObjects_ = new HashSet<CyanEmuSyncedObjectHelper>();
 
         private int spawnedObjectCount_;
         private bool networkReady_;
+        private int spawnOrder_ = 0;
 
         // TODO save syncables
         //private CyanEmuBufferManager bufferManager_;
@@ -32,16 +39,40 @@ namespace VRCPrefabs.CyanEmu
 
         // Dummy method to get the static initializer to be called early on.
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void OnBeforeSceneLoadRuntimeMethod() { }
+        static void OnBeforeSceneLoad() { }
 
-
-        static CyanEmuMain()
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        static void OnAfterSceneLoad()
         {
-            if (!CyanEmuSettings.Instance.enableCyanEmu || FindObjectOfType<PipelineSaver>() != null || !Application.isPlaying)
+            if (!CyanEmuEnabled())
             {
                 return;
             }
-            
+
+            DestroyEditorOnly();
+        }
+
+        static CyanEmuMain()
+        {
+            if (!CyanEmuEnabled())
+            {
+                return;
+            }
+
+            LinkAPI();
+            CreateInstance();
+        }
+
+        private static bool CyanEmuEnabled()
+        {
+            return 
+                CyanEmuSettings.Instance.enableCyanEmu &&
+                FindObjectOfType<PipelineSaver>() == null && 
+                Application.isPlaying;
+        }
+
+        private static void LinkAPI()
+        {
             VRCStation.Initialize += CyanEmuStationHelper.InitializeStations;
             VRCStation.useStationDelegate = CyanEmuStationHelper.UseStation;
             VRCStation.exitStationDelegate = CyanEmuStationHelper.ExitStation;
@@ -53,16 +84,35 @@ namespace VRCPrefabs.CyanEmu
             VRC_Pickup._GetPickupHand = CyanEmuPickupHelper.GetPickupHand;
             VRC_ObjectSpawn.Initialize = CyanEmuObjectSpawnHelper.InitializeSpawner;
 
-#if UDON
+#if UDON && VRC_SDK_VRCSDK3
             VRC.Udon.UdonBehaviour.OnInit = CyanEmuUdonHelper.OnInit;
+            
+            // This is no longer used as of SDK 2021.03.22.18.27
             VRC.Udon.UdonBehaviour.SendCustomNetworkEventHook = CyanEmuUdonHelper.SendCustomNetworkEventHook;
+            
+            // TODO 
+            //VRC.Udon.UdonBehaviour.CheckValid
+            VRC.SDK3.Components.VRCObjectPool.OnInit = CyanEmuObjectPoolHelper.OnInit;
+            VRC.SDK3.Components.VRCObjectPool.OnReturn = CyanEmuObjectPoolHelper.OnReturn;
+            VRC.SDK3.Components.VRCObjectPool.OnSpawn = CyanEmuObjectPoolHelper.OnSpawn;
+            
+            VRC.SDK3.Components.VRCObjectSync.FlagDiscontinuityHook = CyanEmuObjectSyncHelper.FlagDiscontinuityHook;
+            VRC.SDK3.Components.VRCObjectSync.OnAwake = CyanEmuObjectSyncHelper.InitializeObjectSync;
+            VRC.SDK3.Components.VRCObjectSync.RespawnHandler = CyanEmuObjectSyncHelper.RespawnObject;
+            VRC.SDK3.Components.VRCObjectSync.TeleportHandler = CyanEmuObjectSyncHelper.TeleportTo;
+            VRC.SDK3.Components.VRCObjectSync.SetGravityHook = CyanEmuObjectSyncHelper.SetUseGravity;
+            VRC.SDK3.Components.VRCObjectSync.SetKinematicHook = CyanEmuObjectSyncHelper.SetIsKinematic;
 #endif
 
 #if VRC_SDK_VRCSDK2
-            VRC_Trigger.InitializeTrigger = new Action<VRC_Trigger>(CyanEmuTriggerHelper.InitializeTrigger);
+            VRC_Trigger.InitializeTrigger = CyanEmuTriggerHelper.InitializeTrigger;
             VRCSDK2.VRC_ObjectSync.Initialize += CyanEmuObjectSyncHelper.InitializeObjectSync;
             VRCSDK2.VRC_ObjectSync.TeleportHandler += CyanEmuObjectSyncHelper.TeleportTo;
             VRCSDK2.VRC_ObjectSync.RespawnHandler += CyanEmuObjectSyncHelper.RespawnObject;
+            VRCSDK2.VRC_ObjectSync.SetIsKinematic += CyanEmuObjectSyncHelper.SetIsKinematic;
+            VRCSDK2.VRC_ObjectSync.SetUseGravity += CyanEmuObjectSyncHelper.SetUseGravity;
+            VRCSDK2.VRC_ObjectSync.GetIsKinematic += CyanEmuObjectSyncHelper.GetIsKinematic;
+            VRCSDK2.VRC_ObjectSync.GetUseGravity += CyanEmuObjectSyncHelper.GetUseGravity;
             VRCSDK2.VRC_PlayerMods.Initialize = CyanEmuPlayerModsHelper.InitializePlayerMods;
             VRCSDK2.VRC_SyncAnimation.Initialize = CyanEmuSyncAnimationHelper.InitializationDelegate;
 #endif
@@ -73,7 +123,7 @@ namespace VRCPrefabs.CyanEmu
             Networking._IsOwner = CyanEmuPlayerManager.IsOwner;
             Networking._SetOwner = CyanEmuPlayerManager.TakeOwnership;
             Networking._GetUniqueName = VRC.Tools.GetGameObjectPath;
-            
+
             VRCPlayerApi._GetPlayerId = CyanEmuPlayerManager.GetPlayerID;
             VRCPlayerApi._GetPlayerById = CyanEmuPlayerManager.GetPlayerByID;
             VRCPlayerApi._isMasterDelegate = CyanEmuPlayerManager.IsMaster;
@@ -111,6 +161,8 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._SetWalkSpeed = CyanEmuPlayerManager.SetWalkSpeed;
             VRCPlayerApi._GetJumpImpulse = CyanEmuPlayerManager.GetJumpImpulse;
             VRCPlayerApi._SetJumpImpulse = CyanEmuPlayerManager.SetJumpImpulse;
+            VRCPlayerApi._GetStrafeSpeed = CyanEmuPlayerManager.GetStrafeSpeed;
+            VRCPlayerApi._SetStrafeSpeed = CyanEmuPlayerManager.SetStrafeSpeed;
             VRCPlayerApi._GetVelocity = CyanEmuPlayerManager.GetVelocity;
             VRCPlayerApi._SetVelocity = CyanEmuPlayerManager.SetVelocity;
             VRCPlayerApi._GetPosition = CyanEmuPlayerManager.GetPosition;
@@ -120,7 +172,7 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi.IsGrounded = CyanEmuPlayerManager.IsGrounded;
             VRCPlayerApi._UseAttachedStation = CyanEmuPlayerManager.UseAttachedStation;
             VRCPlayerApi._UseLegacyLocomotion = CyanEmuPlayerManager.UseLegacyLocomotion;
-            
+
             VRCPlayerApi._CombatSetup = CyanEmuCombatSystemHelper.CombatSetup;
             VRCPlayerApi._CombatSetMaxHitpoints = CyanEmuCombatSystemHelper.CombatSetMaxHitpoints;
             VRCPlayerApi._CombatGetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatGetCurrentHitpoints;
@@ -128,12 +180,64 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi._CombatSetDamageGraphic = CyanEmuCombatSystemHelper.CombatSetDamageGraphic;
             VRCPlayerApi._CombatGetDestructible = CyanEmuCombatSystemHelper.CombatGetDestructible;
             VRCPlayerApi._CombatSetCurrentHitpoints = CyanEmuCombatSystemHelper.CombatSetCurrentHitpoints;
-
+            
+            VRCPlayerApi._SetAvatarAudioVolumetricRadius = CyanEmuPlayerManager.SetAvatarAudioVolumetricRadius;
+            VRCPlayerApi._SetAvatarAudioNearRadius = CyanEmuPlayerManager.SetAvatarAudioNearRadius;
+            VRCPlayerApi._SetAvatarAudioFarRadius = CyanEmuPlayerManager.SetAvatarAudioFarRadius;
+            VRCPlayerApi._SetAvatarAudioGain = CyanEmuPlayerManager.SetAvatarAudioGain;
+            VRCPlayerApi._SetVoiceLowpass = CyanEmuPlayerManager.SetVoiceLowpass;
+            VRCPlayerApi._SetVoiceVolumetricRadius = CyanEmuPlayerManager.SetVoiceVolumetricRadius;
+            VRCPlayerApi._SetVoiceDistanceFar = CyanEmuPlayerManager.SetVoiceDistanceFar;
+            VRCPlayerApi._SetVoiceDistanceNear = CyanEmuPlayerManager.SetVoiceDistanceNear;
+            VRCPlayerApi._SetVoiceGain = CyanEmuPlayerManager.SetVoiceGain;
+            
             VRC_SpatialAudioSource.Initialize = CyanEmuSpatialAudioHelper.InitializeAudio;
 
+            // New methods added. Try not to break older sdks
+            // TODO figure out a better way...
+
+            // 2021-05-03
+            var isInstanceOwner = typeof(VRCPlayerApi).GetField("_isInstanceOwnerDelegate", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (isInstanceOwner != null) isInstanceOwner.SetValue(null, (Func<VRCPlayerApi, bool>)CyanEmuPlayerManager.IsInstanceOwner);
+            
+            var isInstanceOwnerNetworking = typeof(Networking).GetField("_IsInstanceOwner", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+            if (isInstanceOwnerNetworking != null) isInstanceOwnerNetworking.SetValue(null, (Func<bool>)CyanEmuPlayerManager.IsInstanceOwner);
+        }
+
+        private static void CreateInstance()
+        {
             GameObject executor = new GameObject(CYAN_EMU_GAMEOBJECT_NAME_);
-            executor.tag = "EditorOnly";
+            executor.tag = EDITOR_ONLY_TAG_;
             instance_ = executor.AddComponent<CyanEmuMain>();
+        }
+
+        private static void DestroyEditorOnly()
+        {
+            if (!CyanEmuSettings.Instance.deleteEditorOnly)
+            {
+                return;
+            }
+
+            List<GameObject> rootObjects = new List<GameObject>();
+            Scene scene = SceneManager.GetActiveScene();
+            scene.GetRootGameObjects(rootObjects);
+            Queue<GameObject> queue = new Queue<GameObject>(rootObjects);
+            while (queue.Count > 0)
+            {
+                GameObject obj = queue.Dequeue();
+                if (obj.tag == EDITOR_ONLY_TAG_)
+                {
+                    obj.Log("Deleting editor only object: " + VRC.Tools.GetGameObjectPath(obj));
+                    DestroyImmediate(obj);
+                }
+                else
+                {
+                    for (int child = 0; child < obj.transform.childCount; ++child)
+                    {
+                        queue.Enqueue(obj.transform.GetChild(child).gameObject);
+                    }
+                }
+            }
         }
 
         public static bool HasInstance()
@@ -150,8 +254,8 @@ namespace VRCPrefabs.CyanEmu
         {
             if (instance_ != null)
             {
-                this.LogError("Already have an instance of Trigger executor!");
-                DestroyImmediate(this);
+                this.LogError("Already have an instance of CyanEmu!");
+                DestroyImmediate(gameObject);
                 return;
             }
             
@@ -203,10 +307,9 @@ namespace VRCPrefabs.CyanEmu
 
                 SpawnLocalPlayer();
             }
-
-            yield return new WaitForSeconds(0.1f);
-
             networkReady_ = true;
+            
+            yield return new WaitForSeconds(0.1f);
             CyanEmuPlayerManager.OnNetworkReady();
         }
 
@@ -265,7 +368,7 @@ namespace VRCPrefabs.CyanEmu
             player.transform.parent = transform;
             player.layer = LayerMask.NameToLayer("Player");
             // TODO do this better
-            Transform spawn = GetSpawnPoint();
+            Transform spawn = GetSpawnPoint(true);
             player.transform.position = spawn.position;
             player.transform.rotation = Quaternion.Euler(0, spawn.rotation.eulerAngles.y, 0);
 
@@ -277,15 +380,47 @@ namespace VRCPrefabs.CyanEmu
             VRCPlayerApi playerAPI = CyanEmuPlayerManager.CreateNewPlayer(false, player, name);
             playerObj.SetPlayer(playerAPI);
             player.name = $"[{playerAPI.playerId}] {player.name}";
+
+            Rigidbody rigidbody = player.AddComponent<Rigidbody>();
+            rigidbody.isKinematic = true;
         }
 
-        private Transform GetSpawnPoint()
+        public static Transform GetNextSpawnPoint()
+        {
+            if (instance_ != null)
+            {
+                return instance_.GetSpawnPoint();
+            }
+            return null;
+        }
+        
+        private Transform GetSpawnPoint(bool remote = false)
         {
             if (descriptor_.spawns.Length == 0 || descriptor_.spawns[0] == null)
             {
                 throw new Exception("[CyanEmuMain] Cannot spawn player when descriptor does not have a spawn set!");
             }
 
+            // Remote players always restart the list, so for now, only first spawn
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.First || 
+                descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Demo || 
+                remote)
+            {
+                return descriptor_.spawns[0];
+            }
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Random)
+            {
+                int spawn = Random.Range(0, descriptor_.spawns.Length);
+                return descriptor_.spawns[spawn];
+            }
+            if (descriptor_.spawnOrder == VRC_SceneDescriptor.SpawnOrder.Sequential)
+            {
+                Transform spawn = descriptor_.spawns[spawnOrder_];
+                spawnOrder_ = (spawnOrder_ + 1) % descriptor_.spawns.Length;
+                return spawn;
+            }
+            
+            // Fallback to first spawn point
             return descriptor_.spawns[0];
         }
 
@@ -317,6 +452,11 @@ namespace VRCPrefabs.CyanEmu
 
             foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
+                if (sync == null)
+                {
+                    continue;
+                }
+                
                 GameObject syncObj = sync.gameObject;
                 if (Networking.GetOwner(syncObj)?.playerId == player.playerId)
                 {
@@ -325,6 +465,16 @@ namespace VRCPrefabs.CyanEmu
             }
 
             sdkManager_.OnPlayerLeft(player);
+        }
+
+        public static void PlayerRespawned(VRCPlayerApi player)
+        {
+            instance_?.OnPlayerRespawn(player);
+        }
+
+        private void OnPlayerRespawn(VRCPlayerApi player)
+        {
+            sdkManager_.OnPlayerRespawn(player);
         }
 
         public static GameObject SpawnObject(GameObject prefab)
@@ -356,14 +506,34 @@ namespace VRCPrefabs.CyanEmu
             {
                 return;
             }
+            
+            ProcessAddedAndRemovedSyncedObjects();
+            ProcessSyncedObjectsBelowRespawn();
+        }
 
+        private void ProcessSyncedObjectsBelowRespawn()
+        {
             if (playerController_ != null && playerController_.transform.position.y < descriptor_.RespawnHeightY)
             {
                 playerController_.Teleport(descriptor_.spawns[0], false);
             }
-
+            
+            // TODO space this out so that there are only x number per frame instead of all every time? 
+            List<GameObject> objsToDestroy = new List<GameObject>();
             foreach (CyanEmuSyncedObjectHelper sync in allSyncedObjects_)
             {
+                if (sync == null)
+                {
+                    shouldVerifySyncedObjectList_ = true;
+                    Debug.LogWarning("Null Synced Object!");
+                    continue;
+                }
+                
+                if (!sync.SyncPosition)
+                {
+                    continue;
+                }
+                
                 if (sync.transform.position.y < descriptor_.RespawnHeightY)
                 {
                     if (descriptor_.ObjectBehaviourAtRespawnHeight == VRC_SceneDescriptor.RespawnHeightBehaviour.Respawn)
@@ -372,20 +542,25 @@ namespace VRCPrefabs.CyanEmu
                     }
                     else
                     {
-                        Destroy(sync.gameObject);
+                        objsToDestroy.Add(sync.gameObject);
                     }
                 }
             }
-        }
 
+            foreach (var obj in objsToDestroy)
+            {
+                Destroy(obj);
+            }
+        }
+        
         public static void AddSyncedObject(CyanEmuSyncedObjectHelper sync)
         {
-            if (instance_ == null)
+            if (instance_ == null || sync == null)
             {
                 return;
             }
 
-            instance_.allSyncedObjects_.Add(sync);
+            instance_.QueueAddSyncedObject(sync);
         }
 
         public static void RemoveSyncedObject(CyanEmuSyncedObjectHelper sync)
@@ -395,7 +570,67 @@ namespace VRCPrefabs.CyanEmu
                 return;
             }
 
-            instance_.allSyncedObjects_.Remove(sync);
+            instance_.QueueRemoveSyncedObject(sync);
+        }
+        
+        private void QueueAddSyncedObject(CyanEmuSyncedObjectHelper syncedObject)
+        {
+            if (syncedObject == null)
+            {
+                return;
+            }
+            toBeAddedSync_.Enqueue(syncedObject);
+        }
+        
+        private void QueueRemoveSyncedObject(CyanEmuSyncedObjectHelper syncedObject)
+        {
+            shouldVerifySyncedObjectList_ = true;
+            toBeRemovedSync_.Enqueue(syncedObject);
+        }
+        
+        private void ProcessAddedAndRemovedSyncedObjects()
+        {
+            if (toBeAddedSync_.Count > 0)
+            {
+                foreach (var sync in toBeAddedSync_)
+                {
+                    if (sync == null)
+                    {
+                        shouldVerifySyncedObjectList_ = true;
+                        continue;
+                    }
+                    allSyncedObjects_.Add(sync);
+                }
+                toBeAddedSync_.Clear();
+            }
+            if (toBeRemovedSync_.Count > 0)
+            {
+                foreach (var udon in toBeRemovedSync_)
+                {
+                    if (udon == null)
+                    {
+                        shouldVerifySyncedObjectList_ = true;
+                        continue;
+                    }
+                    allSyncedObjects_.Remove(udon);
+                }
+                toBeRemovedSync_.Clear();
+            }
+
+            if (shouldVerifySyncedObjectList_)
+            {
+                HashSet<CyanEmuSyncedObjectHelper> allSyncs = new HashSet<CyanEmuSyncedObjectHelper>();
+                foreach (var sync in allSyncedObjects_)
+                {
+                    if (sync == null)
+                    {
+                        continue;
+                    }
+                    allSyncs.Add(sync);
+                }
+
+                allSyncedObjects_ = allSyncs;
+            }
         }
     }
 }

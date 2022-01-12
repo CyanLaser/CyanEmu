@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VRC.SDKBase;
 
@@ -24,20 +25,20 @@ namespace VRCPrefabs.CyanEmu
 
             playerIDs[player] = id;
             players[id] = player;
-            VRCPlayerApi.AllPlayers.Add(player);
+            player.AddToList();
 
             if (masterID == -1)
             {
                 player.Log("Player is now master");
                 masterID = id;
-                Debug.Assert(player.isMaster, "VRCP_PlayerManager:InitializePlayer Player should be considered master!");
+                Debug.Assert(player.isMaster, "CyanEmuPlayerManager:InitializePlayer Player should be considered master!");
             }
             else
             {
-                Debug.Assert(!player.isMaster, "VRCP_PlayerManager:InitializePlayer Player should not be considered master!");
+                Debug.Assert(!player.isMaster, "CyanEmuPlayerManager:InitializePlayer Player should not be considered master!");
             }
 
-            Debug.Assert(player.playerId == id, "VRCP_PlayerManager:InitializePlayer Player's id does not match assigned id!");
+            Debug.Assert(player.playerId == id, "CyanEmuPlayerManager:InitializePlayer Player's id does not match assigned id!");
 
             if (networkReady)
             {
@@ -73,18 +74,13 @@ namespace VRCPrefabs.CyanEmu
             {
                 localPlayerID = player.playerId;
             }
-            Debug.Assert(player.isLocal == local, "VRCP_PlayerManager:CreateNewPlayer New player does not match local settings!");
+            Debug.Assert(player.isLocal == local, "CyanEmuPlayerManager:CreateNewPlayer New player does not match local settings!");
 
             return player;
         }
 
         public static void RemovePlayer(VRCPlayerApi player)
         {
-            playerIDs.Remove(player);
-            players.Remove(player.playerId);
-
-            VRCPlayerApi.AllPlayers.Remove(player);
-            
             if (masterID == player.playerId)
             {
                 masterID = -1;
@@ -95,6 +91,10 @@ namespace VRCPrefabs.CyanEmu
             }
 
             CyanEmuMain.PlayerLeft(player);
+            
+            playerIDs.Remove(player);
+            players.Remove(player.playerId);
+            player.RemoveFromList();
         }
 
         public static int GetMasterID()
@@ -104,17 +104,24 @@ namespace VRCPrefabs.CyanEmu
 
         public static VRCPlayerApi LocalPlayer()
         {
-            return players[localPlayerID];
+            return GetPlayerByID(localPlayerID);
         }
 
         public static VRCPlayerApi GetPlayerByID(int playerID)
         {
-            return players[playerID];
+            players.TryGetValue(playerID, out VRCPlayerApi player);
+            return player;
         }
 
         public static int GetPlayerID(VRCPlayerApi player)
         {
-            return playerIDs[player];
+            if (player == null)
+            {
+                return -1;
+            }
+            
+            playerIDs.TryGetValue(player, out int playerId);
+            return playerId;
         }
 
         public static bool IsMaster(VRCPlayerApi player)
@@ -122,6 +129,16 @@ namespace VRCPrefabs.CyanEmu
             return GetPlayerID(player) == masterID;
         }
 
+        public static bool IsInstanceOwner(VRCPlayerApi player)
+        {
+            return CyanEmuSettings.Instance.isInstanceOwner;
+        }
+        
+        public static bool IsInstanceOwner()
+        {
+            return CyanEmuSettings.Instance.isInstanceOwner;
+        }
+        
         public static bool IsLocalPlayerMaster()
         {
             return localPlayerID == masterID;
@@ -129,40 +146,55 @@ namespace VRCPrefabs.CyanEmu
 
         public static void EnablePickups(VRCPlayerApi player, bool enabled)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.EnablePickups] EnablePickups for remote players will do nothing.");
+                return;
+            }
+            
             // TODO
         }
 
         public static void Immobilize(VRCPlayerApi player, bool immobilized)
         {
-            // TODO
+            if (!player.isLocal)
+            {
+                throw new Exception("[VRCPlayerAPI.Immobilize] You cannot set remote players Immobilized");
+            }
+            
+            player.GetPlayerController().Immobilize(immobilized);
         }
 
         public static void TeleportToOrientationLerp(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation, bool lerp)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.TeleportTo] Teleporting remote players will do nothing.");
+                return;
+            }
+            
             // Ignore lerp since there is no networking here
-            TeleportToOrientation(player, position, rotation, orientation);
+            player.GetPlayerController().Teleport(position, rotation, orientation == VRC_SceneDescriptor.SpawnOrientation.AlignRoomWithSpawnPoint);
         }
 
         public static void TeleportToOrientation(VRCPlayerApi player, Vector3 position, Quaternion rotation, VRC_SceneDescriptor.SpawnOrientation orientation)
         {
-            if (!player.isLocal)
-            {
-                return;
-            }
-            player.GetPlayerController().Teleport(position, rotation, orientation == VRC_SceneDescriptor.SpawnOrientation.AlignRoomWithSpawnPoint);
+            TeleportToOrientationLerp(player, position, rotation, VRC_SceneDescriptor.SpawnOrientation.Default, false);
         }
 
         public static void TeleportTo(VRCPlayerApi player, Vector3 position, Quaternion rotation)
         {
-            if (!player.isLocal)
-            {
-                return;
-            }
-            player.GetPlayerController().Teleport(position, rotation, false);
+            TeleportToOrientationLerp(player, position, rotation, VRC_SceneDescriptor.SpawnOrientation.Default, false);
         }
 
         public static void PlayHapticEventInHand(VRCPlayerApi player, VRC_Pickup.PickupHand hand, float f1, float f2, float f3)
         {
+            if (!player.isLocal)
+            {
+                player.LogWarning("[VRCPlayerAPI.PlayHapticEventInHand] PlayHapticEventInHand for remote players will do nothing.");
+                return;
+            }
+            
             // TODO
         }
 
@@ -220,7 +252,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetRunSpeed] You cannot get run speed for remote clients!");
             }
             return player.GetPlayerController().GetRunSpeed();
         }
@@ -229,16 +261,34 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetRunSpeed] You cannot set run speed for remote clients!");
             }
             player.GetPlayerController().SetRunSpeed(speed);
+        }
+
+        public static float GetStrafeSpeed(VRCPlayerApi player)
+        {
+            if (!player.isLocal)
+            {
+                throw new Exception("[VRCPlayerAPI.GetStrafeSpeed] You cannot get strafe speed for remote clients!");
+            }
+            return player.GetPlayerController().GetStrafeSpeed();
+        }
+
+        public static void SetStrafeSpeed(VRCPlayerApi player, float speed)
+        {
+            if (!player.isLocal)
+            {
+                throw new Exception("[VRCPlayerAPI.SetStrafeSpeed] You cannot set strafe speed for remote clients!");
+            }
+            player.GetPlayerController().SetStrafeSpeed(speed);
         }
 
         public static float GetWalkSpeed(VRCPlayerApi player)
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetWalkSpeed] You cannot get walk speed for remote clients!");
             }
             return player.GetPlayerController().GetWalkSpeed();
         }
@@ -247,7 +297,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetWalkSpeed] You cannot set walk speed for remote clients!");
             }
             player.GetPlayerController().SetWalkSpeed(speed);
         }
@@ -256,7 +306,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetJumpImpulse] You cannot get jump impulse for remote clients!");
             }
             return player.GetPlayerController().GetJump();
         }
@@ -265,7 +315,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetJumpImpulse] You cannot set jump impulse for remote clients!");
             }
             player.GetPlayerController().SetJump(jump);
         }
@@ -274,7 +324,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return 0;
+                throw new Exception("[VRCPlayerAPI.GetGravityStrength] You cannot get gravity strength for remote clients!");
             }
             return player.GetPlayerController().GetGravityStrength();
         }
@@ -283,7 +333,7 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return;
+                throw new Exception("[VRCPlayerAPI.SetGravityStrength] You cannot set gravity strength for remote clients!");
             }
             player.GetPlayerController().SetGravityStrength(gravity);
         }
@@ -320,7 +370,8 @@ namespace VRCPrefabs.CyanEmu
         {
             if (!player.isLocal)
             {
-                return false;
+                // TODO verify remote player values when not grounded.
+                return true;
             }
             return player.GetPlayerController().IsGrounded();
         }
@@ -352,12 +403,12 @@ namespace VRCPrefabs.CyanEmu
 
         public static Quaternion GetBoneRotation(VRCPlayerApi player, HumanBodyBones bone)
         {
-            return player.gameObject.transform.rotation;
+            return Quaternion.identity;
         }
 
         public static Vector3 GetBonePosition(VRCPlayerApi player, HumanBodyBones bone)
         {
-            return player.gameObject.transform.position;
+            return Vector3.zero;
         }
 
         public static Transform GetBoneTransform(VRCPlayerApi player, HumanBodyBones bone)
@@ -365,6 +416,8 @@ namespace VRCPrefabs.CyanEmu
             // TODO
             return null;
         }
+
+        #region Player Tags
 
         public static List<int> GetPlayersWithTag(string tagName, string tagValue)
         {
@@ -381,6 +434,7 @@ namespace VRCPrefabs.CyanEmu
 
         public static void ClearPlayerTag(VRCPlayerApi player)
         {
+            player.LogError("Clearing all player tags. VRCPlayerApi.ClearPlayerTags is a dangerous call, as it will clear all the tags and this might break prefabs that rely on them.");
             player.GetCyanEmuPlayer().ClearTags();
         }
 
@@ -426,6 +480,56 @@ namespace VRCPrefabs.CyanEmu
             // TODO?
         }
 
+        #endregion
+
+        #region Player Audio
+
+        public static void SetAvatarAudioVolumetricRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioNearRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioFarRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetAvatarAudioGain(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceLowpass(VRCPlayerApi player, bool value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceVolumetricRadius(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceDistanceFar(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceDistanceNear(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        public static void SetVoiceGain(VRCPlayerApi player, float value)
+        {
+            // TODO?
+        }
+
+        #endregion 
 
         /*
         TODO all the interfaces:

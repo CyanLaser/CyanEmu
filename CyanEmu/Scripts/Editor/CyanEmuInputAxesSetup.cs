@@ -76,6 +76,7 @@ namespace VRCPrefabs.CyanEmu
             serializedObject.ApplyModifiedProperties();
         }
 
+        //[MenuItem("Window/CyanEmu/Export InputMap", priority = 1010)]
         public static void ExportInputMap()
         {
             SerializedObject serializedObject = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/InputManager.asset")[0]);
@@ -88,7 +89,9 @@ namespace VRCPrefabs.CyanEmu
                 SerializedProperty inputAxisProperty = axesProp.GetArrayElementAtIndex(currentAxis);
                 SerializedProperty axisName = inputAxisProperty.FindPropertyRelative("m_Name");
 
-                if (!axisName.stringValue.StartsWith("Oculus_CrossPlatform"))
+                string axisNameString = axisName.stringValue;
+                if (!axisNameString.StartsWith("Oculus_CrossPlatform") && 
+                    !axisNameString.StartsWith("Joy"))
                 {
                     continue;
                 }

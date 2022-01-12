@@ -19,12 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Employer mandated disclaimer:
-
-I am providing code in the repository to you under an open source license.
-Because this is my personal repository, the license you receive to my code is
-from me and other individual contributors, and not my employer (Facebook).
- - CyanLaser

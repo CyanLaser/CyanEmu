@@ -12,11 +12,15 @@ namespace VRCPrefabs.CyanEmu
         private const string VERSION_FILE_PATH = "Assets/CyanEmu/version.txt";
         private const string GITHUB_URL = "https://github.com/CyanLaser/CyanEmu";
         private const string WIKI_URL = "https://github.com/CyanLaser/CyanEmu/wiki";
+        private const string DISCORD_URL = "https://discord.gg/TFgJKv66Zk";
+        private const string PATREON_URL = "https://www.patreon.com/CyanLaser";
+        private const string GITHUB_ISSUE_URL = "https://github.com/CyanLaser/CyanEmu/issues";
 
         // General content
         private readonly GUIContent generalFoldoutGuiContent = new GUIContent("General Settings", "");
         private readonly GUIContent enableToggleGuiContent = new GUIContent("Enable CyanEmu", "If enabled, all triggers will function simlarly to VRChat. Note that behavior may be different than the actual game!");
         private readonly GUIContent displayLogsToggleGuiContent = new GUIContent("Enable Console Logging", "Enabling logging will print messages to the console when certain events happen. Examples include trigger execution, pickup grabbed, station entered, etc.");
+        private readonly GUIContent deleteEditorOnlyToggleGuiContent = new GUIContent("Remove \"EditorOnly\"", "Enabling this setting will ensure that all objects with the tag \"EditorOnly\" are deleted when in playmode. This can be helpful in finding objects that will not be uploaded with your world. Enable console logging to see which objects are deleted.");
 
         // Player Controller content
         private readonly GUIContent playerControllerFoldoutGuiContent = new GUIContent("Player Controller Settings", "");
@@ -24,26 +28,31 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent playerControllerRunKeyGuiContent = new GUIContent("Run Key", "The button used to run. Running will make the player move faster.");
         private readonly GUIContent playerControllerCrouchKeyGuiContent = new GUIContent("Crouch Key", "The button used to crouch. Crouching will lower the camera midway to the floor and slow down the player.");
         private readonly GUIContent playerControllerProneKeyGuiContent = new GUIContent("Prone Key", "The button used to go prone. Going prone will lower the camera closer to the floor and slow down the player.");
-        private readonly GUIContent playerControllerCustomName = new GUIContent("Player Name", "Set a custom name for testing udon script name detection");
-        private readonly GUIContent playerControllerScale = new GUIContent("Player Scale", "Set a custom scale for the player, 1 is default higher is bigger and lower is smaller (Range 0.001 - 100)");
 
+#if VRC_SDK_VRCSDK2
         // Buffered Trigger content
         private readonly GUIContent bufferedTriggerFoldoutGuiContent = new GUIContent("Buffered Trigger Settings", "");
         private readonly GUIContent replayBufferedTriggerToggleGuiContent = new GUIContent("Replay Buffered Triggers", "If enabled, buffered triggers for this scene will be replayed at the start before all other triggers.");
+#endif
         
-        //
-        private readonly GUIContent playerButtonsFoldoutGuiContent = new GUIContent("Add or Remove Players", "");
-
+        // Player settings
+        private readonly GUIContent playerButtonsFoldoutGuiContent = new GUIContent("Player Settings", "");
+        private readonly GUIContent localPlayerCustomNameGuiContent = new GUIContent("Local Player Name", "Set a custom name for the local player. Useful for testing udon script name detection");
+        private readonly GUIContent isInstanceOwnerGuiContent = new GUIContent("Is Instance Owner", "Set whether the local player is considered the instance owner");
+        private readonly GUIContent remotePlayerCustomNameGuiContent = new GUIContent("Remote Player Name", "Set a custom name for the next spawned remote player. Useful for testing udon script name detection");
+        private readonly GUIContent showDesktopReticleGuiContent = new GUIContent("Show Desktop Reticle", "Show or hide the center Desktop reticle image.");
+        private readonly GUIContent playerControllerGuiScale = new GUIContent("Player Scale", "Set a custom scale for the player, 1 is default higher is bigger and lower is smaller (Range 0.001 - 100)");
 
 
         private static CyanEmuSettings settings_;
         private Vector2 scrollPosition_;
         private GUIStyle boxStyle_;
         private bool showGeneralSettings_ = true;
-        private bool showPlayerControllerSettings_;
-        private bool showBufferedTriggerSettings_;
-        private bool showTriggerEventButtons_;
-        private bool showPlayerButtons_;
+        private bool showPlayerControllerSettings_ = true;
+#if VRC_SDK_VRCSDK2
+        private bool showBufferedTriggerSettings_ = true;
+#endif
+        private bool showPlayerButtons_ = true;
 
         private string version_;
         private string remotePlayerCustomName = "";
@@ -57,7 +66,7 @@ namespace VRCPrefabs.CyanEmu
             }
         }
 
-        [MenuItem("Window/CyanEmu/CyanEmu Settings")]
+        [MenuItem("Window/CyanEmu/CyanEmu Settings", priority = 1010)]
         static void Init()
         {
             CyanEmuSettingsWindow window = (CyanEmuSettingsWindow)EditorWindow.GetWindow(typeof(CyanEmuSettingsWindow), false, "CyanEmu Settings");
@@ -82,6 +91,9 @@ namespace VRCPrefabs.CyanEmu
 
         void OnGUI()
         {
+            float tempLabelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 175;
+            
             boxStyle_ = new GUIStyle(EditorStyles.helpBox);
             scrollPosition_ = EditorGUILayout.BeginScrollView(scrollPosition_);
 
@@ -94,9 +106,9 @@ namespace VRCPrefabs.CyanEmu
 
             DrawPlayerControllerSettings();
             
-            DrawBufferedTriggerSettings();
-
             DrawPlayerButtons();
+            
+            DrawBufferedTriggerSettings();
 
             // Disable group from General settings
             EditorGUI.EndDisabledGroup();
@@ -108,6 +120,7 @@ namespace VRCPrefabs.CyanEmu
             {
                 CyanEmuSettings.SaveSettings(settings_);
             }
+            EditorGUIUtility.labelWidth = tempLabelWidth;
         }
 
         private void DrawHeader()
@@ -140,32 +153,66 @@ namespace VRCPrefabs.CyanEmu
 
         private void DrawLinks()
         {
+            float width = EditorGUIUtility.currentViewWidth;
+            float buttonWidth = Mathf.Max((width - 45) * 0.5f, 100);
+            
             EditorGUILayout.BeginHorizontal();
             
             GUILayout.Space(10);
-            if (GUILayout.Button("Documentation", GUILayout.ExpandWidth(true)))
+            if (GUILayout.Button("Documentation", GUILayout.Width(buttonWidth)))
             {
                 Application.OpenURL(WIKI_URL);
             }
 
             GUILayout.Space(5);
 
-            if (GUILayout.Button("Github Repo", GUILayout.ExpandWidth(true)))
+            if (GUILayout.Button("Github Repo", GUILayout.Width(buttonWidth)))
             {
                 Application.OpenURL(GITHUB_URL);
             }
-            GUILayout.Space(10);
 
             EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            
+            GUILayout.Space(10);
+            if (GUILayout.Button("Discord", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(DISCORD_URL);
+            }
+
+            GUILayout.Space(5);
+
+            if (GUILayout.Button("Patreon", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(PATREON_URL);
+            }
+
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            
+            GUILayout.Space(10);
+            if (GUILayout.Button("Report Bug", GUILayout.Width(buttonWidth)))
+            {
+                Application.OpenURL(GITHUB_ISSUE_URL);
+            }
+
+            GUILayout.Space(5 + buttonWidth);
+
+            EditorGUILayout.EndHorizontal();
+            
         }
 
         private void DrawGeneralSettings()
         {
             EditorGUILayout.BeginVertical(boxStyle_);
-            showGeneralSettings_ = EditorGUILayout.Foldout(showGeneralSettings_, generalFoldoutGuiContent);
+            showGeneralSettings_ = EditorGUILayout.Foldout(showGeneralSettings_, generalFoldoutGuiContent, true);
 
             if (showGeneralSettings_)
             {
+                AddIndent();
+                
                 if (settings_.enableCyanEmu && FindObjectOfType<VRC_SceneDescriptor>() == null)
                 {
                     EditorGUILayout.HelpBox("No VRC_SceneDescriptor in scene. Please add one to enable CyanEmu.", MessageType.Warning);
@@ -180,6 +227,10 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.BeginDisabledGroup(!settings_.enableCyanEmu);
 
                 settings_.displayLogs = EditorGUILayout.Toggle(displayLogsToggleGuiContent, settings_.displayLogs);
+
+                settings_.deleteEditorOnly = EditorGUILayout.Toggle(deleteEditorOnlyToggleGuiContent, settings_.deleteEditorOnly);
+                
+                RemoveIndent();
             }
 
             EditorGUILayout.EndVertical();
@@ -189,7 +240,7 @@ namespace VRCPrefabs.CyanEmu
         {
             EditorGUILayout.BeginVertical(boxStyle_);
 
-            showPlayerControllerSettings_ = EditorGUILayout.Foldout(showPlayerControllerSettings_, playerControllerFoldoutGuiContent);
+            showPlayerControllerSettings_ = EditorGUILayout.Foldout(showPlayerControllerSettings_, playerControllerFoldoutGuiContent, true);
             if (showPlayerControllerSettings_)
             {
                 AddIndent();
@@ -197,16 +248,14 @@ namespace VRCPrefabs.CyanEmu
                 settings_.spawnPlayer = EditorGUILayout.Toggle(playerControllerToggleGuiContent, settings_.spawnPlayer);
 
                 EditorGUI.BeginDisabledGroup(!settings_.spawnPlayer);
+                
+                settings_.showDesktopReticle = EditorGUILayout.Toggle(showDesktopReticleGuiContent, settings_.showDesktopReticle);
 
                 // key bindings
                 settings_.runKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerRunKeyGuiContent, settings_.runKey);
                 settings_.crouchKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerCrouchKeyGuiContent, settings_.crouchKey);
                 settings_.proneKey = (KeyCode)EditorGUILayout.EnumPopup(playerControllerProneKeyGuiContent, settings_.proneKey);
                 
-                // custom name
-                settings_.customLocalPlayerName = EditorGUILayout.TextField(playerControllerCustomName, settings_.customLocalPlayerName);
-                settings_.localPlayerScale = Mathf.Clamp(EditorGUILayout.FloatField(playerControllerScale, settings_.localPlayerScale), 0.001f, 100f);
-
                 EditorGUI.EndDisabledGroup();
 
                 RemoveIndent();
@@ -220,7 +269,7 @@ namespace VRCPrefabs.CyanEmu
             // TODO convert to enable for Udon and general syncable objects
 #if VRC_SDK_VRCSDK2
             EditorGUILayout.BeginVertical(boxStyle_);
-            showBufferedTriggerSettings_ = EditorGUILayout.Foldout(showBufferedTriggerSettings_, bufferedTriggerFoldoutGuiContent);
+            showBufferedTriggerSettings_ = EditorGUILayout.Foldout(showBufferedTriggerSettings_, bufferedTriggerFoldoutGuiContent, true);
             if (showBufferedTriggerSettings_)
             {
                 AddIndent();
@@ -254,13 +303,22 @@ namespace VRCPrefabs.CyanEmu
         private void DrawPlayerButtons()
         {
             EditorGUILayout.BeginVertical(boxStyle_);
-            showPlayerButtons_ = EditorGUILayout.Foldout(showPlayerButtons_, playerButtonsFoldoutGuiContent);
+            showPlayerButtons_ = EditorGUILayout.Foldout(showPlayerButtons_, playerButtonsFoldoutGuiContent, true);
             if (showPlayerButtons_)
             {
                 AddIndent();
+                
+                // custom name
+                settings_.customLocalPlayerName = EditorGUILayout.TextField(localPlayerCustomNameGuiContent, settings_.customLocalPlayerName);
+
+                settings_.localPlayerScale = Mathf.Clamp(EditorGUILayout.FloatField(playerControllerScale, settings_.localPlayerScale), 0.001f, 100f);
+                
+                settings_.isInstanceOwner = EditorGUILayout.Toggle(isInstanceOwnerGuiContent, settings_.isInstanceOwner);
+                
+                // TODO have setting for spawning players in the room before you
 
                 EditorGUI.BeginDisabledGroup(!CyanEmuMain.HasInstance() || !Application.isPlaying);
-
+                
                 /*
                 EditorGUI.BeginDisabledGroup(CyanEmuPlayerController.instance != null);
 
@@ -272,7 +330,7 @@ namespace VRCPrefabs.CyanEmu
                 EditorGUI.EndDisabledGroup();
                 */
 
-                remotePlayerCustomName = EditorGUILayout.TextField(playerControllerCustomName, remotePlayerCustomName);
+                remotePlayerCustomName = EditorGUILayout.TextField(remotePlayerCustomNameGuiContent, remotePlayerCustomName);
 
                 if (GUILayout.Button("Spawn Remote Player"))
                 {

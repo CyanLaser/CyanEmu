@@ -1,5 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using VRC.SDKBase;
+
+#if UDON
+using VRC.Udon;
+using VRC.Udon.Common;
+#endif
 
 namespace VRCPrefabs.CyanEmu
 {
@@ -29,19 +35,27 @@ namespace VRCPrefabs.CyanEmu
         {
             get
             {
-                return station_.PlayerMobility == VRCStation.Mobility.Mobile;
+                return 
+                    station_.PlayerMobility == VRCStation.Mobility.Mobile &&
+                    !station_.seated;
             }
         }
 
         public static void InitializeStations(VRCStation station)
         {
-            if (station.gameObject.GetComponent<CyanEmuStationHelper>())
+            CyanEmuStationHelper prevHelper = station.gameObject.GetComponent<CyanEmuStationHelper>();
+            if (prevHelper != null)
             {
-                station.LogWarning("Multiple VRCStation components on the same gameobject! " + VRC.Tools.GetGameObjectPath(station.gameObject));
-                return;
+                DestroyImmediate(prevHelper);
+                station.LogWarning("Destroying old station helper on object: " + VRC.Tools.GetGameObjectPath(station.gameObject));
             }
 
             station.gameObject.AddComponent<CyanEmuStationHelper>();
+
+            if (!station.seated && station.PlayerMobility != VRCStation.Mobility.Mobile)
+            {
+                station.LogWarning("Station has seated unchecked but is not mobile! " + VRC.Tools.GetGameObjectPath(station.gameObject));
+            }
         }
 
         public static void UseStation(VRCStation station, VRCPlayerApi player)
@@ -58,11 +72,7 @@ namespace VRCPrefabs.CyanEmu
         {
             station_ = GetComponent<VRCStation>();
 
-            Collider collider = GetComponent<Collider>();
-            if (collider == null)
-            {
-                gameObject.AddComponent<BoxCollider>().isTrigger = true;
-            }
+            CheckForMissingComponents();
 
             if (station_.stationEnterPlayerLocation == null)
             {
@@ -72,6 +82,67 @@ namespace VRCPrefabs.CyanEmu
             {
                 station_.stationExitPlayerLocation = transform;
             }
+        }
+
+        private void CheckForMissingComponents()
+        {
+            Collider stationCollider = GetComponent<Collider>();
+            if (stationCollider == null)
+            {
+                gameObject.AddComponent<BoxCollider>().isTrigger = true;
+            }
+
+#if UDON && UNITY_EDITOR
+            UdonBehaviour udon = GetComponent<UdonBehaviour>();
+            if (udon == null)
+            {
+                udon = gameObject.AddComponent<UdonBehaviour>();
+                udon.interactText = "Sit";
+                AbstractUdonProgramSource program = UnityEditor.AssetDatabase.LoadAssetAtPath<AbstractUdonProgramSource>("Assets/VRChat Examples/Prefabs/VRCChair/StationGraph.asset");
+                if (program != null)
+                {
+                    udon.AssignProgramAndVariables(program.SerializedProgramAsset, new UdonVariableTable());
+                }
+            }
+#endif
+
+#if VRC_SDK_VRCSDK2
+            // Auto add a Interact Trigger to use the station
+            VRC_Trigger trigger = GetComponent<VRC_Trigger>();
+            if (trigger == null)
+            {
+                trigger = gameObject.AddComponent<VRCSDK2.VRC_Trigger>();
+                trigger.Triggers = new List<VRC_Trigger.TriggerEvent>();
+                trigger.interactText = "Sit";
+
+                VRC_Trigger.TriggerEvent onInteract = new VRC_Trigger.TriggerEvent
+                {
+                    BroadcastType = VRC_EventHandler.VrcBroadcastType.Local,
+                    TriggerType = VRC_Trigger.TriggerType.OnInteract,
+                    Events = new List<VRC_EventHandler.VrcEvent>()
+                };
+
+                VRC_EventHandler.VrcEvent useStationEvent = new VRC_EventHandler.VrcEvent
+                {
+                    EventType = VRC_EventHandler.VrcEventType.SendRPC,
+                    ParameterString = "UseStation",
+                    ParameterObjects = new[] {gameObject},
+                    ParameterInt = 6,
+                };
+                
+                onInteract.Events.Add(useStationEvent);
+                trigger.Triggers.Add(onInteract);
+
+                // Reinitialize the trigger now that it has the proper events added.
+                // Note that this only works as there were no vrc triggers on this object before.
+                CyanEmuTriggerHelper helper = GetComponent<CyanEmuTriggerHelper>();
+                if (helper != null)
+                {
+                    DestroyImmediate(helper);
+                }
+                CyanEmuTriggerHelper.InitializeTrigger(trigger);
+            }
+#endif
         }
 
         public void UseStation()
@@ -113,17 +184,28 @@ namespace VRCPrefabs.CyanEmu
         // Returns if should move
         public bool CanPlayerMoveWhileSeated(float speed)
         {
-            if (IsMobile)
-            {
-                return true;
-            }
-
             if (Mathf.Abs(speed) >= 0.1f && !station_.disableStationExit)
             {
                 ExitStation();
                 return true;
             }
+
+            if (IsMobile)
+            {
+                return true;
+            }
+
             return false;
+        }
+
+        public void UpdatePlayerPosition(CyanEmuPlayerController player)
+        {
+            if (IsMobile)
+            {
+                return;
+            }
+
+            player.SitPosition(EnterLocation);
         }
 
         public void OnStationEnter(VRCStation station)

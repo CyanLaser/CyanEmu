@@ -22,7 +22,6 @@ namespace VRCPrefabs.CyanEmu
 
         private CyanEmuSettings settings_;
         private CyanEmuPlayerController playerController_;
-        private VRC_SceneDescriptor descriptor_;
         private CyanEmuBufferManager bufferManager_;
 
         private bool networkReady_;
@@ -53,7 +52,6 @@ namespace VRCPrefabs.CyanEmu
             instance_ = this;
 
             settings_ = CyanEmuSettings.Instance;
-            descriptor_ = FindObjectOfType<VRC_SceneDescriptor>();
 
             bufferManager_ = new CyanEmuBufferManager();
 
@@ -126,6 +124,12 @@ namespace VRCPrefabs.CyanEmu
             
             foreach (VRC_Trigger.TriggerEvent evt in deferredTriggers_)
             {
+                // Prevent deleted triggers from throwing errors.
+                if (GetTriggerForEvent(evt) == null)
+                {
+                    continue;
+                }
+
                 ExecuteTrigger(evt);
             }
             deferredTriggers_.Clear();
@@ -146,6 +150,8 @@ namespace VRCPrefabs.CyanEmu
             FireTriggerTypeInternal(VRC_Trigger.TriggerType.OnPlayerLeft);
         }
 
+        public void OnPlayerRespawn(VRCPlayerApi player) { } // SDK2 does not support this method
+
         public void OnSpawnedObject(GameObject spawnedObject)
         {
             VRC_Trigger[] triggers = spawnedObject.GetComponentsInChildren<VRC_Trigger>();
@@ -161,7 +167,7 @@ namespace VRCPrefabs.CyanEmu
         {
             foreach (VRC_Trigger trigger in allTriggers_)
             {
-                if (trigger == null || !trigger.gameObject.activeInHierarchy || !trigger.enabled)
+                if (trigger == null || trigger.gameObject == null || !trigger.gameObject.activeInHierarchy || !trigger.enabled)
                 {
                     continue;
                 }
@@ -254,6 +260,11 @@ namespace VRCPrefabs.CyanEmu
 
         public static void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
         {
+            if (instance_ == null)
+            {
+                return;
+            }
+            
             if (!instance_.networkReady_)
             {
                 instance_.deferredTriggers_.Add(trigger);
@@ -481,7 +492,7 @@ namespace VRCPrefabs.CyanEmu
                 AudioSource[] audioSources = obj.GetComponents<AudioSource>();
                 foreach (var source in audioSources)
                 {
-                    if (source.clip.name == triggerEvent.ParameterString)
+                    if (string.IsNullOrEmpty(triggerEvent.ParameterString) || source.clip.name == triggerEvent.ParameterString)
                     {
                         source.Play();
                     }

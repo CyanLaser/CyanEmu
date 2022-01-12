@@ -33,16 +33,15 @@ namespace VRCPrefabs.CyanEmu
         {
             CyanEmuTriggerHelper helper = trigger.gameObject.AddComponent<CyanEmuTriggerHelper>();
             helper.SetTrigger(trigger as VRC_Trigger);
-
-            if (trigger.ExecuteTrigger == null)
-            {
-                trigger.ExecuteTrigger = new Action<VRC_Trigger.TriggerEvent>(helper.ExecuteTrigger);
-            }
+            trigger.ExecuteTrigger = helper.ExecuteTrigger;
         }
 
         public void ExecuteTrigger(VRC_Trigger.TriggerEvent trigger)
         {
-            if (!gameObject.activeInHierarchy || !Trigger.enabled) {
+            if (
+                (!gameObject.activeInHierarchy || !Trigger.enabled) && 
+                trigger.TriggerType != VRC.SDKBase.VRC_Trigger.TriggerType.OnDisable
+            ) {
                 return;
             }
 

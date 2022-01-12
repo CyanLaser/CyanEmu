@@ -18,6 +18,7 @@ namespace VRCPrefabs.CyanEmu
     }
 
     [AddComponentMenu("")]
+    [SelectionBase]
     public class CyanEmuPlayer : MonoBehaviour
     {
         public VRCPlayerApi player;
@@ -42,7 +43,7 @@ namespace VRCPrefabs.CyanEmu
 
         public void SetTag(string tagName, string tagValue)
         {
-            tags.Add(tagName, tagValue);
+            tags[tagName] = tagValue;
         }
 
         public string GetTag(string tagName)

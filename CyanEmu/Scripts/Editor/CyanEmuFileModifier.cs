@@ -17,9 +17,14 @@ namespace VRCPrefabs.CyanEmu
         static readonly char[] WHITE_SPACE = { ' ' };
 
 
-        [MenuItem("Window/CyanEmu/Apply SDK Modifications")]
+        [MenuItem("Window/CyanEmu/Apply SDK Modifications", priority = 1020)]
         public static void PerformModifications()
         {
+            if (!EditorUtility.DisplayDialog("Apply SDK Modifications", "Would you like to modify the VRCSDK to include scrollbars for the build panel and an \"Execute\" button on VRC_Triggers?", "Modify SDK", "Cancel"))
+            {
+                return;
+            }
+
             FileInfo modificationsFile = new FileInfo(MODIFICATIONS_FILE_PATH);
             if (!modificationsFile.Exists)
             {
@@ -39,13 +44,16 @@ namespace VRCPrefabs.CyanEmu
                         Debug.Log("Attempting to modify " + filename);
 
                         FileInfo file = GetFile(filename);
+                        bool performOperations = true;
                         if (file == null || !file.Exists)
                         {
-                            Debug.LogError("File to modify does not exist! " + filename);
-                            continue;
+                            Debug.LogWarning("File to modify does not exist! " + filename);
+                            performOperations = false;
                         }
 
-                        string fileContents = File.ReadAllText(file.FullName).Replace("\r\n", "\n");
+                        string fileContents = performOperations 
+                            ? File.ReadAllText(file.FullName).Replace("\r\n", "\n") 
+                            : "";
 
                         int numOperations = int.Parse(reader.ReadLine());
 
@@ -76,6 +84,11 @@ namespace VRCPrefabs.CyanEmu
                                     replace += "\n" + reader.ReadLine();
                                 }
 
+                                if (!performOperations)
+                                {
+                                    continue;
+                                }
+                                
                                 if (fileContents.Contains(replace))
                                 {
                                     Debug.LogWarning("File [" + filename + "] already contains added lines. Skipping");
@@ -85,7 +98,7 @@ namespace VRCPrefabs.CyanEmu
                                 int index = fileContents.IndexOf(searchLines);
                                 if (fileContents.IndexOf(searchLines, index + 1) != -1)
                                 {
-                                    Debug.LogWarning("File [" + filename + "] contains multilpe copies of the lines to replace. Skipping");
+                                    Debug.LogWarning("File [" + filename + "] contains multiple copies of the lines to replace. Skipping");
                                     continue;
                                 }
 
@@ -104,6 +117,11 @@ namespace VRCPrefabs.CyanEmu
                                         searchLines += "\n";
                                     }
                                     searchLines += reader.ReadLine();
+                                }
+                                
+                                if (!performOperations)
+                                {
+                                    continue;
                                 }
 
                                 if (!fileContents.Contains(searchLines))
@@ -128,6 +146,11 @@ namespace VRCPrefabs.CyanEmu
                             }
                         }
 
+                        if (!performOperations)
+                        {
+                            continue;
+                        }
+                        
                         File.WriteAllText(file.FullName, fileContents);
                     }
                     AssetDatabase.Refresh();
@@ -143,8 +166,12 @@ namespace VRCPrefabs.CyanEmu
         {
             DirectoryInfo sdkDir = new DirectoryInfo(VRCSDK_PATH);
             FileInfo[] fileInfos = sdkDir.GetFiles(filename, SearchOption.AllDirectories);
-            Debug.Assert(fileInfos.Length == 1);
-            return fileInfos[0];
+
+            if (fileInfos.Length > 0)
+            {
+                return fileInfos[0];
+            }
+            return null;
         }
     }
 }
