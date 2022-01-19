@@ -18,7 +18,7 @@ CyanEmu is a VRChat client emulator that enables you to test your VRChat worlds 
 
 ### Requirements
 
-- Unity 2018.4.20f1
+- Unity 2019.4.31f1
 - VRChat World [SDK2 or SDK3](https://vrchat.com/home/download)
 - The latest [release](https://github.com/CyanLaser/CyanEmu/releases/latest) of CyanEmu
 
@@ -45,6 +45,6 @@ Check out the wiki for how to use additional features of CyanEmu.
 
 ## Copyright
 
-Copyright (c) 2020 CyanLaser
+Copyright (c) 2020-2022 CyanLaser
 
 Licensed under the [MIT license](LICENSE.md).
