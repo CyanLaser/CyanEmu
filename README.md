@@ -1,3 +1,7 @@
+# CyanEmu is being replaced by ClientSim: https://github.com/vrchat-community/ClientSim
+
+CyanEmu will no longer receive any updates or bug fixes. CyanEmu is currently the only way to test SDK2 worlds in editor. This repository will remain open until VRChat deprecates SDK2. At that point, this repo will be archived.
+
 # CyanEmu
 ## A VRChat client emulator in Unity for SDK2 and SDK3.
 
