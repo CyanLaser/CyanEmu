@@ -41,6 +41,7 @@ namespace VRCPrefabs.CyanEmu
         private readonly GUIContent isInstanceOwnerGuiContent = new GUIContent("Is Instance Owner", "Set whether the local player is considered the instance owner");
         private readonly GUIContent remotePlayerCustomNameGuiContent = new GUIContent("Remote Player Name", "Set a custom name for the next spawned remote player. Useful for testing udon script name detection");
         private readonly GUIContent showDesktopReticleGuiContent = new GUIContent("Show Desktop Reticle", "Show or hide the center Desktop reticle image.");
+        private readonly GUIContent playerControllerGuiScale = new GUIContent("Player Scale", "Set a custom scale for the player, 1 is default higher is bigger and lower is smaller (Range 0.001 - 100)");
 
 
         private static CyanEmuSettings settings_;
@@ -309,6 +310,8 @@ namespace VRCPrefabs.CyanEmu
                 
                 // custom name
                 settings_.customLocalPlayerName = EditorGUILayout.TextField(localPlayerCustomNameGuiContent, settings_.customLocalPlayerName);
+
+                settings_.localPlayerScale = Mathf.Clamp(EditorGUILayout.FloatField(playerControllerScale, settings_.localPlayerScale), 0.001f, 100f);
                 
                 settings_.isInstanceOwner = EditorGUILayout.Toggle(isInstanceOwnerGuiContent, settings_.isInstanceOwner);
                 

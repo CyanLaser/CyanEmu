@@ -50,9 +50,12 @@ namespace VRCPrefabs.CyanEmu
 
         private readonly KeyCode MenuKey = KeyCode.Escape;
 
-        
+        private Vector3 capsuleSize_ = new Vector3(0.4f, 1, 0.4f);
+        private float currentScale_ = 1f;
+
         private GameObject playspace_;
         private GameObject playerCamera_;
+        private GameObject capsule_;
         private GameObject rightArmPosition_;
         private GameObject leftArmPosition_;
         private Rigidbody rightArmRigidbody_;
@@ -96,6 +99,8 @@ namespace VRCPrefabs.CyanEmu
 
         private Texture2D reticleTexture_;
 
+        private static CyanEmuSettings settings_;
+        
         // Used for determining pickup throw
         private Vector3 prevousHandPosition_;
         private Vector3 prevousHandRotation_;
@@ -141,7 +146,7 @@ namespace VRCPrefabs.CyanEmu
 
 
             GameObject capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.transform.localScale = new Vector3(0.4f, 1, 0.4f);
+            capsule_.transform.localScale = capsuleSize_;
             capsule.transform.SetParent(transform, false);
             capsule.transform.localPosition = new Vector3(0, 1, 0);
             capsule.layer = LayerMask.NameToLayer("MirrorReflection");
@@ -208,6 +213,7 @@ namespace VRCPrefabs.CyanEmu
 
         private void Start()
         {
+            settings_ = CyanEmuSettings.Instance;
             Camera refCamera = null;
             if (descriptor_.ReferenceCamera != null)
             {
@@ -914,11 +920,14 @@ namespace VRCPrefabs.CyanEmu
             }
             
 
-            if (updateStancePosition_)
+            if (updateStancePosition_ || (settings_.localPlayerScale != currentScale_))
             {
+                currentScale_ = settings_.localPlayerScale;
                 Vector3 cameraPosition = playerCamera_.transform.localPosition;
-                cameraPosition.y = (stance_ == Stance.STANDING ? STANDING_HEIGHT_ : stance_ == Stance.CROUCHING ? CROUCHING_HEIGHT_ : stance_ == Stance.PRONE ? PRONE_HEIGHT_ : SITTING_HEIGHT_);
+                cameraPosition.y = (stance_ == Stance.STANDING ? (STANDING_HEIGHT_ * settings_.localPlayerScale) : stance_ == Stance.CROUCHING ? (CROUCHING_HEIGHT_ * settings_.localPlayerScale) : stance_ == Stance.PRONE ? (PRONE_HEIGHT_ * settings_.localPlayerScale) : SITTING_HEIGHT_);
                 playerCamera_.transform.localPosition = cameraPosition;
+                capsule_.transform.localScale = capsuleSize_ * settings_.localPlayerScale;
+                capsule_.transform.localPosition = new Vector3(0, settings_.localPlayerScale, 0);
             }
 
             updateStancePosition_ = false;
